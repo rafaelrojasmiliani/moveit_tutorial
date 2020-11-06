@@ -4,7 +4,7 @@ myuid=$(id -u $USER)
 mygid=$(id -g $USER)
 mygroup=$(id -g -n $USER)
 
-docker build -t "rosigniteimage" \
+docker build -t "moveit_docker" \
     --build-arg myuser="$USER" \
     --build-arg myuid="$myuid" \
     --build-arg mygroup="$mygroup" \
