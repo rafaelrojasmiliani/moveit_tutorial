@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(01_robot_model_example_01)
+project(a_robot_model_example_01)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -105,7 +105,7 @@ find_package(Eigen3 REQUIRED)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES 01_robot_model_example_01
+#  LIBRARIES a_robot_model_example_01
 #  CATKIN_DEPENDS moveit_core moveit_ros_planning_interface roscpp
 #  DEPENDS Eigen3
 )
@@ -125,7 +125,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/01_robot_model_example_01.cpp
+#   src/${PROJECT_NAME}/a_robot_model_example_01.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -136,7 +136,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME}_node src/01_robot_model_example_01_node.cpp)
+add_executable(${PROJECT_NAME}_node src/a_robot_model_example_01_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -150,8 +150,8 @@ add_executable(${PROJECT_NAME}_node src/01_robot_model_example_01_node.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_node
-  ${catkin_LIBRARIES}
-  ${Eigen3_LIBRARIES}
+   ${catkin_LIBRARIES}
+   ${Eigen3_LIBRARIES}
 )
 
 #############
@@ -201,7 +201,7 @@ target_link_libraries(${PROJECT_NAME}_node
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_01_robot_model_example_01.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_a_robot_model_example_01.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
