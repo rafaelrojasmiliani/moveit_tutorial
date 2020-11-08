@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+  <group ns="workspace_description">
+    <param name="robot_description" command="$(find xacro)/xacro $(find workspace_description)/urdf/robot.xacro"/>
+    <node name="joint_publisher" pkg="joint_state_publisher"  type="joint_state_publisher" output="screen"/>
+    <node name="robot_state_publisher" pkg="robot_state_publisher"  type="robot_state_publisher" output="screen"/>
+  </group>
+  <node name="rviz" pkg="rviz"  type="rviz" args="-d $(find workspace_description)/config/rvizconfig.rviz"/>
+</launch>

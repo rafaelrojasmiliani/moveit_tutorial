@@ -11,3 +11,8 @@ The order of the exercises are aligned with my way of thinking.
 | Robot model, state and kinematics | `robot_model::RobotModel` | |
 | Motion planning problem defintion and solver interface | `planning_pipeline::PlanningPipelie` | `PlanningContext`, `PlannerManager`, `PlanningRequestAdapter`,`PlanningRequestAdapterChain` |
 | Motion control | `TrajectoryExecutionManager` | `moveit_controller_manager::MoveItControllerManager` and its derivaties as `MoveItSimpleControllerManager` |
+
+
+# Robot Semantic Description
+
+
