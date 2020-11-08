@@ -77,3 +77,36 @@ The name of the robot defined in the URDF is `myrobot`.
 - `warehouse.launch`
     - `warehouse_settings.launch.xml`
 - `warehouse_settings.launch.xml`
+
+## Configuration files
+
+- `chomp_planning.yaml`
+- `fake_controllers.yaml`
+- `joint_limits.yaml`
+- `kinematics.yaml`
+- `myrobot.srdf`
+- `ompl_planning.yaml`
+- `ros_controllers.yaml`
+- `sensors_3d.yaml`
+
+## The semantic robot description
+
+This is a simple semantic robot description file
+```
+<robot name="myrobot">
+    <group name="myrobotplanninggroup">
+        <chain base_link="base_link" tip_link="tool0" />
+    </group>
+    <group_state name="default" group="myrobotplanninggroup">
+        <joint name="elbow_joint" value="0" />
+        <joint name="shoulder_lift_joint" value="0" />
+        <joint name="shoulder_pan_joint" value="0" />
+        <joint name="wrist_1_joint" value="0" />
+        <joint name="wrist_2_joint" value="0" />
+        <joint name="wrist_3_joint" value="0" />
+    </group_state>
+    <virtual_joint name="joint_move_it_urdf_word" type="fixed" parent_frame="move_it_parent_frame" child_link="world" />
+    <disable_collisions link1="base_link" link2="shoulder_link" reason="Adjacent" />
+    <disable_collisions link1="base_link" link2="upper_arm_link" reason="Never" />
+</robot>
+```
