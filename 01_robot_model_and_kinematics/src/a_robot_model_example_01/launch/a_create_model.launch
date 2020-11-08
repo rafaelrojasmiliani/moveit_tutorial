@@ -1,0 +1,5 @@
+<launch>
+    <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find workspace_description)/urdf/robot.xacro'"/>
+    <param name="robot_description_semantic" command="cat $(find myrobot_config_package)/config/myrobot.srdf"/>
+    <node name="moveit_robot_model" pkg="a_robot_model_example_01" type="a_robot_model_example_01_node"/>
+</launch>
