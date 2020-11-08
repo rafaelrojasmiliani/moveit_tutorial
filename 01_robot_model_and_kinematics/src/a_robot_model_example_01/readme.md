@@ -1,5 +1,11 @@
 # Robot Model, Robot State, Robot Model Loader and Robot Inverce and Direct Kinematics
 
+The moveit robot model `moveit::core::RobotModel` is basically a kinematic loader. 
+In order to instantiate a `moveit::core::RobotModel` we required some parameters that provide ulterior information about the robot that is not provided by URDF. 
+In fact, URDF is not intended to provide some information that is necessary for motion planning.
+The extra information required by moveit is contained in semantic robot description files SRDF.
+The SRDF and ulterior information can be generated using the moveit setup assistant.
+
 ## Ros parameters Required
 
 - `"robot_description"` URDF robot (local workspace?) description
