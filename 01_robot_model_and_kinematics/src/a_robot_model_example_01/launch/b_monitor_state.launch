@@ -1,0 +1,16 @@
+<launch>
+<group ns="myrobot">
+    <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find workspace_description)/urdf/robot.xacro'"/>
+    <param name="robot_description_semantic" command="cat $(find myrobot_config_package)/config/myrobot.srdf"/>
+  <group ns="robot_description_planning">
+    <rosparam command="load" file="$(find myrobot_config_package)/config/joint_limits.yaml"/>
+  </group>
+  <group ns="robot_description_kinematics">
+    <rosparam command="load" file="$(find myrobot_config_package)/config/kinematics.yaml"/>
+  </group>
+
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" output="screen"/>
+  <!-- Load default settings for kinematics; these settings are overridden by settings in a node's namespace -->
+    <node name="moveit_raw_state_monitor" pkg="a_robot_model_example_01" type="b_robot_model_example_02_node" output="screen"/>
+</group>
+</launch>

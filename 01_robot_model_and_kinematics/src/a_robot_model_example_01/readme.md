@@ -6,6 +6,12 @@ In fact, URDF is not intended to provide some information that is necessary for 
 The extra information required by moveit is contained in semantic robot description files SRDF.
 The SRDF and ulterior information can be generated using the moveit setup assistant.
 
+| concept | class | functionalities |
+| ------- | ----- | --------------- |
+| Robot model loader| `robot_model_loader::RobotModelLoader` | Load the robot model from ROS parameters |
+| Robot "semantic" representation | `moveit::core::RobotModel` | Main interface to the robot model |
+| Robot "state" representation | `moveit::core::RobotState` | Main interface to get the state of the robot |
+
 ## Ros parameters Required
 
 - `"robot_description"` URDF robot (local workspace?) description
@@ -61,7 +67,27 @@ The model of the robot is wraped in the class `moveit::core::RobotModel` [define
   RobotModelLoader(const std::string& robot_description, bool load_kinematics_solvers = true);
 ```
 
-# Methods used in this example
+## Robot State
+
+Representation of a robot's state is represented by `moveit:core:RobotState` [defined here](https://github.com/ros-planning/moveit/blob/a29a30caaecbd130d85056d959d4eb1c30d4088f/moveit_core/robot_state/include/moveit/robot_state/robot_state.h) and [implemented here](https://github.com/ros-planning/moveit/blob/a29a30caaecbd130d85056d959d4eb1c30d4088f/moveit_core/robot_state/src/robot_state.cpp).
+This includes position, velocity, acceleration and effort.
+ At the lowest level, a state is a collection of variables.
+Each variable has a name and can have position, velocity, acceleration and effort associated to it.
+Effort and acceleration share the memory area for efficiency reasons (one should not set both acceleration and effort in the same state and expect things to work).
+Often variables correspond to joint names as well (joints with one degree of freedom have one variable), but joints with multiple degrees of freedom have more variables.
+Operations are allowed at variable level, joint level (see JointModel) and joint group level (see JointModelGroup).
+ For efficiency reasons a state computes forward kinematics in a lazy fashion.
+This can sometimes lead to problems if the update() function was not called on the state.
+# Methods and clases used in this example
+- `robot_model_loader::RobotModelLoader`
+    - `robot_model_loader::RobotModelLoadergetModel`
+- `moveit::core::RobotModel`
+    - `moveit::core::RobotModel::getJointModelGroupNames`
+    - `moveit::core::RobotModel::hasEndEffector`, verifies if a string correstpont to the name of and end effector group
+    - `moveit::core::RobotModel::getJointModelGroup` get a pointer to `moveit::core::JointModelGroup` given the string with the name of the group
+
+- `moveit::core::JointModelGroup`
+    - `moveit::core::JointModelGroup::getVariableNames` **the variables are the joints** returns a vector of strings with the names of the joints in the group
 
 # How to set up a Moveit robot model
 Setting up to start using the RobotModel class is very easy. In
