@@ -1,41 +1,92 @@
-# Planning Scene Example 01
+# Planning Scene Example 01 
 
 The planning scene class `planning_scene::PlanningScene` is the central class for motion planning in MoveIt.
 It is [defined here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_core/planning_scene/include/moveit/planning_scene/planning_scene.h#L86) and [implemented here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_core/planning_scene/src/planning_scene.cpp).
 A planning scene represents all the information needed to compute motion plans: 
 
-    - The robot's workspace model `RobotModel`
-    - its geometric, kinematic or dynamic representation `RobotState`
-    - The collision detector `collision_detection::CollisionDetector`
-
-```mermaid
-      Animal <|-- Duck
-      Animal <|-- Fish
-      Animal <|-- Zebra
-      Animal : +int age
-      Animal : +String gender
-      Animal : +isMammal()
-      Animal : +mate()
-```
-
-
-Using this information, things like forward kinematics, inverse kinematics, evaluation of constraints, collision checking, are all possible.
+- The robot's workspace model `RobotModel`
+- its geometric, kinematic or dynamic representation `RobotState`
+- The collision detector `collision_detection::CollisionDetector` and constraint checking
 
 The `planning_scene::PlanningScene` class is tightly connected to the `planning_scene_monitor::PlannningSceneMonitor` class, which maintains a planning scene using information from the ROS Parameter Server and subscription to topics.
+**The `PlanningSceneMonitor` is the recommended method to create and maintain the current planning scene using data from the robot’s joints and the sensors on the robot**.
 
-The `PlanningScene` class provides the main interface that you will use for collision checking and constraint checking. 
+# What does this example do?
 
-This class maintains the representation of the environment as seen by a planning instance. 
-The environment geometry, the robot geometry and state are maintained. 
+In this example we instantiate a `PlanningScene` with the robot and workspace defined in this repository in `/common_packages`.
+Then, we use the this `PlanningScene` instance to check the collisions of the robot with itself and the environment.
+The example runs an `rviz` instance where the configuration of the robot is shown.
+The example also prints information about the collision for each configuration.
 
-The `PlanningScene` class can be easily setup and configured using a RobotModel or a URDF and SRDF.
-This is, however, not the recommended way to instantiate a `PlanningScene`.
-The `PlanningSceneMonitor` is the recommended method to create and maintain the current planning scene using data from the robot’s joints and the sensors on the robot.
-In this tutorial, we will instantiate a `PlanningScene` class directly, but this method of instantiation is only intended for illustration.
+## The launch file
 
+1. Set up parameters
+2. Launch a `joint_state_publisher` which repeats the state of the robot.
+3. Launch a `robot_state_publisher`
+4. Launch the node
+5. Launch Rviz
+
+## The node code
+1. **Initialization of the ros node**
+2. **Initializatio of the MoveIt robot model and the planning scene**
+```C++
+  robot_model_loader::RobotModelLoader robot_model_loader("robot_description");
+  robot_model::RobotModelPtr my_robot_model = robot_model_loader.getModel();
+  planning_scene::PlanningScene planning_scene(my_robot_model);
+```
+3. **Initialization of the input and output of the collision detector** and require to return the links in collision. We also set a maximum number of objects in collision
+```C++
+  collision_detection::CollisionRequest collision_request;
+  collision_request.contacts = true;
+  collision_request.max_contacts = 1000;
+  collision_detection::CollisionResult collision_result;
+```
+4. **While the node is running**
+    1. **Get the actual instance of the robot state** (This is required because the state may change) **and the jointgroup for planning**
+    ```C++
+        robot_state::RobotState& kinematic_model_actual = planning_scene.getCurrentStateNonConst();
+        const robot_model::JointModelGroup* joint_group = kinematic_model_actual.getJointModelGroup("myrobotplanninggroup");
+    ```
+    2. **Reset the collision request**
+    ```C++
+        collision_request.group_name = "myrobotplanninggroup";
+        collision_result.clear();
+    ```
+    3. **Set the robot in a random configuration**
+    ```C++
+        kinematic_model_actual.setToRandomPositions(joint_group);
+    ```
+    4. **call the collision checker**
+    ```C++
+        planning_scene.checkSelfCollision(collision_request, collision_result);
+    ```
+    5. **If there are collisions then print the links that are colliding***
+    ```C++
+      collision_detection::CollisionResult::ContactMap::const_iterator it;
+      for (it = collision_result.contacts.begin(); it != collision_result.contacts.end(); ++it)
+        ROS_INFO("    Contact between: %s and %s", it->first.first.c_str(), it->first.second.c_str());
+    ```
+# How did we create this package?
+
+1. Create the catkin package
+```CMake
+catkin create pkg PROJECT_NAME --catkin-deps roscpp moveit_core moveit_ros_planning_interface --system-deps Eigen3
+```
+
+2. In `CMakeLists.txt` add the executable indicated name of the executable and source file with `main`
+```CMake
+add_executable(${PROJECT_NAME}_node src/SOURCE.cpp)
+```
+3. In `CMakeLists.txt` add the libraries to link against
+```CMake
+target_link_libraries(${PROJECT_NAME}_node
+  ${catkin_LIBRARIES}
+  ${Eigen3_LIBRARIES}
+)
+```
 ## How to instantiate a Planning Scene
 
-To construct a MoveIt planning scence only a MoveIt robot model is required.
+To construct a MoveIt planning scene we need only a MoveIt robot model.
 It follows that the `planning_scene::PlanningScene` class can be constructed with a `robot_model::RobotModel` or the info to construc the robot model.
 
 - The constructor has two signatures
@@ -81,7 +132,7 @@ From that method other methods are caled. The code in each funcion involved in t
 - The `setActiveCollisionDetector` with the string argument just set the variable `active_collision_`
 
 
-## Used classes
+## Classes used by `PlanningScene`
 
 - **Members**
     - `std::string name_;`
@@ -123,7 +174,7 @@ From that method other methods are caled. The code in each funcion involved in t
     ```
 
 
-## Checking for collisions
+## Checking for collisions in detail
 
 The main signture of `checkSelfCollision` [is here](https://github.com/ros-planning/moveit/blob/ff552bf861609f99ca97a7e173fcbeb0c03e9f45/moveit_core/planning_scene/include/moveit/planning_scene/planning_scene.h#L496)
 ```
