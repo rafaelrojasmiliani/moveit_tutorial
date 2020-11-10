@@ -213,9 +213,6 @@ int main(int argc, char** argv)
   moveit_msgs::Constraints goal_constraint =
       kinematic_constraints::constructGoalConstraints(end_effector_name, desired_pose);
 
-  // Now, we can check a state against this constraint using the
-  // isStateConstrained functions in the PlanningScene class.
-
   copied_state.setToRandomPositions();
   copied_state.update();
   bool constrained = planning_scene.isStateConstrained(copied_state, goal_constraint);
