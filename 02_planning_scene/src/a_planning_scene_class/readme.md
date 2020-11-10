@@ -3,9 +3,36 @@
 The planning scene class `planning_scene::PlanningScene` is the central class for motion planning in MoveIt.
 It is [defined here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_core/planning_scene/include/moveit/planning_scene/planning_scene.h#L86) and [implemented here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_core/planning_scene/src/planning_scene.cpp).
 A planning scene represents all the information needed to compute motion plans: 
-    - The robot's current state
-    - its representation (geometric, kinematic, dynamic)
-    - the world representation.
+
+    - The robot's workspace model `RobotModel`
+    - its geometric, kinematic or dynamic representation `RobotState`
+    - The collision detector `collision_detection::CollisionDetector`
+
+```mermaid
+classDiagram
+      Animal <|-- Duck
+      Animal <|-- Fish
+      Animal <|-- Zebra
+      Animal : +int age
+      Animal : +String gender
+      Animal: +isMammal()
+      Animal: +mate()
+      class Duck{
+          +String beakColor
+          +swim()
+          +quack()
+      }
+      class Fish{
+          -int sizeInFeet
+          -canEat()
+      }
+      class Zebra{
+          +bool is_wild
+          +run()
+      }
+```
+
+
 Using this information, things like forward kinematics, inverse kinematics, evaluation of constraints, collision checking, are all possible.
 
 The `planning_scene::PlanningScene` class is tightly connected to the `planning_scene_monitor::PlannningSceneMonitor` class, which maintains a planning scene using information from the ROS Parameter Server and subscription to topics.
