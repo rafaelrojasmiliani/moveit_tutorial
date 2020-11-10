@@ -1,6 +1,6 @@
+# Planning Scene Example 01
 
-
-The planning scene `planning_scene::PlanningScene` is the central class for motion planning in MoveIt.
+The planning scene class `planning_scene::PlanningScene` is the central class for motion planning in MoveIt.
 It is [defined here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_core/planning_scene/include/moveit/planning_scene/planning_scene.h#L86) and [implemented here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_core/planning_scene/src/planning_scene.cpp).
 A planning scene represents all the information needed to compute motion plans: 
     - The robot's current state
@@ -20,47 +20,52 @@ This is, however, not the recommended way to instantiate a `PlanningScene`.
 The `PlanningSceneMonitor` is the recommended method to create and maintain the current planning scene using data from the robot’s joints and the sensors on the robot.
 In this tutorial, we will instantiate a `PlanningScene` class directly, but this method of instantiation is only intended for illustration.
 
-## The constructor
+## How to instantiate a Planning Scene
 
-- construct using an existing RobotModel 
-```
-    PlanningScene(
-      const robot_model::RobotModelConstPtr& robot_model,
-      const collision_detection::WorldPtr& world = collision_detection::WorldPtr(new collision_detection::World()));
-```
+To construct a MoveIt planning scence only a MoveIt robot model is required.
+It follows that the `planning_scene::PlanningScene` class can be constructed with a `robot_model::RobotModel` or the info to construc the robot model.
 
-- construct using a urdf and srdf.
-```
-  PlanningScene(
-      const urdf::ModelInterfaceSharedPtr& urdf_model, const srdf::ModelConstSharedPtr& srdf_model,
-      const collision_detection::WorldPtr& world = collision_detection::WorldPtr(new collision_detection::World()));
-``` 
+- The constructor has two signatures
 
-```
-  name_ = DEFAULT_SCENE_NAME;
+    - construct using an existing RobotModel 
+    ```
+        PlanningScene(
+          const robot_model::RobotModelConstPtr& robot_model,
+          const collision_detection::WorldPtr& world = collision_detection::WorldPtr(new collision_detection::World()));
+    ```
 
-  1) Set up a wraper for all the transofrms of this PlanningScene instance
-  scene_transforms_.reset(new SceneTransforms(this));
-  2) initialize the kinematic model RobotState
-  robot_state_.reset(new robot_state::RobotState(robot_model_));
-  robot_state_->setToDefaultValues();
-  robot_state_->update();
+    - construct using a urdf and srdf.
+    ```
+      PlanningScene(
+          const urdf::ModelInterfaceSharedPtr& urdf_model, const srdf::ModelConstSharedPtr& srdf_model,
+          const collision_detection::WorldPtr& world = collision_detection::WorldPtr(new collision_detection::World()));
+    ``` 
 
-  3) initialize the member `collision_detection::AllowedCollisionMatrixPtr acm_`
-  acm_.reset(new collision_detection::AllowedCollisionMatrix());
-  // ...
+The `planning_scene::PlanningScene` constructor is mostly impleented in `PlanningScene::initialize`.
+From that method other methods are caled. The code in each funcion involved in the construcot is more or less this
+- In `PlanningScene::initialize` we have
+    ```
+      // 1) Set up a wraper for all the transofrms of this PlanningScene instance
+      scene_transforms_.reset(new SceneTransforms(this));
+      // 2) initialize the kinematic model RobotState
+      robot_state_.reset(new robot_state::RobotState(robot_model_));
+      robot_state_->setToDefaultValues();
+      robot_state_->update();
 
-  setActiveCollisionDetector(collision_detection::CollisionDetectorAllocatorFCL::create(), exclusive=false);
-```
+      // 3) initialize the member `collision_detection::AllowedCollisionMatrixPtr acm_`
+      acm_.reset(new collision_detection::AllowedCollisionMatrix());
+      // ...
+      setActiveCollisionDetector(collision_detection::CollisionDetectorAllocatorFCL::create(), exclusive=false);
+    ```
 
-`setActiveCollisionDetector` has two signatures. The one we just have called with `exclusive=flase` does the following
-```
-    allocator= collision_detection::CollisionDetectorAllocatorFCL::create() // argument of the function
-    addCollisionDetector(allocator); // initializes the CollisionDetector members of collision_ with the collision detecor FCL features
-    setActiveCollisionDetector(allocator->getName()); // set active_collision_ with the FLC collision detector
-```
-`addCollisionDetector` initiates `collision_` and eventually add a new entry to handle the desired collision detector with the private class `CollisionDetector`.
-The `setActiveCollisionDetector` with the string argument just set the variable `active_collision_`
+- The method `setActiveCollisionDetector` has two signatures. The one called in `PlanningScene::initialize` has the local variable `exclusive` as `exclusive=flase` and does the following
+    ```
+        allocator= collision_detection::CollisionDetectorAllocatorFCL::create() // argument of the function
+        addCollisionDetector(allocator); // initializes the CollisionDetector members of collision_ with the collision detecor FCL features
+        setActiveCollisionDetector(allocator->getName()); // set active_collision_ with the FLC collision detector
+    ```
+- The method `addCollisionDetector` initiates `collision_` and eventually add a new entry to handle the desired collision detector with the private class `CollisionDetector`.
+- The `setActiveCollisionDetector` with the string argument just set the variable `active_collision_`
 
 
 ## Used classes
