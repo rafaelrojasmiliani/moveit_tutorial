@@ -8,7 +8,7 @@ A planning scene represents all the information needed to compute motion plans:
     - its geometric, kinematic or dynamic representation `RobotState`
     - The collision detector `collision_detection::CollisionDetector`
 
-```mermaid
+```
 classDiagram
       Animal <|-- Duck
       Animal <|-- Fish
