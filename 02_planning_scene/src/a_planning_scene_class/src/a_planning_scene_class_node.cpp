@@ -19,9 +19,9 @@ int main(int argc, char** argv)
   std::size_t count = 0;
   ros::NodeHandle nh;
 
-  // 1) instantiate the  MoveIt robot model
   ros::Publisher js_pub = nh.advertise<sensor_msgs::JointState>("joint_states_cmd", 1);
   sensor_msgs::JointState js;
+  // 1) instantiate the  MoveIt robot model loader
   robot_model_loader::RobotModelLoader robot_model_loader("robot_description");
   // 2) instantiate the  MoveIt PlanningScene with the moveit model
   robot_model::RobotModelPtr my_robot_model = robot_model_loader.getModel();

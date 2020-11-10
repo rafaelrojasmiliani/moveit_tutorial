@@ -1,4 +1,4 @@
-# Planning Scene Example 01 
+# Planning Scene Example 01: Collision detection
 
 The planning scene class `planning_scene::PlanningScene` is the central class for motion planning in MoveIt.
 It is [defined here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_core/planning_scene/include/moveit/planning_scene/planning_scene.h#L86) and [implemented here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_core/planning_scene/src/planning_scene.cpp).
@@ -7,6 +7,10 @@ A planning scene represents all the information needed to compute motion plans:
 - The robot's workspace model `RobotModel`
 - its geometric, kinematic or dynamic representation `RobotState`
 - The collision detector `collision_detection::CollisionDetector` and constraint checking
+
+In practice `planning_scene::PlanningScene` is a convince wrapper for the `RobotModel` and a collision checker.
+We can use any collision checker with a MoveIt plugin interface.
+By default `planning_scene::PlanningScene` instantiates a FCL collision checker.
 
 The `planning_scene::PlanningScene` class is tightly connected to the `planning_scene_monitor::PlannningSceneMonitor` class, which maintains a planning scene using information from the ROS Parameter Server and subscription to topics.
 **The `PlanningSceneMonitor` is the recommended method to create and maintain the current planning scene using data from the robot’s joints and the sensors on the robot**.
@@ -60,7 +64,7 @@ The example also prints information about the collision for each configuration.
     ```C++
         planning_scene.checkSelfCollision(collision_request, collision_result);
     ```
-    5. **If there are collisions then print the links that are colliding***
+    5. **If there are collisions then print the links that are colliding**
     ```C++
       collision_detection::CollisionResult::ContactMap::const_iterator it;
       for (it = collision_result.contacts.begin(); it != collision_result.contacts.end(); ++it)
@@ -84,7 +88,7 @@ target_link_libraries(${PROJECT_NAME}_node
   ${Eigen3_LIBRARIES}
 )
 ```
-## How to instantiate a Planning Scene
+## How to instantiate a Planning Scene in detail
 
 To construct a MoveIt planning scene we need only a MoveIt robot model.
 It follows that the `planning_scene::PlanningScene` class can be constructed with a `robot_model::RobotModel` or the info to construc the robot model.
