@@ -15,8 +15,8 @@ classDiagram
       Animal <|-- Zebra
       Animal : +int age
       Animal : +String gender
-      Animal: +isMammal()
-      Animal: +mate()
+      Animal : +isMammal()
+      Animal : +mate()
 ```
 
 
