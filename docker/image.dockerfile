@@ -17,6 +17,8 @@ RUN apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confnew" \
                     ros-melodic-desktop-full ros-melodic-moveit-setup-assistant iputils-ping net-tools netcat screen build-essential
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confnew" \
+                   ros-melodic-cartographer-rviz ros-melodic-distance-map-rviz ros-melodic-grid-map-rviz-plugin ros-melodic-jsk-rviz-plugins ros-melodic-octomap-rviz-plugins ros-melodic-rviz-visual-tools
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confnew" \
                     ros-melodic-ompl ros-melodic-moveit-planners ros-melodic-moveit-commander python-catkin-tools
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confnew" \
                     python-rosinstall-generator python-rosinstall python-rosdep
