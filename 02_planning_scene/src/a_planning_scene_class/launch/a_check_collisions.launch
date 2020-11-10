@@ -1,0 +1,13 @@
+<launch>
+
+<group ns="myrobot">
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+    <param name="/use_gui" value="false"/>
+    <rosparam param="source_list">[joint_states_cmd]</rosparam>
+  </node>
+
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen" />
+    <node name="check_collisions" pkg="a_planning_scene_class" type="a_planning_scene_class_node" output="screen"/>
+    <node name="rviz" pkg="rviz" type="rviz" output="screen" args="-d $(find a_planning_scene_class)/cfg/rvizconf.rviz"/>
+</group>
+</launch>
