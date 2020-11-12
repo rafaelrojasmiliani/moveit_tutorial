@@ -21,7 +21,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confnew" \
                     ros-melodic-ompl ros-melodic-moveit-planners ros-melodic-moveit-commander python-catkin-tools
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confnew" \
-                    python-rosinstall-generator python-rosinstall python-rosdep
+                    python-rosinstall-generator python-rosinstall python-rosdep ros-melodic-moveit-visual-tools 
 # user handling
 ARG myuser
 ARG myuid
