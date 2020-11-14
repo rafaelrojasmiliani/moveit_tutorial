@@ -8,14 +8,15 @@ This example teaches how `PlanningSceneMonitor` is implemented and how to use it
 | ---- | --- |
 |`srv/c_planning_scene_monitor_node.cpp` | Simple implementation of `PlanningSceneMonitor` |
 |`src/c_planning_scene_api_node.cpp` | `PlanningSceneMonitor` ROS service API example and `movet_msg:PlanningScene`. |
-|`src/solids.cpp``include/solids.h` | Example of how to create shapes and `CollisionObject` |
+|`src/solids.cpp` `include/solids.h` | Example of how to create shapes and `CollisionObject` |
+
 ## Planning Scene ROS API
 Here we use the Planning Scene Monitor ROS service/topics API is to add or remove objects from the workspace.
 These objects are divided in two main categories
 1. Objects attached to the robot. These objects contains a variable which indicates the part of the robot that is in contact with the object. Then the collision detector will automatically ignore the contact between this object and the robot.
 2. Objects not attached to the robot. Objects that are treated normally by the collision detector.
 
-The main mechanism to attach, detach, add or remove objects from the workspace is to use the moveit message `moveit_msgs::PlanningScene` [defined here](http://docs.ros.org/en/jade/api/moveit_msgs/html/msg/PlanningScene.html).. 
+The main mechanism to attach, detach, add or remove objects from the workspace is to use the moveit message `moveit_msgs::PlanningScene` [defined here](http://docs.ros.org/en/jade/api/moveit_msgs/html/msg/PlanningScene.html).
 Such a message type is very flexible and can be used define completely new workspaces.
 The simplest way to apply modifications to a workspace already loaded in the `PlanningSceneMonitor` is through the scenario "diff" mechanism.
 In such a method, we activate a field into the `moveit_msgs::PlanningScene` message which indicates that it indicates a modification to be applied to the current `planning_scene::PlanningScene` loaded into `PlanningSceneMonitor`.
