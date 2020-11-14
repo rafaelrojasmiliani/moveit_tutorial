@@ -52,7 +52,7 @@ On this message the function `PlanningSceneMonitor::newPlanningSceneMessage` is 
     - `monitored_planning_scene` of type `moveit_msgs::PlanningScene`.
 
 - **Required services**
-    - **Optional?** `get_planning_scene` of type `moveit_msgs::GetPlanningScene` [defined here](http://docs.ros.org/en/api/moveit_msgs/html/srv/GetPlanningScene.html).
+    - **Optional?** `get_planning_scene` of type `moveit_msgs::GetPlanningScene` [defined here](http://docs.ros.org/en/api/moveit_msgs/html/srv/GetPlanningScene.html) and [instantiated here](https://github.com/ros-planning/moveit/blob/a85738b7a1f1913bf97f99e138dfc8d22b0d3dad/moveit_ros/move_group/src/default_capabilities/get_planning_scene_service_capability.cpp#L48) by `move_group`
 This service is called by `PlanningSceneMonitor::requestPlanningSceneState`
 
 - **Offered services**
@@ -76,6 +76,14 @@ This service is initiated by `PlanningSceneMonitor::providePlanningSceneService`
     - `collision_detection::CollisionPluginLoader collision_loader_;`
     - `DynamicReconfigureImpl* reconfigure_impl_;`
 
+- **Parameters** defined using dynamic reconfigure [here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/planning/planning_scene_monitor/cfg/PlanningSceneMonitorDynamicReconfigure.cfg)
+    - `"publish_planning_scene"` Set to True to publish Planning Scenes
+    - `"publish_planning_scene_hz"` Set the maximum frequency at which planning scene updates are published
+    - `"publish_geometry_updates"` Set to True to publish geometry updates of the planning scene
+    - `"publish_state_updates"` Set to True to publish geometry updates of the planning scene
+    - `"publish_transforms_updates"` Set to True to publish geometry updates of the planning scene
+
+
 # Collision object 
 
 `moveit_msgs::CollisionObject` [defined here](http://docs.ros.org/en/melodic/api/moveit_msgs/html/msg/CollisionObject.html)
@@ -91,7 +99,7 @@ This service is initiated by `PlanningSceneMonitor::providePlanningSceneService`
 - `plane_poses` of type `geometry_msgs/Pose[]` Bounding planes (equation is specified, but the plane can be oriented using an additional pose)
 - `operation` of type `byte` Operation to be performed
     - `ADD=0` Adds the object to the planning scene. If the object previously existed, it is replaced.
-    - `REMOVE=1` Removes the object from the environment entirely (everything that matches the specified id)
+    - `REMOVE=1` Removes the object from the environment entirely (everything that matches the specified id). If we generate a message witn remove and without objects ID, the Planning Scene Montiro will remove all objects [see here](https://github.com/ros-planning/moveit/blob/ff552bf861609f99ca97a7e173fcbeb0c03e9f45/moveit_core/planning_scene/src/planning_scene.cpp#L1812)
     - `APPEND=2` Append to an object that already exists in the planning scene. If the object does not exist, it is added.
     - `MOVE=3` If an object already exists in the scene, new poses can be sent (the geometry arrays must be left empty)
 
@@ -131,4 +139,5 @@ This service is initiated by `PlanningSceneMonitor::providePlanningSceneService`
 
 # How to add an object to the environment
    Add the object into the environment by adding it to the set of collision objects in the "world" part of the planning scene. Note that we are using only the "object" field of the `attached_object` message here.
+
 

@@ -1,7 +1,7 @@
 <launch>
 <rosparam command="delete" param="/myrobot"/>
 <group ns="myrobot">
-
+<!-- BEGIN defined required ros paramenters -->
     <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find workspace_description)/urdf/robot.xacro'"/>
     <param name="robot_description_semantic" command="cat $(find myrobot_config_package)/config/myrobot.srdf"/>
   <group ns="robot_description_planning">
@@ -10,6 +10,7 @@
   <group ns="robot_description_kinematics">
     <rosparam command="load" file="$(find myrobot_config_package)/config/kinematics.yaml"/>
   </group>
+<!-- END defined required ros paramenters -->
 
   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
     <param name="/use_gui" value="false"/>
@@ -17,7 +18,13 @@
   </node>
 
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen" />
-    <node name="planning_scene_monitor" pkg="c_planning_scene_monitor" type="c_planning_scene_monitor_node" output="screen"/>
-    <node name="rviz" pkg="rviz" type="rviz" output="screen"/>
+    <node name="my_planning_scene_monitor_implementation" pkg="c_planning_scene_monitor" type="c_planning_scene_monitor_node" output="screen">
+    <param name="planning_scene_monitor/publish_planning_scene" value="True"/>
+    <param name="planning_scene_monitor/publish_geometry_updates" value="True"/>
+    <param name="planning_scene_monitor/publish_state_updates" value="True"/>
+    <param name="planning_scene_monitor/publish_transforms_updates" value="True"/>
+    </node>
+    <node name="rviz" pkg="rviz" type="rviz" output="screen" args="-d $(find c_planning_scene_monitor)/cfg/rvizconf.rviz"/>
+
 </group>
 </launch>

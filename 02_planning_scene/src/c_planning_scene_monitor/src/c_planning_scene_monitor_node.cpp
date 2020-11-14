@@ -39,40 +39,38 @@
 
 // MoveIt
 #include <moveit/robot_model_loader/robot_model_loader.h>
-#include <moveit/robot_state/conversions.h>
-#include <moveit/planning_pipeline/planning_pipeline.h>
-#include <moveit/planning_interface/planning_interface.h>
 #include <moveit/planning_scene_monitor/planning_scene_monitor.h>
-#include <moveit/kinematic_constraints/utils.h>
-#include <moveit_msgs/DisplayTrajectory.h>
-#include <moveit_msgs/PlanningScene.h>
-#include <moveit_visual_tools/moveit_visual_tools.h>
+#include <moveit_msgs/ApplyPlanningScene.h>
+
+planning_scene_monitor::PlanningSceneMonitorPtr psm;
+
+bool apply_planning_scene(moveit_msgs::ApplyPlanningScene::Request& req, moveit_msgs::ApplyPlanningScene::Response& res)
+{
+  psm->updateFrameTransforms();
+  res.success = psm->newPlanningSceneMessage(req.scene);
+  return true;
+}
 
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "move_group_tutorial");
   ros::AsyncSpinner spinner(1);
   spinner.start();
-  ros::NodeHandle node_handle("~");
+  ros::NodeHandle node_handle;
 
   robot_model_loader::RobotModelLoaderPtr robot_model_loader(
       new robot_model_loader::RobotModelLoader("robot_description"));
 
-  // Using the RobotModelLoader, we can construct a planing scene monitor that
-  // will create a planning scene, monitors planning scene diffs, and apply the diffs to it's
-  // internal planning scene. We then call startSceneMonitor, startWorldGeometryMonitor and
-  // startStateMonitor to fully initialize the planning scene monitor
-  planning_scene_monitor::PlanningSceneMonitorPtr psm(
+  psm.reset(
       new planning_scene_monitor::PlanningSceneMonitor(robot_model_loader));
 
-  /* listen for planning scene messages on topic /XXX and apply them to the internal planning scene
-                       the internal planning scene accordingly */
   psm->startSceneMonitor();
   psm->startWorldGeometryMonitor();
   psm->startStateMonitor();
+  psm->providePlanningSceneService();
+  
+  ros::ServiceServer service = node_handle.advertiseService("apply_planning_scene", apply_planning_scene);
 
-  /* We can also use the RobotModelLoader to get a robot model which contains the robot's kinematic information */
-  moveit::core::RobotModelPtr robot_model = robot_model_loader->getModel();
 
 
   ros::waitForShutdown();

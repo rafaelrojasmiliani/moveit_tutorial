@@ -1,0 +1,7 @@
+<launch>
+<include file="$(find c_planning_scene_monitor)/launch/scene_monitor.launch"/>
+<group ns="myrobot">
+    <node name="planning_scene_monitor_api" pkg="c_planning_scene_monitor" type="c_planning_scene_api_node" output="screen"/>
+</group>
+</launch>
+

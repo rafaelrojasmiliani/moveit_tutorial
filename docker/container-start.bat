@@ -2,7 +2,7 @@
 @echo off
 for /F "tokens=1,2,3" %%A in ('netsh interface ip show addresses "vEthernet (Default Switch)" ^| findstr "IP Address"') DO (set xserverip=%%C)
 
-START /B C:\"Program Files"\VcXsrv\vcxsrv.exe
+rem START /B C:\"Program Files"\VcXsrv\vcxsrv.exe
 docker run -it ^
         --volume %CD%\..:/catkinws ^
         --user %USERNAME%:%USERNAME% ^
