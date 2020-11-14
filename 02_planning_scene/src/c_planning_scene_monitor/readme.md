@@ -1,5 +1,5 @@
-# What does this examples do
-This example teaches a simple implementation of `PlanningSceneMonitor` and how to use its ROS service API to add or remove objects.
+# What does this examples do?
+This example teaches how `PlanningSceneMonitor` is implemented and how to use its ROS service API to add or remove objects.
 
 
 ## Files
