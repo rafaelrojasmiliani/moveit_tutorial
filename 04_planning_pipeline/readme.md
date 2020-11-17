@@ -23,7 +23,9 @@ to solve motion planning problems using the desired motion planning plugin plugi
 
 ```mermaid
 graph LR
-    A(PlanningRequestAdapter) --> B(PlanningRequestAdapter) --> C(...) --> D(PlanningRequestAdapter)
+    A(PlanningRequestAdapter) --> B(PlanningRequestAdapter) 
+    B --> C(...) 
+    C --> D(PlanningRequestAdapter)
 ```
 Planning Request Adapters is the MoveIt pipeline implementation to pre-processing and/or post-processing paths/trajectories. 
 Thanks to this multiple motion planning algorithms can be used in a pipeline to produce robust motion plans.
@@ -47,8 +49,8 @@ If the response is changed, the index values of the states added without plannin
 This function is a wrapper for the function `planning_interface::PlanningContext::solve`.
 
 
-- **`default_planner_request_adapters/AddTimeParameterization`** [implemented here](https://github.com/ros-planning/moveit/blob/ff552bf861609f99ca97a7e173fcbeb0c03e9f45/moveit_ros/planning/planning_request_adapter_plugins/src/add_time_parameterization.cpp#L44), this adapter process the response of the planning by adding time stamps to the path waypoints using the class `trajectory_processing::IterativeParabolicTimeParameterization` [implemented here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_core/trajectory_processing/src/iterative_time_parameterization.cpp).
-- **`default_planner_request_adapters/FixWorkspaceBounds`** [implemented here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/planning/planning_request_adapter_plugins/src/fix_workspace_bounds.cpp). This adapter process the motion planning request by setting the workspace bounding box in case they are not set.
+- **`default_planner_request_adapters/AddTimeParameterization`** [implemented here](https://github.com/ros-planning/moveit/blob/ff552bf861609f99ca97a7e173fcbeb0c03e9f45/moveit_ros/planning/planning_request_adapter_plugins/src/add_time_parameterization.cpp#L44). This adapter processes the response of the planning by adding time stamps to the path waypoints using the class `trajectory_processing::IterativeParabolicTimeParameterization` [implemented here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_core/trajectory_processing/src/iterative_time_parameterization.cpp).
+- **`default_planner_request_adapters/FixWorkspaceBounds`** [implemented here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/planning/planning_request_adapter_plugins/src/fix_workspace_bounds.cpp). This adapter processes the motion planning request by setting the workspace bounding box in case they are not set.
 - **`default_planner_request_adapters/FixStartStateBounds`** [implemented here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/planning/planning_request_adapter_plugins/src/fix_start_state_bounds.cpp) fix joint positions outside the declared bounds at the initial state.
 - **`default_planner_request_adapters/FixStartStateCollision`** [implemented here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/planning/planning_request_adapter_plugins/src/fix_start_state_collision.cpp). Check if the start position is in collision, if so its search for a non colliding random position (in the joint space) in its neighborhood.
 - **`default_planner_request_adapters/FixStartStatePathConstraints`** [implemented here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/planning/planning_request_adapter_plugins/src/fix_start_state_path_constraints.cpp). Check that the initial position is coherent with the path constraints. If not, then compute a second plan to joint the initial state to a point of the constraint manifold.
