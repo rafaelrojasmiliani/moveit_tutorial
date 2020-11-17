@@ -10,6 +10,24 @@ This example teaches how `PlanningSceneMonitor` is implemented and how to use it
 |`src/c_planning_scene_api_node.cpp` | `PlanningSceneMonitor` ROS service API example and `movet_msg:PlanningScene`. |
 |`src/solids.cpp` `include/solids.h` | Example of how to create shapes and `CollisionObject` |
 
+# How did we create this package?
+
+1. Create the catkin package
+```CMake
+catkin create pkg PROJECT_NAME --catkin-deps roscpp moveit_core moveit_ros_planning_interface --system-deps Eigen3
+```
+
+2. In `CMakeLists.txt` add the executable indicated name of the executable and source file with `main`
+```CMake
+add_executable(${PROJECT_NAME}_node src/SOURCE.cpp)
+```
+3. In `CMakeLists.txt` add the libraries to link against
+```CMake
+target_link_libraries(${PROJECT_NAME}_node
+  ${catkin_LIBRARIES}
+  ${Eigen3_LIBRARIES}
+)
+```
 ## Planning Scene ROS API
 Here we use the Planning Scene Monitor ROS service/topics API is to add or remove objects from the workspace.
 These objects are divided in two main categories
