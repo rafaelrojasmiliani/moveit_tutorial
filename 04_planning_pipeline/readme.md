@@ -13,8 +13,11 @@ graph LR
     Smoothing --> id(Time parametrization)
 ```
 
-This class facilitates loading planning plugins and planning request adapted plugin.
-It also allows calling `planning_interface::PlanningContext::solve()` from a loaded planning plugin and the `planning_request_adapter::PlanningRequestAdapter` plugins, in the specified order.
+This class facilitates loading planning plugins and planning request adapted plugin and provides the method 
+```C++
+planning_pipeline::PlanningPipeline::generatePlan(...)
+``` 
+to solve motion planning problems using the desired motion planning plugin plugin (e.g. OMPL) and the `planning_request_adapter::PlanningRequestAdapter` plugins, in the specified order.
 
 - **Requirements to instantiate a Planning pipeline**
     - A robot model (`moveit::core::RobotModel`) for which this pipeline is initialized.
@@ -38,101 +41,152 @@ It also allows calling `planning_interface::PlanningContext::solve()` from a loa
     - `moveit::core::RobotModelConstPtr robot_model_;`
     
 
-- **Constructor**
-    ```
-      // load parameters ...
-      // ...
-      planner_plugin_loader_.reset(new pluginlib::ClassLoader<planning_interface::PlannerManager>(
-            "moveit_core", "planning_interface::PlannerManager"));
-      planner_instance_ = planner_plugin_loader_->createUniqueInstance(planner_plugin_name_);
-      planner_instance_->initialize(robot_model_, nh_.getNamespace())
 
-      // load the planner request adapters
-      if (!adapter_plugin_names_.empty())
-      {
-        std::vector<planning_request_adapter::PlanningRequestAdapterConstPtr> ads;
-        adapter_plugin_loader_.reset(new pluginlib::ClassLoader<planning_request_adapter::PlanningRequestAdapter>(
-              "moveit_core", "planning_request_adapter::PlanningRequestAdapter"));
+## How the constructor works in detail
+```C++
+  // 1. load Ros parameters
+  // ...
+  // 2. Load and initialize the PlannerManager plugin (by default OMPL)
+  planner_plugin_loader_.reset(new pluginlib::ClassLoader<planning_interface::PlannerManager>(
+        "moveit_core", "planning_interface::PlannerManager"));
+  planner_instance_ = planner_plugin_loader_->createUniqueInstance(planner_plugin_name_);
+  planner_instance_->initialize(robot_model_, nh_.getNamespace())
 
-        for (const std::string& adapter_plugin_name : adapter_plugin_names_)
-        {
-          planning_request_adapter::PlanningRequestAdapterPtr ad;
-          ad = adapter_plugin_loader_->createUniqueInstance(adapter_plugin_name);
-          ad->initialize(nh_);
-          ads.push_back(std::move(ad));
-        }
-        adapter_chain_.reset(new planning_request_adapter::PlanningRequestAdapterChain());
-        for (planning_request_adapter::PlanningRequestAdapterConstPtr& ad : ads)
-          adapter_chain_->addAdapter(ad);
-      }
-      displayComputedMotionPlans(true);
-      checkSolutionPaths(true);
-    ```
+  // 3. If the adapter pluging names where correctly retrieved from the ROS paramenters
+  //    then instantiate the adapter plugins
+  if (!adapter_plugin_names_.empty())
+  {
+    // 3.1 Load the plugins
+    std::vector<planning_request_adapter::PlanningRequestAdapterConstPtr> ads;
+    adapter_plugin_loader_.reset(new pluginlib::ClassLoader<planning_request_adapter::PlanningRequestAdapter>(
+          "moveit_core", "planning_request_adapter::PlanningRequestAdapter"));
 
-- **Generate plan** 
-    ```C++
-    // input 
-    //   - const planning_scene::PlanningSceneConstPtr& planning_scene,
-    //   - const planning_interface::MotionPlanRequest& req,
-    // output
-    //   - planning_interface::MotionPlanResponse& res,
-    bool planning_pipeline::PlanningPipeline::generatePlan(const planning_scene::PlanningSceneConstPtr& planning_scene,
-                                                           const planning_interface::MotionPlanRequest& req,
-                                                           planning_interface::MotionPlanResponse& res,
-                                                           std::vector<std::size_t>& adapter_added_state_index) const
+    for (const std::string& adapter_plugin_name : adapter_plugin_names_)
     {
-      if (publish_received_requests_) received_request_publisher_.publish(req);
-
-      bool solved = false;
-       if (adapter_chain_)
-       {
-         solved = adapter_chain_->adaptAndPlan(planner_instance_, planning_scene, req, res, adapter_added_state_index);
-         if (!adapter_added_state_index.empty())
-         {
-           std::stringstream ss;
-           for (std::size_t added_index : adapter_added_state_index)
-             ss << added_index << " ";
-           ROS_INFO("Planning adapters have added states at index positions: [ %s]", ss.str().c_str());
-         }
-       }
-       else
-       {
-         planning_interface::PlanningContextPtr context =
-             planner_instance_->getPlanningContext(planning_scene, req, res.error_code_);
-         solved = context ? context->solve(res) : false;
-       }
-
-      bool valid = true;
-
-      if (solved && res.trajectory_)
-      {
-        std::size_t state_count = res.trajectory_->getWayPointCount();
-        ROS_DEBUG_STREAM("Motion planner reported a solution path with " << state_count << " states");
-        if (check_solution_paths_)
-        {
-          std::vector<std::size_t> index;
-          if (!planning_scene->isPathValid(*res.trajectory_, req.path_constraints, req.group_name, false, &index))
-          {
-            // check to see if there is any problem with the states that are found to be invalid
-            // they are considered ok if they were added by a planning request adapter
-          }
-          else
-            ROS_DEBUG("Planned path was found to be valid when rechecked");
-        }
-      }
-
-      if (display_computed_motion_plans_ && solved)
-      {
-      // display solution path to `display_planned_path`
-      }
-
-      if (!solved)
-      {
-        // This should alert the user if planning failed because of contradicting constraints.
-        // Could be checked more thoroughly, but it is probably not worth going to that length.
-      }
-
-      return solved && valid;
+      planning_request_adapter::PlanningRequestAdapterPtr ad;
+      ad = adapter_plugin_loader_->createUniqueInstance(adapter_plugin_name);
+      ad->initialize(nh_);
+      ads.push_back(std::move(ad));
     }
-    ```
+    // 3.2 instantiate a PlanningRequestAdapterChain, this is a container of adapters.
+    adapter_chain_.reset(new planning_request_adapter::PlanningRequestAdapterChain());
+    // 3.3 push the adapters into the adapter container.
+    for (planning_request_adapter::PlanningRequestAdapterConstPtr& ad : ads)
+      adapter_chain_->addAdapter(ad);
+  }
+  // 4. Initialize the publishers
+  displayComputedMotionPlans(true);
+  // 5. Enable the flag to check the solutions afet the planning pipeline is done.
+  checkSolutionPaths(true);
+```
 
+## How the plan is generated in detail
+```C++
+// input 
+//   - const planning_scene::PlanningSceneConstPtr& planning_scene,
+//   - const planning_interface::MotionPlanRequest& req,
+// output
+//   - planning_interface::MotionPlanResponse& res,
+bool planning_pipeline::PlanningPipeline::generatePlan(const planning_scene::PlanningSceneConstPtr& planning_scene,
+                                                       const planning_interface::MotionPlanRequest& req,
+                                                       planning_interface::MotionPlanResponse& res,
+                                                       std::vector<std::size_t>& adapter_added_state_index) const
+{
+  // 1. Tell everyone that you are compuging a new plan
+  if (publish_received_requests_) received_request_publisher_.publish(req);
+  
+  bool solved = false;
+  // 2. If you have an adapter chain (i.e. its name was load 
+  //    from the paramenters and its plugins correctly instantianted)
+  //    then use it
+   if (adapter_chain_)
+   {
+     solved = adapter_chain_->adaptAndPlan(planner_instance_, planning_scene, req, res, adapter_added_state_index);
+     if (!adapter_added_state_index.empty())
+     {
+       std::stringstream ss;
+       for (std::size_t added_index : adapter_added_state_index)
+         ss << added_index << " ";
+       ROS_INFO("Planning adapters have added states at index positions: [ %s]", ss.str().c_str());
+     }
+   }
+   else
+   {
+  // 3. If you don't have an adapter chain, plan using the PlannerManager (e.g. OMPL)
+     planning_interface::PlanningContextPtr context =
+         planner_instance_->getPlanningContext(planning_scene, req, res.error_code_);
+     solved = context ? context->solve(res) : false;
+   }
+
+  bool valid = true;
+
+  // 4. If the problem was solved, then tell it
+  if (solved && res.trajectory_)
+  {
+    std::size_t state_count = res.trajectory_->getWayPointCount();
+    ROS_DEBUG_STREAM("Motion planner reported a solution path with " << state_count << " states");
+    // 4.1 If necessary check the solution.
+    if (check_solution_paths_)
+    {
+      std::vector<std::size_t> index;
+      if (!planning_scene->isPathValid(*res.trajectory_, req.path_constraints, req.group_name, false, &index))
+      {
+        // check to see if there is any problem with the states that are found to be invalid
+        // they are considered ok if they were added by a planning request adapter
+      }
+      else
+        ROS_DEBUG("Planned path was found to be valid when rechecked");
+    }
+  }
+
+
+  // 5. display solution path to `display_planned_path`
+  if (display_computed_motion_plans_ && solved)
+  {
+      //...
+  }
+
+  return solved && valid;
+}
+```
+
+## Planning request adapters
+
+Planning Request Adapters is the MoveIt pipeline implementation to pre-processing and/or post-processing paths/trajectories. 
+Thanks to this multiple motion planning algorithms can be used in a pipeline to produce robust motion plans.
+Some examples of existing planning adapters in MoveIt include `AddTimeParameterization`, `FixWorkspaceBounds`, `FixStartBounds`, `FixStartStateCollision`, `FixStartStatePathConstraints`, `CHOMPOptimizerAdapter`, etc.
+
+The generic interface to adapting motion planning requests is the abstract class `PlanningRequestAdapter` [defined here](https://github.com/ros-planning/moveit/blob/a29a30caaecbd130d85056d959d4eb1c30d4088f/moveit_core/planning_request_adapter/include/moveit/planning_request_adapter/planning_request_adapter.h#L49) and [implemented here](https://github.com/ros-planning/moveit/blob/ff50476c4070eb86d0a70aa39281d5805db13fa5/moveit_core/planning_request_adapter/src/planning_request_adapter.cpp).
+
+- `PlanningRequestAdapter` **pure virtual methods**
+
+    - `void initialize(const ros::NodeHandle& node_handle) = 0;` Initialize parameters using the passed NodeHandle if no initialization is needed, simply implement as empty
+    - `adaptAndPlan(const PlannerFn& planner, const planning_scene::PlanningSceneConstPtr& planning_scene, const planning_interface::MotionPlanRequest& req, planning_interface::MotionPlanResponse& res, std::vector<std::size_t>& added_path_index) const = 0;` Adapt the planning request if needed, call the planner function  planner and update the planning response if needed. If the response is changed, the index values of the states added without planning are added to `added_path_index`
+
+The `PlanningRequestAdapterChain`[defined here](https://github.com/ros-planning/moveit/blob/a29a30caaecbd130d85056d959d4eb1c30d4088f/moveit_core/planning_request_adapter/include/moveit/planning_request_adapter/planning_request_adapter.h) and [implemented here](https://github.com/ros-planning/moveit/blob/ff50476c4070eb86d0a70aa39281d5805db13fa5/moveit_core/planning_request_adapter/src/planning_request_adapter.cpp) is the custom interface to store several with `PlanningRequestAdapter::adaptAndPlan` method [implemented here](https://github.com/ros-planning/moveit/blob/ff50476c4070eb86d0a70aa39281d5805db13fa5/moveit_core/planning_request_adapter/src/planning_request_adapter.cpp#L129)
+
+- **How does `PlanningRequestAdapterChain::adaptAndPlan` works**
+1. if there are no adapters, run the planner directly
+```C++
+    planning_interface::PlanningContextPtr context = planner_manager->getPlanningContext(planning_scene, planning_request, planning_request_result.error_code_)
+```
+2. For each adapter runs
+```C++
+adapter->adaptAndPlan(planner_manager, planning_scene, planning_req, planning_request_result, added_path_index);
+```
+3. merge the index values from each adapter
+```
+  // 
+  for (std::vector<std::size_t>& added_states_by_each_adapter : added_path_index_each)
+    for (std::size_t& added_index : added_states_by_each_adapter)
+    {
+      for (std::size_t& index_in_path : added_path_index)
+        if (added_index <= index_in_path)
+          index_in_path++;
+      added_path_index.push_back(added_index);
+    }
+  std::sort(added_path_index.begin(), added_path_index.end());
+  return result;
+}
+
+```
