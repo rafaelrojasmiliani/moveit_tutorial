@@ -19,14 +19,37 @@ planning_pipeline::PlanningPipeline::generatePlan(...)
 ``` 
 to solve motion planning problems using the desired motion planning plugin plugin (e.g. OMPL) and the `planning_request_adapter::PlanningRequestAdapter` plugins, in the specified order.
 
-- **Requirements to instantiate a Planning pipeline**
-    - A robot model (`moveit::core::RobotModel`) for which this pipeline is initialized.
-    - (default `ros::NodeHandle("~")`) ROS node handle that should be used for reading parameters needed for configuration
-    - (default in ROS parameter `"planning_plugin"` which by default is `ompl_interface/OMPLPlanner`) The name of the ROS parameter under which the name of the planning plugin is specified
-    - (default in ROS parameter `"request_adapters"`) The name of the ROS parameter under which the names of the request adapter plugins are specified (plugin names separated by space; order matters) or array of plugin names. This is stored in `PlanningPipeline::adapter_plugin_names_`. By default the `"request_adapters"` ROS paramter has
-    ```
-    default_planner_request_adapters/AddTimeParameterization            default_planner_request_adapters/FixWorkspaceBounds            default_planner_request_adapters/FixStartStateBounds            default_planner_request_adapters/FixStartStateCollision            default_planner_request_adapters/FixStartStatePathConstraints
-    ```
+## Planning request adapters
+
+Planning Request Adapters is the MoveIt pipeline implementation to pre-processing and/or post-processing paths/trajectories. 
+Thanks to this multiple motion planning algorithms can be used in a pipeline to produce robust motion plans.
+Some examples of existing planning adapters in MoveIt include `AddTimeParameterization`, `FixWorkspaceBounds`, `FixStartBounds`, `FixStartStateCollision`, `FixStartStatePathConstraints`, `CHOMPOptimizerAdapter`, etc.
+
+The generic interface to adapting motion planning requests is the abstract class `PlanningRequestAdapter` [defined here](https://github.com/ros-planning/moveit/blob/a29a30caaecbd130d85056d959d4eb1c30d4088f/moveit_core/planning_request_adapter/include/moveit/planning_request_adapter/planning_request_adapter.h#L49) and [partially implemented here](https://github.com/ros-planning/moveit/blob/ff50476c4070eb86d0a70aa39281d5805db13fa5/moveit_core/planning_request_adapter/src/planning_request_adapter.cpp).
+
+Each Planning Request adapter implements the `adaptAndPlan` function, which is the main procedure in the motion planner pipeline
+```C++
+adaptAndPlan(const PlannerFn& planner, const planning_scene::PlanningSceneConstPtr& planning_scene, const planning_interface::MotionPlanRequest& req, planning_interface::MotionPlanResponse& res, std::vector<std::size_t>& added_path_index)
+```
+Such function adapt the planning request if needed, call the planner function  planner and update the planning response if needed. 
+If the response is changed, the index values of the states added without planning are added to `added_path_index`
+
+## Planner Request Adapter Chain: The container of Planing Request Adapters.
+
+The MoveIT provides the `PlanningRequestAdapter` container class called `PlanningRequestAdapterChain` [defined here](https://github.com/ros-planning/moveit/blob/ff552bf861609f99ca97a7e173fcbeb0c03e9f45/moveit_core/planning_request_adapter/include/moveit/planning_request_adapter/planning_request_adapter.h#L94) and [implemented here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_core/planning_request_adapter/src/planning_request_adapter.cpp).
+This class is the manager of `PlanningRequestAdapter` inside the `PlanningPipeline` instance and is the responsible of calling the sequence of `PlanningRequestAdapter`, i.e. this class is the executor of the main task of `PlanningPipeline`.
+In its constructor `PlanningPipeline` will initialize an instance of this class.
+After that, it will push on this instance the instance of the `PlanningRequestAdapter` plugins loaded.
+The sequence of `PlanningRequestAdapter::adaptAndPlan` are called by  the `PlanningRequestAdapterChain::adaptAndPlan` method [implemented here](https://github.com/ros-planning/moveit/blob/ff552bf861609f99ca97a7e173fcbeb0c03e9f45/moveit_core/planning_request_adapter/src/planning_request_adapter.cpp#L129).
+## Planning Pipeline in detail
+**Requirements to instantiate a Planning pipeline**
+- A robot model (`moveit::core::RobotModel`) for which this pipeline is initialized.
+- (default `ros::NodeHandle("~")`) ROS node handle that should be used for reading parameters needed for configuration
+- (default in ROS parameter `"planning_plugin"` which by default is `ompl_interface/OMPLPlanner`) The name of the ROS parameter under which the name of the planning plugin is specified
+- (default in ROS parameter `"request_adapters"`) The name of the ROS parameter under which the names of the request adapter plugins are specified (plugin names separated by space; order matters) or array of plugin names. This is stored in `PlanningPipeline::adapter_plugin_names_`. By default the `"request_adapters"` ROS paramter has
+```
+default_planner_request_adapters/AddTimeParameterization            default_planner_request_adapters/FixWorkspaceBounds            default_planner_request_adapters/FixStartStateBounds            default_planner_request_adapters/FixStartStateCollision            default_planner_request_adapters/FixStartStatePathConstraints
+```
 
 - **Published topics**
     - `display_planned_path` of type `moveit_msgs::DisplayTrajectory`
@@ -163,17 +186,8 @@ The pure virtual methods of `PlanningRequestAdapter` are:
 - `adaptAndPlan(const PlannerFn& planner, const planning_scene::PlanningSceneConstPtr& planning_scene, const planning_interface::MotionPlanRequest& req, planning_interface::MotionPlanResponse& res, std::vector<std::size_t>& added_path_index) const = 0;` Adapt the planning request if needed, call the planner function  planner and update the planning response if needed. If the response is changed, the index values of the states added without planning are added to `added_path_index`
 
 ## Planner Request Adapter Chain: The container of Planing Request Adapters.
-
-The MoveIT provides the `PlanningRequestAdapter` container class called `PlanningRequestAdapterChain` [defined here](https://github.com/ros-planning/moveit/blob/ff552bf861609f99ca97a7e173fcbeb0c03e9f45/moveit_core/planning_request_adapter/include/moveit/planning_request_adapter/planning_request_adapter.h#L94) and [implemented here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_core/planning_request_adapter/src/planning_request_adapter.cpp).
-This class is the manager of `PlanningRequestAdapter` inside the `PlanningPipeline` instance and is the responsible of calling the secuence of `PlanningRequestAdapter`, i.e. this class is the executor of the main task of `PlanningPipeline`.
-The sequence of `PlanningRequestAdapter` are called by  the `PlanningRequestAdapter::adaptAndPlan` method [implemented here](https://github.com/ros-planning/moveit/blob/ff552bf861609f99ca97a7e173fcbeb0c03e9f45/moveit_core/planning_request_adapter/src/planning_request_adapter.cpp#L129).
-
-2. For each adapter runs
+After caling `adaptAndPlan` for each plan adapter,  it ill merge the index values from each adapter
 ```C++
-adapter->adaptAndPlan(planner_manager, planning_scene, planning_req, planning_request_result, added_path_index);
-```
-3. merge the index values from each adapter
-```
   // 
   for (std::vector<std::size_t>& added_states_by_each_adapter : added_path_index_each)
     for (std::size_t& added_index : added_states_by_each_adapter)
