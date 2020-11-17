@@ -6,6 +6,7 @@ There are often times when we may want to pre-process the motion planning reques
 In such cases, we use the planning pipeline which chains a motion planner with pre-processing and post-processing stages.
 The pre and post-processing stages, called planning request adapters, can be configured by name from the ROS parameter server.
 
+Example:
 ```mermaid
 graph LR
     RRT --> Smoothing
@@ -20,18 +21,37 @@ to solve motion planning problems using the desired motion planning plugin plugi
 
 ## Planning request adapters
 
+```mermaid
+graph LR
+    A(PlanningRequestAdapter) --> B(PlanningRequestAdapter) --> C(...) --> D(PlanningRequestAdapter)
+```
 Planning Request Adapters is the MoveIt pipeline implementation to pre-processing and/or post-processing paths/trajectories. 
 Thanks to this multiple motion planning algorithms can be used in a pipeline to produce robust motion plans.
 Some examples of existing planning adapters in MoveIt include `AddTimeParameterization`, `FixWorkspaceBounds`, `FixStartBounds`, `FixStartStateCollision`, `FixStartStatePathConstraints`, `CHOMPOptimizerAdapter`, etc.
 
 The generic interface to adapting motion planning requests is the abstract class `PlanningRequestAdapter` [defined here](https://github.com/ros-planning/moveit/blob/a29a30caaecbd130d85056d959d4eb1c30d4088f/moveit_core/planning_request_adapter/include/moveit/planning_request_adapter/planning_request_adapter.h#L49) and [partially implemented here](https://github.com/ros-planning/moveit/blob/ff50476c4070eb86d0a70aa39281d5805db13fa5/moveit_core/planning_request_adapter/src/planning_request_adapter.cpp).
 
-Each Planning Request adapter implements the `adaptAndPlan` function, which is the main procedure in the motion planner pipeline
+Each Planning Request adapter implements the `adaptAndPlan` function, which is the main procedure in the motion planner pipeline which adapt the planning request/result if required
 ```C++
 adaptAndPlan(const PlannerFn& planner, const planning_scene::PlanningSceneConstPtr& planning_scene, const planning_interface::MotionPlanRequest& req, planning_interface::MotionPlanResponse& res, std::vector<std::size_t>& added_path_index)
 ```
-Such function adapt the planning request if needed, call the planner function  planner and update the planning response if needed. 
-If the response is changed, the index values of the states added without planning are added to `added_path_index`
+The first argument of this function is a boost pointer to a function defined as
+```C++
+typedef 
+    boost::function<
+            bool(const planning_scene::PlanningSceneConstPtr& planning_scene,
+                 const planning_interface::MotionPlanRequest& req,
+                 planning_interface::MotionPlanResponse& res)> PlannerFn;
+```
+If the response is changed, the index values of the states added without planning are added to `added_path_index`.
+This function is a wrapper for the function `planning_interface::PlanningContext::solve`.
+
+
+- `default_planner_request_adapters/AddTimeParameterization` [implemented here](https://github.com/ros-planning/moveit/blob/ff552bf861609f99ca97a7e173fcbeb0c03e9f45/moveit_ros/planning/planning_request_adapter_plugins/src/add_time_parameterization.cpp#L44), this adapter process the response of the planning by adding time stamps to the path waypoints using the class `trajectory_processing::IterativeParabolicTimeParameterization` [implemented here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_core/trajectory_processing/src/iterative_time_parameterization.cpp).
+- `default_planner_request_adapters/FixWorkspaceBounds` [implemented here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/planning/planning_request_adapter_plugins/src/fix_workspace_bounds.cpp). This adapter process the motion planning request by setting the workspace bounding box in case they are not set.
+- `default_planner_request_adapters/FixStartStateBounds` [implemented here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/planning/planning_request_adapter_plugins/src/fix_start_state_bounds.cpp) fix joint positions outside the declared bounds at the initial state.
+- `default_planner_request_adapters/FixStartStateCollision` [implemented here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/planning/planning_request_adapter_plugins/src/fix_start_state_collision.cpp). Check if the start position is in collision, if so its search for a non colliding random position (in the joint space) in its neighborhood.
+- `default_planner_request_adapters/FixStartStatePathConstraints` [implemented here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/planning/planning_request_adapter_plugins/src/fix_start_state_path_constraints.cpp). Check that the initial position is coherent with the path constraints. If not, then compute a second plan to joint the initial state to a point of the constraint manifold.
 
 ## Planner Request Adapter Chain: The container of Planing Request Adapters.
 
@@ -183,6 +203,35 @@ The generic interface to adapting motion planning requests is the abstract class
 The pure virtual methods of `PlanningRequestAdapter` are:
 - `void initialize(const ros::NodeHandle& node_handle) = 0;` 
 - `adaptAndPlan(const PlannerFn& planner, const planning_scene::PlanningSceneConstPtr& planning_scene, const planning_interface::MotionPlanRequest& req, planning_interface::MotionPlanResponse& res, std::vector<std::size_t>& added_path_index) const = 0;` Adapt the planning request if needed, call the planner function  planner and update the planning response if needed. If the response is changed, the index values of the states added without planning are added to `added_path_index`
+
+
+In detail, `adaptAndPlan` is overloaded as
+```C++
+bool PlanningRequestAdapter::adaptAndPlan(const planning_interface::PlannerManagerPtr& planner,
+                                          const planning_scene::PlanningSceneConstPtr& planning_scene,
+                                          const planning_interface::MotionPlanRequest& req,
+                                          planning_interface::MotionPlanResponse& res,
+                                          std::vector<std::size_t>& added_path_index) const
+{
+  return adaptAndPlan(boost::bind(&callPlannerInterfaceSolve, planner.get(), _1, _2, _3), planning_scene, req, res,
+                      added_path_index);
+}
+```
+and
+```C++
+bool callPlannerInterfaceSolve(const planning_interface::PlannerManager* planner,
+                               const planning_scene::PlanningSceneConstPtr& planning_scene,
+                               const planning_interface::MotionPlanRequest& req,
+                               planning_interface::MotionPlanResponse& res)
+{
+  planning_interface::PlanningContextPtr context = planner->getPlanningContext(planning_scene, req, res.error_code_);
+  if (context)
+    return context->solve(res);
+  else
+    return false;
+}
+}
+```
 
 ## Planner Request Adapter Chain: The container of Planing Request Adapters.
 After caling `adaptAndPlan` for each plan adapter,  it ill merge the index values from each adapter
