@@ -10,7 +10,7 @@ The pre and post-processing stages, called planning request adapters, can be con
 ```mermaid
 graph LR
     RRT --> Smoothing
-    Smoothing --> (Time parametrization)
+    Smoothing --> id(Time parametrization)
 ```
 
 This class facilitates loading planning plugins and planning request adapted plugin.
