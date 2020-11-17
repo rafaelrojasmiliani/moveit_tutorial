@@ -10,16 +10,10 @@ This example teach how to plan motions in the joint space using the moveit plugi
 
 ```mermaid
     sequenceDiagram
-    participant Alice
-    participant Bob
-    Alice->>John: Hello John, how are you?
-    loop Healthcheck
-        John->>John: Fight against hypochondria
-    end
-    Note right of John: Rational thoughts <br/>prevail!
-    John-->>Alice: Great!
-    John->>Bob: How about you?
-    Bob-->>John: Jolly good!
+    participant Planning Scene Monitor
+    participant Planner
+    participant Rviz
+    Planning Scene Monitor->>Rviz: "get_scene" `moveit_msgs/GetPlanningScene` 
 ```
 
 ## Current state motinor
