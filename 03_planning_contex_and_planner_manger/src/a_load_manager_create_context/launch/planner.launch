@@ -1,0 +1,8 @@
+<launch>
+
+<include file="$(find a_load_manager_create_context)/launch/planning_scene_monitor.launch"/>
+<group ns="myrobot">
+<param name="planning_plugin" value="ompl_interface/OMPLPlanner" />
+    <node name="planner" pkg="a_load_manager_create_context" type="planner_node" output="screen"/>
+</group>
+</launch>
