@@ -3,9 +3,15 @@
 
 In MoveIt, the motion planners are setup to plan paths.
 The class `planning_pipeline::PlanningPipelie` is [defined here](https://github.com/ros-planning/moveit/blob/master/moveit_ros/planning/planning_pipeline/include/moveit/planning_pipeline/planning_pipeline.h) and [implemented here](https://github.com/ros-planning/moveit/blob/master/moveit_ros/planning/planning_pipeline/src/planning_pipeline.cpp).
-However, there are often times when we may want to pre-process the motion planning request or post-process the planned path (e.g. for time parameterization).
+There are often times when we may want to pre-process the motion planning request or post-process the planned path (e.g. for time parameterization).
 In such cases, we use the planning pipeline which chains a motion planner with pre-processing and post-processing stages.
 The pre and post-processing stages, called planning request adapters, can be configured by name from the ROS parameter server.
+
+```mermaid
+graph LR
+    RRT --> Smoothing
+    Smoothing --> Time parametrization
+```
 
 This class facilitates loading planning plugins and planning request adapted plugin.
 It also allows calling `planning_interface::PlanningContext::solve()` from a loaded planning plugin and the `planning_request_adapter::PlanningRequestAdapter` plugins, in the specified order.
