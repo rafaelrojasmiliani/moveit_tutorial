@@ -156,7 +156,7 @@ Planning Request Adapters is the MoveIt pipeline implementation to pre-processin
 Thanks to this multiple motion planning algorithms can be used in a pipeline to produce robust motion plans.
 Some examples of existing planning adapters in MoveIt include `AddTimeParameterization`, `FixWorkspaceBounds`, `FixStartBounds`, `FixStartStateCollision`, `FixStartStatePathConstraints`, `CHOMPOptimizerAdapter`, etc.
 
-The generic interface to adapting motion planning requests is the abstract class `PlanningRequestAdapter` [defined here](https://github.com/ros-planning/moveit/blob/a29a30caaecbd130d85056d959d4eb1c30d4088f/moveit_core/planning_request_adapter/include/moveit/planning_request_adapter/planning_request_adapter.h#L49) and [implemented here](https://github.com/ros-planning/moveit/blob/ff50476c4070eb86d0a70aa39281d5805db13fa5/moveit_core/planning_request_adapter/src/planning_request_adapter.cpp).
+The generic interface to adapting motion planning requests is the abstract class `PlanningRequestAdapter` [defined here](https://github.com/ros-planning/moveit/blob/a29a30caaecbd130d85056d959d4eb1c30d4088f/moveit_core/planning_request_adapter/include/moveit/planning_request_adapter/planning_request_adapter.h#L49) and [partially implemented here](https://github.com/ros-planning/moveit/blob/ff50476c4070eb86d0a70aa39281d5805db13fa5/moveit_core/planning_request_adapter/src/planning_request_adapter.cpp).
 
 - `PlanningRequestAdapter` **pure virtual methods**
 
