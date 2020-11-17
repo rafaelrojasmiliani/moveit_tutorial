@@ -1,4 +1,17 @@
-# Plan in joint sace
+# Planning in the joint space
+
+This example teach how to plan motions in the joint space using the moveit plugin for OMPL.
+
+| File | Description |
+| ---- | ----------- |
+| `src/planning_scene_monitor.cpp` | Instance of a Planning Scene Monitor. |
+| `src/planner.cpp` | Implementation of the moveit OMPL plugin |
+
+
+```mermaid
+graph TD;
+    A-->B;
+```
 
 ## Current state motinor
 This is an instance of Plannisn Scene motnior [defined here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/planning/planning_scene_monitor/include/moveit/planning_scene_monitor/current_state_monitor.h) and [implemented here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/planning/planning_scene_monitor/src/current_state_monitor.cpp).
