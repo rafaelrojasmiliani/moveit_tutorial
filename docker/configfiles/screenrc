@@ -9,5 +9,3 @@ caption always "%{= bb}%{+b w}%n %t %h %=%l %H %c"
 hardstatus alwayslastline "%-Lw%{= BW}%50>%n%f* %t%{-}%+Lw%<"
 activity "Activity in %t(%n)"
 shelltitle "shell"
-shell -$SHEL
-defshell -bash
