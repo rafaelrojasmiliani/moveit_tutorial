@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
       load_plan_manager_plugin("planning_plugin");
 
   if (not plan_manager) {
-    ROS_FATAL_STREAM("Failted to load plugin");
+    ROS_FATAL_STREAM("Failed to load plugin");
     ros::shutdown();
     return 0;
   }
