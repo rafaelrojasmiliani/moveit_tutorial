@@ -1,4 +1,3 @@
-[TOC]
 ## Planning Pipeline
 
 In MoveIt, the motion planners are setup to plan paths.
