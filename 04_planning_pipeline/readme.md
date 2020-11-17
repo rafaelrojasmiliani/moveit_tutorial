@@ -158,18 +158,16 @@ Some examples of existing planning adapters in MoveIt include `AddTimeParameteri
 
 The generic interface to adapting motion planning requests is the abstract class `PlanningRequestAdapter` [defined here](https://github.com/ros-planning/moveit/blob/a29a30caaecbd130d85056d959d4eb1c30d4088f/moveit_core/planning_request_adapter/include/moveit/planning_request_adapter/planning_request_adapter.h#L49) and [partially implemented here](https://github.com/ros-planning/moveit/blob/ff50476c4070eb86d0a70aa39281d5805db13fa5/moveit_core/planning_request_adapter/src/planning_request_adapter.cpp).
 
-- `PlanningRequestAdapter` **pure virtual methods**
+The pure virtual methods of `PlanningRequestAdapter` are:
+- `void initialize(const ros::NodeHandle& node_handle) = 0;` 
+- `adaptAndPlan(const PlannerFn& planner, const planning_scene::PlanningSceneConstPtr& planning_scene, const planning_interface::MotionPlanRequest& req, planning_interface::MotionPlanResponse& res, std::vector<std::size_t>& added_path_index) const = 0;` Adapt the planning request if needed, call the planner function  planner and update the planning response if needed. If the response is changed, the index values of the states added without planning are added to `added_path_index`
 
-    - `void initialize(const ros::NodeHandle& node_handle) = 0;` Initialize parameters using the passed NodeHandle if no initialization is needed, simply implement as empty
-    - `adaptAndPlan(const PlannerFn& planner, const planning_scene::PlanningSceneConstPtr& planning_scene, const planning_interface::MotionPlanRequest& req, planning_interface::MotionPlanResponse& res, std::vector<std::size_t>& added_path_index) const = 0;` Adapt the planning request if needed, call the planner function  planner and update the planning response if needed. If the response is changed, the index values of the states added without planning are added to `added_path_index`
+## Planner Request Adapter Chain: The container of Planing Request Adapters.
 
-The `PlanningRequestAdapterChain`[defined here](https://github.com/ros-planning/moveit/blob/a29a30caaecbd130d85056d959d4eb1c30d4088f/moveit_core/planning_request_adapter/include/moveit/planning_request_adapter/planning_request_adapter.h) and [implemented here](https://github.com/ros-planning/moveit/blob/ff50476c4070eb86d0a70aa39281d5805db13fa5/moveit_core/planning_request_adapter/src/planning_request_adapter.cpp) is the custom interface to store several with `PlanningRequestAdapter::adaptAndPlan` method [implemented here](https://github.com/ros-planning/moveit/blob/ff50476c4070eb86d0a70aa39281d5805db13fa5/moveit_core/planning_request_adapter/src/planning_request_adapter.cpp#L129)
+The MoveIT provides the `PlanningRequestAdapter` container class called `PlanningRequestAdapterChain` [defined here](https://github.com/ros-planning/moveit/blob/ff552bf861609f99ca97a7e173fcbeb0c03e9f45/moveit_core/planning_request_adapter/include/moveit/planning_request_adapter/planning_request_adapter.h#L94) and [implemented here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_core/planning_request_adapter/src/planning_request_adapter.cpp).
+This class is the manager of `PlanningRequestAdapter` inside the `PlanningPipeline` instance and is the responsible of calling the secuence of `PlanningRequestAdapter`, i.e. this class is the executor of the main task of `PlanningPipeline`.
+The sequence of `PlanningRequestAdapter` are called by  the `PlanningRequestAdapter::adaptAndPlan` method [implemented here](https://github.com/ros-planning/moveit/blob/ff552bf861609f99ca97a7e173fcbeb0c03e9f45/moveit_core/planning_request_adapter/src/planning_request_adapter.cpp#L129).
 
-- **How does `PlanningRequestAdapterChain::adaptAndPlan` works**
-1. if there are no adapters, run the planner directly
-```C++
-    planning_interface::PlanningContextPtr context = planner_manager->getPlanningContext(planning_scene, planning_request, planning_request_result.error_code_)
-```
 2. For each adapter runs
 ```C++
 adapter->adaptAndPlan(planner_manager, planning_scene, planning_req, planning_request_result, added_path_index);
