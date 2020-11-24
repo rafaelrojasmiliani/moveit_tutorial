@@ -3,6 +3,7 @@
 #include <pluginlib/class_loader.h> // pluginlib::ClassLoader
 #include <ros/ros.h>
 #include <sensor_msgs/JointState.h>
+#include <std_srvs/Trigger.h>
 
 // MoveIt
 #include <moveit/kinematic_constraints/utils.h> // kinematic_constraints::
@@ -17,14 +18,16 @@
 // C++
 #include <boost/scoped_ptr.hpp> //boost::scoped_ptr
 
+planning_interface::PlannerManagerPtr _plan_manager_;
+robot_model::RobotModelPtr _model_;
 // loads the plan manager plugin given a parameter name
 planning_interface::PlannerManagerPtr
 load_plan_manager_plugin(const std::string _param_name);
 // evaluates if the planning_scene has a colision in its current state
 bool is_there_a_collision(planning_scene::PlanningScenePtr _ps);
 // loop to plan random motions
-void plan_random_motions(robot_model::RobotModelPtr _model,
-                         planning_interface::PlannerManagerPtr _plan_manager);
+bool plan_random_motions(std_srvs::TriggerRequest &request,
+                         std_srvs::TriggerResponse &response);
 // instantiates a planning context with the input data and
 // tries to generate a plan to reach _state
 planning_interface::MotionPlanResponse
@@ -41,19 +44,18 @@ int main(int argc, char **argv) {
   ros::NodeHandle node_handle;
 
   robot_model_loader::RobotModelLoader loader("robot_description");
-  robot_model::RobotModelPtr model = loader.getModel();
+  _model_ = loader.getModel();
 
-  planning_interface::PlannerManagerPtr plan_manager =
-      load_plan_manager_plugin("planning_plugin");
+  _plan_manager_ = load_plan_manager_plugin("planning_plugin");
 
-  if (not plan_manager) {
+  if (not _plan_manager_ or not _model_) {
     ROS_FATAL_STREAM("Failed to load plugin");
     ros::shutdown();
     return 0;
   }
 
   bool can_initialize =
-      plan_manager->initialize(model, node_handle.getNamespace());
+      _plan_manager_->initialize(_model_, node_handle.getNamespace());
 
   if (not can_initialize) {
     ROS_FATAL_STREAM("Failed to initialize plugin");
@@ -61,7 +63,8 @@ int main(int argc, char **argv) {
     return 0;
   }
 
-  plan_random_motions(model, plan_manager);
+  ros::ServiceServer service =
+      node_handle.advertiseService("plan_random_motion", plan_random_motions);
 
   ros::waitForShutdown();
   return 0;
@@ -91,8 +94,8 @@ load_plan_manager_plugin(const std::string _param_name) {
   return plan_manager;
 }
 
-void plan_random_motions(robot_model::RobotModelPtr _model,
-                         planning_interface::PlannerManagerPtr _plan_manager) {
+bool plan_random_motions(std_srvs::TriggerRequest &request,
+                         std_srvs::TriggerResponse &response) {
   /*This functions will request for plans to move the robot from its actual
    * state to a random position in the joint space.*/
   // 1. initializes ros stuff
@@ -100,7 +103,7 @@ void plan_random_motions(robot_model::RobotModelPtr _model,
   // 2. instantiates a planning scene using the robot moveit model
   // NOTE: here we use a pointer because planning context requres a pointer
   planning_scene::PlanningScenePtr workspace(
-      new planning_scene::PlanningScene(_model));
+      new planning_scene::PlanningScene(_model_));
 
   // 3. Creates a client to update the planning scene
   ros::ServiceClient client =
@@ -111,38 +114,43 @@ void plan_random_motions(robot_model::RobotModelPtr _model,
   moveit_msgs::GetPlanningScene srv;
   // 4. Get the group name and instantes a point to the joint group where the
   // plan will be done. NOTE: In this example there is only one joint group
-  const std::string joint_group_name = _model->getJointModelGroupNames().back();
+  const std::string joint_group_name =
+      _model_->getJointModelGroupNames().back();
   const robot_model::JointModelGroup *joint_group =
-      _model->getJointModelGroup(joint_group_name);
-  while (ros::ok()) {
-    // 5. retrieve the planning scene
-    client.call(srv);
-    workspace->setPlanningSceneMsg(srv.response.scene);
-    // 6. Get the initial robot state and store it in a buffer
-    robot_state::RobotState &state = workspace->getCurrentStateNonConst();
-    std::vector<double> start_joint_position;
-    state.copyJointGroupPositions(joint_group, start_joint_position);
-    // 7. compute a feasible random position using the robot_state already
-    // retrieved
-    do {
-      state.setToRandomPositions(joint_group);
-    } while (is_there_a_collision(workspace));
-    // 8. copy the feasible state and restore the state of the planning scene
-    robot_state::RobotState goal_state(state);
-    state.setJointGroupPositions(joint_group, start_joint_position);
-    // 9. Plan a motion from the current state to the feasible random state
-    planning_interface::MotionPlanResponse result;
-    result =
-        plan_group_to_state(workspace, _plan_manager, joint_group, goal_state);
-    if (result.error_code_.val != result.error_code_.SUCCESS) {
-      ROS_ERROR("Could not compute plan successfully");
-      ros::WallDuration(0.5).sleep();
-    } else {
-      ROS_INFO("-----------------------\n Trajectory computed successfully\n "
-               "----------------------------");
-      publish_trajectory(result);
-    }
+      _model_->getJointModelGroup(joint_group_name);
+  // 5. retrieve the planning scene
+  client.call(srv);
+  workspace->setPlanningSceneMsg(srv.response.scene);
+  // 6. Get the initial robot state and store it in a buffer
+  robot_state::RobotState &state = workspace->getCurrentStateNonConst();
+  std::vector<double> start_joint_position;
+  state.copyJointGroupPositions(joint_group, start_joint_position);
+  // 7. compute a feasible random position using the robot_state already
+  // retrieved
+  do {
+    state.setToRandomPositions(joint_group);
+  } while (is_there_a_collision(workspace));
+  // 8. copy the feasible state and restore the state of the planning scene
+  robot_state::RobotState goal_state(state);
+  state.setJointGroupPositions(joint_group, start_joint_position);
+  // 9. Plan a motion from the current state to the feasible random state
+  planning_interface::MotionPlanResponse result;
+  result =
+      plan_group_to_state(workspace, _plan_manager_, joint_group, goal_state);
+  if (result.error_code_.val != result.error_code_.SUCCESS) {
+    ROS_ERROR("Could not compute plan successfully");
+    ros::WallDuration(0.5).sleep();
+    response.success = false;
+    response.message = "Could not compute plan successfully";
+    return false;
   }
+  ROS_INFO("-----------------------\n Trajectory computed successfully\n "
+           "----------------------------");
+  publish_trajectory(result);
+
+  response.success = true;
+  response.message = "ok";
+  return true;
 }
 
 bool is_there_a_collision(planning_scene::PlanningScenePtr _ps) {
@@ -155,6 +163,8 @@ bool is_there_a_collision(planning_scene::PlanningScenePtr _ps) {
   return false;
 }
 
+/*Asksthe motion planning plugin to motion plan using the MotionPlanRequest and
+ * MotionPlanResponse*/
 planning_interface::MotionPlanResponse
 plan_group_to_state(planning_scene::PlanningScenePtr _ps,
                     planning_interface::PlannerManagerPtr _plan_manager,
@@ -175,9 +185,9 @@ plan_group_to_state(planning_scene::PlanningScenePtr _ps,
   return result;
 }
 
-static unsigned int seq = 1;
 void publish_trajectory(planning_interface::MotionPlanResponse &res) {
 
+  static unsigned int seq = 1;
   ros::NodeHandle node_handle;
   ros::Publisher js_pub =
       node_handle.advertise<sensor_msgs::JointState>("joint_states_cmd", 10);
@@ -194,6 +204,6 @@ void publish_trajectory(planning_interface::MotionPlanResponse &res) {
     js.header.frame_id = "base_link";
     js.header.stamp = ros::Time::now();
     js_pub.publish(js);
-    ros::WallDuration(0.1).sleep();
+    ros::WallDuration(0.2).sleep();
   }
 }

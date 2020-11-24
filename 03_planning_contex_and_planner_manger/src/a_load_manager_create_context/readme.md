@@ -6,7 +6,8 @@ This example teach how to plan motions in the joint space using the moveit plugi
 | File | Description |
 | ---- | ----------- |
 | `src/planning_scene_monitor.cpp` | Instance of a Planning Scene Monitor. |
-| `src/planner.cpp` | Implementation of the moveit OMPL plugin |
+| `src/planner.cpp` | Implementation of the motion planning serice with moveit OMPL plugin. |
+| `src/orchestrator.cpp` | Adds/removes random objects as class the motion planning service. |
 | `launch/planner.launch` | Launch the example|
 | `launch/planning_scene_monitor.launch` | Launch the Planning Scene Monitor|
 

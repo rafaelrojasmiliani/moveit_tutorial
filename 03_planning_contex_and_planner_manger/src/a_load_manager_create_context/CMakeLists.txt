@@ -22,3 +22,9 @@ target_link_libraries(planner_node
   ${catkin_LIBRARIES}
   ${Eigen3_LIBRARIES}
 )
+
+add_executable(orchestrator src/orchestrator.cpp)
+target_link_libraries(orchestrator
+  ${catkin_LIBRARIES}
+  ${Eigen3_LIBRARIES}
+)
