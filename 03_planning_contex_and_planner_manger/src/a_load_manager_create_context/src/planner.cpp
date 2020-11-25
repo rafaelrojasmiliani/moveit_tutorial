@@ -12,6 +12,7 @@
 #include <moveit/robot_model_loader/robot_model_loader.h>
 #include <moveit/robot_trajectory/robot_trajectory.h> //robot_trajectory::
 #include <moveit_msgs/GetPlanningScene.h>
+#include <moveit_msgs/RobotTrajectory.h>
 
 // Trajectory messages
 #include <trajectory_msgs/JointTrajectoryPoint.h>
@@ -146,6 +147,7 @@ bool plan_random_motions(std_srvs::TriggerRequest &request,
   }
   ROS_INFO("-----------------------\n Trajectory computed successfully\n "
            "----------------------------");
+
   publish_trajectory(result);
 
   response.success = true;
@@ -193,7 +195,16 @@ void publish_trajectory(planning_interface::MotionPlanResponse &res) {
       node_handle.advertise<sensor_msgs::JointState>("joint_states_cmd", 10);
   sensor_msgs::JointState js;
 
+  ros::Publisher rtm_pub =
+      node_handle.advertise<moveit_msgs::RobotTrajectory>("plot_trajectory", 10);
+
+  moveit_msgs::RobotTrajectory rtm; // robot trajectory message
+
   robot_trajectory::RobotTrajectoryPtr trajectory = res.trajectory_;
+  trajectory->getRobotTrajectoryMsg(rtm);
+
+  rtm_pub.publish(rtm);
+
   js.name = trajectory->getGroup()->getVariableNames();
   const std::size_t n = trajectory->getWayPointCount();
   for (std::size_t i = 0; i < n; i++) {
