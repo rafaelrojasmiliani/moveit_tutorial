@@ -5,5 +5,6 @@
 <param name="planning_plugin" value="ompl_interface/OMPLPlanner" />
     <node name="planner" pkg="a_load_manager_create_context" type="planner_node" output="screen"/>
     <node name="orchestrator" pkg="a_load_manager_create_context" type="orchestrator" respawn="false" output="screen"/>
+    <node name="plotter" pkg="a_load_manager_create_context" type="trajectory_plot.py" respawn="false" output="screen"/>
 </group>
 </launch>

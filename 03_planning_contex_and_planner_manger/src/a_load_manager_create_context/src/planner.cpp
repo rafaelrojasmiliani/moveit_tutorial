@@ -19,6 +19,8 @@
 // C++
 #include <boost/scoped_ptr.hpp> //boost::scoped_ptr
 
+ros::Publisher *js_pub;
+ros::Publisher *rtm_pub;
 planning_interface::PlannerManagerPtr _plan_manager_;
 robot_model::RobotModelPtr _model_;
 // loads the plan manager plugin given a parameter name
@@ -44,6 +46,12 @@ int main(int argc, char **argv) {
   spinner.start();
   ros::NodeHandle node_handle;
 
+  ros::Publisher js_pub_ =
+      node_handle.advertise<sensor_msgs::JointState>("joint_states_cmd", 10);
+  js_pub = &js_pub_;
+  ros::Publisher rtm_pub_ = node_handle.advertise<moveit_msgs::RobotTrajectory>(
+      "plot_trajectory", 10);
+  rtm_pub = &rtm_pub_;
   robot_model_loader::RobotModelLoader loader("robot_description");
   _model_ = loader.getModel();
 
@@ -191,19 +199,14 @@ void publish_trajectory(planning_interface::MotionPlanResponse &res) {
 
   static unsigned int seq = 1;
   ros::NodeHandle node_handle;
-  ros::Publisher js_pub =
-      node_handle.advertise<sensor_msgs::JointState>("joint_states_cmd", 10);
   sensor_msgs::JointState js;
-
-  ros::Publisher rtm_pub =
-      node_handle.advertise<moveit_msgs::RobotTrajectory>("plot_trajectory", 10);
 
   moveit_msgs::RobotTrajectory rtm; // robot trajectory message
 
   robot_trajectory::RobotTrajectoryPtr trajectory = res.trajectory_;
   trajectory->getRobotTrajectoryMsg(rtm);
 
-  rtm_pub.publish(rtm);
+  rtm_pub->publish(rtm);
 
   js.name = trajectory->getGroup()->getVariableNames();
   const std::size_t n = trajectory->getWayPointCount();
@@ -214,7 +217,7 @@ void publish_trajectory(planning_interface::MotionPlanResponse &res) {
     ++seq;
     js.header.frame_id = "base_link";
     js.header.stamp = ros::Time::now();
-    js_pub.publish(js);
+    js_pub->publish(js);
     ros::WallDuration(0.2).sleep();
   }
 }
