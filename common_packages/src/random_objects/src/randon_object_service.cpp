@@ -25,7 +25,7 @@ public:
     workspace_.reset(new planning_scene::PlanningScene(model_));
 
     service_ = nh.advertiseService(
-        "randon_object", &RandomObjectService::random_object_service, this);
+        "random_object", &RandomObjectService::random_object_service, this);
 
     get_ps_srv_msg_client_ =
         nh.serviceClient<moveit_msgs::GetPlanningScene>("get_planning_scene");
