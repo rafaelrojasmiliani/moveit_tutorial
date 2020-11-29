@@ -56,6 +56,13 @@ target_link_libraries(${PROJECT_NAME}_node
 ## Current state monitor
 This is an instance of Plannisn Scene motnior [defined here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/planning/planning_scene_monitor/include/moveit/planning_scene_monitor/current_state_monitor.h) and [implemented here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/planning/planning_scene_monitor/src/current_state_monitor.cpp).
 
+## Required paramenters
+
+In order to load the motion planner plugin this examples as the moveit configuration package `move_group` node requires a parameter with the name of the plugin.
+- `planning_plugin`  e.g. `ompl_interface/OMPLPlanner`
+```XML
+<param name="planning_plugin" value="ompl_interface/OMPLPlanner" />
+```
 
 ## Defining constraints
     
