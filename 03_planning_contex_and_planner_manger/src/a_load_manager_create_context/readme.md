@@ -3,11 +3,22 @@
 
 This example teach how to plan motions in the joint space using the moveit plugin for OMPL.
 
+## Planner
+
+In this instance we learn the basics of motion planning
+
+1. Load the planner manager
+
+2. 
+
+
 | File | Description |
 | ---- | ----------- |
 | `src/planning_scene_monitor.cpp` | Instance of a Planning Scene Monitor. |
 | `src/planner.cpp` | Implementation of the motion planning serice with moveit OMPL plugin. |
 | `src/orchestrator.cpp` | Adds/removes random objects as class the motion planning service. |
+| `src/trajectory_plot.py` | Plots the output of the motion planning|
+| `src/trajectory_plot.py` | Plots the output of the motion planning|
 | `launch/planner.launch` | Launch the example|
 | `launch/planning_scene_monitor.launch` | Launch the Planning Scene Monitor|
 
