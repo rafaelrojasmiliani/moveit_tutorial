@@ -3,7 +3,7 @@ from plot_qt_widget import PlotWindow
 
 import rospy
 import sys
-import nunpy as np
+import numpy as np
 from PyQt4.QtGui import QApplication
 
 from moveit_msgs.msg import RobotTrajectory
