@@ -17,7 +17,6 @@ bool is_there_a_collision(planning_scene::PlanningScenePtr _ps);
 class RandomObjectService {
 public:
   RandomObjectService() : loader_("robot_description") {
-    double a;
 
     ros::NodeHandle nh;
     model_ = loader_.getModel();
@@ -52,7 +51,7 @@ public:
     // 1. Get the current planning scene
     get_ps_srv_msg_client_.call(get_ps_srv_msg);
     // 2. Store the current planning scene in the local PlanningScene
-    workspace_->setPlanningSceneMsg(get_ps_srv_msg.response.scene);
+    workspace_->usePlanningSceneMsg(get_ps_srv_msg.response.scene);
     // 2.1 Store the current objecst in a list
     std::vector<moveit_msgs::CollisionObject> &object_list =
         get_ps_srv_msg.response.scene.world.collision_objects;
@@ -63,24 +62,24 @@ public:
       planning_scene_msg.world.collision_objects.push_back(object);
       // 5. Insert the new object to the local PlanningScene
       // 6. If there is a collission, remove the object
-      workspace_->setPlanningSceneMsg(planning_scene_msg);
-      if (is_there_a_collision(workspace_)) {
-        // 6.1 change the operation type of the object to REMOVE
-        planning_scene_msg.world.collision_objects[0].operation = object.REMOVE;
-        // 6.2 Remove the object from the local PlanningScene
-        workspace_->setPlanningSceneMsg(planning_scene_msg);
-        // 6.3 remote the object from the local message
-        planning_scene_msg.world.collision_objects.pop_back();
-      } else {
+      workspace_->usePlanningSceneMsg(planning_scene_msg);
+      if (not is_there_a_collision(workspace_)) {
         break;
       }
+      // 6.1 change the operation type of the object to REMOVE
+      planning_scene_msg.world.collision_objects[0].operation = object.REMOVE;
+      // 6.2 Remove the object from the local PlanningScene
+      workspace_->setPlanningSceneMsg(planning_scene_msg);
+      // 6.3 remote the object from the local message
+      planning_scene_msg.world.collision_objects.pop_back();
     } while (true);
 
     // apply the operation to the planning scene
     set_ps_srv_msg.request.scene = planning_scene_msg;
     bool srv_success = set_ps_client_.call(set_ps_srv_msg);
+    return true;
   }
-  virtual ~RandomObjectService(){};
+  virtual ~RandomObjectService() {}
   ros::ServiceServer service_;
   ros::ServiceClient get_ps_srv_msg_client_;
   ros::ServiceClient set_ps_client_;
@@ -94,8 +93,10 @@ int main(int argc, char **argv) {
 
   ros::init(argc, argv, "random_objects");
   std::srand(std::time(0));
+  ROS_INFO("random objects .............................");
 
   RandomObjectService srv;
+  ROS_INFO("random objects -----.............................");
 
   srv.spin();
 
