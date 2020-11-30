@@ -1,7 +1,7 @@
 ## Planning Scene Manager
 
 The planning scene `planning_scene::PlanningScene` is the central class for motion planning in MoveIt.
-It is [defined here](https://github.com/ros-planning/moveit/blob/382aa5a8cdd39eace07536d39c497a4b21f0f653/moveit_core/planning_scene/include/moveit/planning_scene/planning_scene.h#L87) and [implemented here](https://github.com/ros-planning/moveit/blob/master/moveit_core/planning_scene/src/planning_scene.cpp).
+It is [declared here](https://github.com/ros-planning/moveit/blob/382aa5a8cdd39eace07536d39c497a4b21f0f653/moveit_core/planning_scene/include/moveit/planning_scene/planning_scene.h#L87) and [defined here](https://github.com/ros-planning/moveit/blob/master/moveit_core/planning_scene/src/planning_scene.cpp).
 A planning scene represents all the information needed to compute motion plans: 
     - The robot's current state
     - its representation (geometric, kinematic, dynamic)
@@ -22,7 +22,7 @@ In this tutorial, we will instantiate a `PlanningScene` class directly, but this
 
 ## Planning Scene Monitor
 
-`PlanningSceneMonitor` is [defined here](https://github.com/ros-planning/moveit/blob/47884198c2585215de8f365a7ff20479f8bb4b51/moveit_ros/planning/planning_scene_monitor/include/moveit/planning_scene_monitor/planning_scene_monitor.h#L61) and [implemented here](https://github.com/ros-planning/moveit/blob/47884198c2585215de8f365a7ff20479f8bb4b51/moveit_ros/planning/planning_scene_monitor/src/planning_scene_monitor.cpp).
+`PlanningSceneMonitor` is [declared here](https://github.com/ros-planning/moveit/blob/47884198c2585215de8f365a7ff20479f8bb4b51/moveit_ros/planning/planning_scene_monitor/include/moveit/planning_scene_monitor/planning_scene_monitor.h#L61) and [defined here](https://github.com/ros-planning/moveit/blob/47884198c2585215de8f365a7ff20479f8bb4b51/moveit_ros/planning/planning_scene_monitor/src/planning_scene_monitor.cpp).
 In its construction, this runs a `ros::AsyncSpinner`.
 
 - **Function** `PlanningSceneMonitor::startSceneMonitor` by default it creates a subscriber to `planning_scene` with callback `PlanningSceneMonitor::newPlanningSceneCallback`
@@ -40,18 +40,18 @@ In its construction, this runs a `ros::AsyncSpinner`.
 
 
 - **Subscribed topics**
-    - `planning_scene` of type `moveit_msgs::PlanningScene` [defined here](http://docs.ros.org/en/api/moveit_msgs/html/msg/PlanningScene.html). Thus subscriber is instantiated at `PlanningSceneMonitor::startSceneMonitor`.
+    - `planning_scene` of type `moveit_msgs::PlanningScene` [declared here](http://docs.ros.org/en/api/moveit_msgs/html/msg/PlanningScene.html). Thus subscriber is instantiated at `PlanningSceneMonitor::startSceneMonitor`.
 On this message the function `PlanningSceneMonitor::newPlanningSceneMessage` is called.
-    - `collision_object` of type `moveit_msgs::CollisionObject` [defined here](http://docs.ros.org/en/jade/api/moveit_msgs/html/msg/CollisionObject.html) with callback `PlanningSceneMonitor::collisionObjectCallback`. This subscriber is instantiated at `PlanningSceneMonitor::startWorldGeometryMonitor`
+    - `collision_object` of type `moveit_msgs::CollisionObject` [declared here](http://docs.ros.org/en/jade/api/moveit_msgs/html/msg/CollisionObject.html) with callback `PlanningSceneMonitor::collisionObjectCallback`. This subscriber is instantiated at `PlanningSceneMonitor::startWorldGeometryMonitor`
     - `planning_scene_world` of type `moveit_msgs::PlanningScene` with callback `PlanningSceneMonitor::newPlanningSceneWorldCallback`.  This subscriber is instantiated at `PlanningSceneMonitor::startWorldGeometryMonitor`
-    - `attached_collision_object` of type `moveit_msgs::AttachedCollisionObject` [defined here](http://docs.ros.org/en/jade/api/moveit_msgs/html/msg/AttachedCollisionObject.html) with callback `PlanningSceneMonitor::attachObjectCallback`
-    - `joint_states` subscribed by `PlanningSceneMonitor::current_state_monitor_` of type `CurrentStateMonitorPtr` with callback `planning_scene_monitor::CurrentStateMonitor::jointStateCallback` [implemented here](https://github.com/ros-planning/moveit/blob/382aa5a8cdd39eace07536d39c497a4b21f0f653/moveit_ros/planning/planning_scene_monitor/src/current_state_monitor.cpp#L336).
+    - `attached_collision_object` of type `moveit_msgs::AttachedCollisionObject` [declared here](http://docs.ros.org/en/jade/api/moveit_msgs/html/msg/AttachedCollisionObject.html) with callback `PlanningSceneMonitor::attachObjectCallback`
+    - `joint_states` subscribed by `PlanningSceneMonitor::current_state_monitor_` of type `CurrentStateMonitorPtr` with callback `planning_scene_monitor::CurrentStateMonitor::jointStateCallback` [defined here](https://github.com/ros-planning/moveit/blob/382aa5a8cdd39eace07536d39c497a4b21f0f653/moveit_ros/planning/planning_scene_monitor/src/current_state_monitor.cpp#L336).
 
 - **Published topics**
     - `monitored_planning_scene` of type `moveit_msgs::PlanningScene`.
 
 - **Required services**
-    - **Optional?** `get_planning_scene` of type `moveit_msgs::GetPlanningScene` [defined here](http://docs.ros.org/en/api/moveit_msgs/html/srv/GetPlanningScene.html).
+    - **Optional?** `get_planning_scene` of type `moveit_msgs::GetPlanningScene` [declared here](http://docs.ros.org/en/api/moveit_msgs/html/srv/GetPlanningScene.html).
 This service is called by `PlanningSceneMonitor::requestPlanningSceneState`
 
 - **Offered services**
@@ -64,15 +64,32 @@ This service is initiated by `PlanningSceneMonitor::providePlanningSceneService`
 
     - ` `
 - **Threads**
-    - `PlanningSceneMonitor::scenePublishingThread` [implemented here](https://github.com/ros-planning/moveit/blob/47884198c2585215de8f365a7ff20479f8bb4b51/moveit_ros/planning/planning_scene_monitor/src/planning_scene_monitor.cpp#L334)
+    - `PlanningSceneMonitor::scenePublishingThread` [defined here](https://github.com/ros-planning/moveit/blob/47884198c2585215de8f365a7ff20479f8bb4b51/moveit_ros/planning/planning_scene_monitor/src/planning_scene_monitor.cpp#L334)
 
 
 - **Members**
     - `planning_scene::PlanningScenePtr scene_;` Argument of the constructor, by default `planning_scene::PlanningScenePtr()`
-    - `std::shared_ptr<tf2_ros::Buffer> tf_buffer_;` (this type is [defined here](https://github.com/ros/geometry2/blob/ad04943f23608ab757389ce57d04f110df1c692b/tf2_ros/include/tf2_ros/buffer.h#L51) and [implemented here](https://github.com/ros/geometry2/blob/ad04943f23608ab757389ce57d04f110df1c692b/tf2_ros/src/buffer.cpp)) Argument of the constructor, stores known frames.    tf2_ros::TransformListener
+    - `std::shared_ptr<tf2_ros::Buffer> tf_buffer_;` (this type is [declared here](https://github.com/ros/geometry2/blob/ad04943f23608ab757389ce57d04f110df1c692b/tf2_ros/include/tf2_ros/buffer.h#L51) and [defined here](https://github.com/ros/geometry2/blob/ad04943f23608ab757389ce57d04f110df1c692b/tf2_ros/src/buffer.cpp)) Argument of the constructor, stores known frames.    tf2_ros::TransformListener
     - `std::unique_ptr<occupancy_map_monitor::OccupancyMapMonitor> octomap_monitor_;`
     - `robot_model_loader::RobotModelLoaderPtr rm_loader_;`, loads the model
     - `moveit::core::RobotModelConstPtr robot_model_;`
     - `collision_detection::CollisionPluginLoader collision_loader_;`
     - `DynamicReconfigureImpl* reconfigure_impl_;`
 
+## The `apply_planning_scene` service
+
+The class `PlannningSceneMonitor` does not provide by default a service to modify the planning scene.
+By default, moveit provide such a service inside the `move_group` node.
+We implement this service using the same mechanism, with the following service
+```C++
+bool apply_planning_scene(moveit_msgs::ApplyPlanningScene::Request &req,
+                          moveit_msgs::ApplyPlanningScene::Response &res) {
+    // psm is the PlannningSceneMonitor
+  psm->updateFrameTransforms();
+  res.success = psm->newPlanningSceneMessage(req.scene);
+  return true;
+}
+```
+
+The `PlannningSceneMonitor::newPlanningSceneMessage` is [defined here](https://github.com/ros-planning/moveit/blob/701fbddb26f5aa4e752235b893292fc4618da135/moveit_ros/planning/planning_scene_monitor/src/planning_scene_monitor.cpp#L554).
+This function updates a series of attributes of `PlannningSceneMonitor` and calls the function `PlanningScene::usePlanningSceneMsg` [defined here](https://github.com/ros-planning/moveit/blob/bdd4bde4938c7bdac3a57a791cf738146c8834e0/moveit_core/planning_scene/src/planning_scene.cpp#L1266).
