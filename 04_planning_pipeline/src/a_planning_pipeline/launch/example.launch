@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+  <group ns="myrobot">
+    <include file="$(find simple_planning_scene_monitor)/launch/planning_scene_monitor.launch"/>
+    <node name="random_object_service" pkg="random_objects" type="random_objects_service" respawn="false" output="screen"/>
+    <node name="trajectory_plot_service" pkg="trajectory_plotter" type="trajectory_plot.py" respawn="false" output="screen"/>
+    <node name="orchestrator" pkg="a_planning_pipeline" type="orchestrator" respawn="false" output="screen"/>
+    <param name="planning_plugin" value="ompl_interface/OMPLPlanner"/>
+    <param name="request_adapters" value="default_planner_request_adapters/AddTimeParameterization default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints"/>
+    <node name="motion_planning_service" pkg="a_planning_pipeline" type="a_planning_pipeline_node" respawn="false" output="screen"/>
+    <node name="rviz" pkg="rviz" type="rviz" output="screen" args="-d $(find a_planning_pipeline)/cfg/rvizconfig.rviz"/>
+  </group>
+</launch>
