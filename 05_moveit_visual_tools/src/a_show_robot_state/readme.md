@@ -102,10 +102,12 @@ graph TD;
         style PS fill:#CFFFCD;
         style RS fill:#CFFFCD;
         style CD fill:#CFFFCD;
-        MVS[MoveItVisualTools] --> RST[RobotState topic];
+        MVS[MoveItVisualTools] --> RST[Publish RobotState topic];
+        RS -- used by --> RST;
     end
     subgraph RVIZ
         MRSP[MoveIt Robot State plugin];
     end
     RST -- publish to --> MRSP;
+
 ```
