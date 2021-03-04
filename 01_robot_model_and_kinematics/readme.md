@@ -24,6 +24,10 @@ The SRDF and ulterior information can be generated using the moveit setup assist
 ```mermaid
 graph TD;
     URDF --> RML[Robot Model Loader];
+    SRDF --> RML;
+    J[`moveit_cfg_pkg/config/joint_limits.yaml`] --> RML;
+    K[`moveit_cfg_pkg/config/kinematics.yaml`] --> RML;
+    RML --> RM [Robot Model];
 ```
 ## Robot Model Loader
 
