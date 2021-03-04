@@ -60,7 +60,6 @@ graph TD;
         PSM -- expose --> APSS[apply_planning_scene service]
         PSM -- expose --> GPSS[get_planning_scene service]
         PSM -- Publish --> MPS[monitored_planning_scene]
-        GPSS --> RPS;
     end
     JS[joint_state_publisher] -- publish to --> PSM;
     PUBM -- joint_states_cmd --> JS;
@@ -73,7 +72,7 @@ graph TD;
         CIRA --> ATS[Append/remove to scene]
         end
     end
-    ATS -- calls --> APSS;
+    RPS -- calls --> GPSS;
     style PS fill:#CFFFCD;
     style RS fill:#CFFFCD;
     style CD fill:#CFFFCD;
