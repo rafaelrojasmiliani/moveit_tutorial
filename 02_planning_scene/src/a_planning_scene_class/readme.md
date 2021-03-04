@@ -31,11 +31,14 @@ graph TD;
     K[`moveit_cfg_pkg/config/kinematics.yaml`] -- loaded by --> RML;
     RML -- instantiates --> RM[Robot Model];
     RM -- contains --> MG[MoveIt Group];
-    PS[`PlanningScene`] -- uses to instantiate --> RM;
+    PS[`PlanningScene`] -- contains --> RM;
+    RM -- used to instantiate --> PS;
     PS -- contains --> RS[Robot State Representation];
     PS -- contains --> CD[Collision detection interface];
     RS -- manipulates --> MG;
     style PS fill:#CFFFCD;
+    style RS fill:#CFFFCD;
+    style CD fill:#CFFFCD;
 ```
 
 # Parameters required by the Planning Scene instance
