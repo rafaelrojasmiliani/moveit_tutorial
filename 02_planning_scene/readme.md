@@ -113,12 +113,12 @@ graph TD;
     RML -- instantiates --> RM[Robot Model];
     RM -- contains --> MG[MoveIt Group];
     PS[`PlanningScene`] -- contains --> RM;
-    RM -- used to instantiate --> PS;
     subgraph PSM
     PS -- contains --> RS[Robot State Representation];
     PS -- contains --> CD[Collision detection interface];
     RS -- manipulates --> MG;
     end
+    RM -- used to instantiate --> PSM;
     style PS fill:#CFFFCD;
     style RS fill:#CFFFCD;
     style CD fill:#CFFFCD;
