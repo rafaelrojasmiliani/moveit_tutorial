@@ -53,6 +53,8 @@ graph TD;
         GRP -- uses --> RS;
         GRP -- uses --> MG;
         CC -- uses --> CD;
+        CMP <-- uses -- PS;
+        CMP <-- uses -- PC;
     end
     subgraph PSM
         RML2[Robot Model Loader] -- instantiates --> PSM[Planning Scene Monitor];
@@ -62,7 +64,7 @@ graph TD;
         PSM -- Publish --> MPS[monitored_planning_scene]
         GPSS --> RPS;
     end
-    JS[joint_state_publisher] -- subscribes --> PSM;
+    JS[joint_state_publisher] -- publish to --> PSM;
     PUBM -- joint_states_cmd --> JS;
     style PS fill:#CFFFCD;
     style RS fill:#CFFFCD;
