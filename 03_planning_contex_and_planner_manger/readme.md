@@ -36,7 +36,7 @@ graph TD;
     K[`moveit_cfg_pkg/config/kinematics.yaml`] -- loaded by --> RML;
     RML -- instantiates --> RM[Robot Model];
     MPP[pluginlib::ClassLoader<br/>planning_interface::PlannerManager] -- instantiates --> PM[PlannerManager];
-    PPP[RPS param <br/>"planning_plugin"] -- constructor<br/>argument --> PM;
+    PPP[RPS param <br/>planning_plugin] -- constructor<br/>argument --> PM;
     RM -- initialize method --> PM;
     style PS fill:#CFFFCD;
     style RS fill:#CFFFCD;
