@@ -71,6 +71,8 @@ graph TD;
     style PC fill:#FFD2D2;
     style MPR fill:#FFD2D2;
     style MPRES fill:#FFD2D2;
+    style APSS fill:#91bbff;
+    style GPSS fill:#91bbff;
 ```
 
 # How did we create this package?
