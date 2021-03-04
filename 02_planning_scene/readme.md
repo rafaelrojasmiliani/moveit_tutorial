@@ -123,6 +123,8 @@ graph TD;
     style CD fill:#CFFFCD;
 ```
 
+### Planing scene monitor as implement in Move Group
+
 ```mermaid
 graph TD;
     URDF -- loaded by --> RML[Robot Model Loader];
@@ -131,7 +133,7 @@ graph TD;
     K[`moveit_cfg_pkg/config/kinematics.yaml`] -- loaded by --> RML;
     RML -- instantiates --> PSM[Planning Scene Monitor];
     RM -- contains --> MG[MoveIt Group];
-    PSM -- contains --> RM;
+    PSM -- contains --> RM[Robot Model];
     PSM -- expose --> APSS[apply_planning_scene service]
     PSM -- expose --> GPSS[get_planning_scene service]
     PSM -- Publish --> MPS[monitored_planning_scene]
