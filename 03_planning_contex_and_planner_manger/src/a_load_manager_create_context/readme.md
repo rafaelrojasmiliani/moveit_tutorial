@@ -28,10 +28,11 @@ graph TD;
     subgraph Planner
         subgraph loop
             RPS[Request actual<br/>planning scene] --> GCS[Get current state];
-            GCS --> GRP[Get random joint pose];
+            GCS --> GRP[Get random joint pose<br/>for the desired group];
             GRP --> CC{collision?};
             CC -- NO --> CMP[Compute Motion Plan];
             CC -- YES --> GRP;
+            CMP --> PUBM[Publish motion]
         end
         RML[Robot Model Loader] -- instantiates --> RM[Robot Model];
         MPP[pluginlib::ClassLoader<br/>planning_interface::PlannerManager] -- instantiates --> PM[PlannerManager];
@@ -51,6 +52,7 @@ graph TD;
         PS -- getCurrentStateNonConst --> GCS;
         GRP -- uses --> RS;
         GRP -- uses --> MG;
+        CC -- uses --> CD;
     end
     subgraph PSM
         RML2[Robot Model Loader] -- instantiates --> PSM[Planning Scene Monitor];
@@ -60,7 +62,8 @@ graph TD;
         PSM -- Publish --> MPS[monitored_planning_scene]
         GPSS --> RPS;
     end
-    JS[JointState] -- subscribes --> PSM;
+    JS[joint_state_publisher] -- subscribes --> PSM;
+    PUBM -- joint_states_cmd --> JS;
     style PS fill:#CFFFCD;
     style RS fill:#CFFFCD;
     style CD fill:#CFFFCD;
