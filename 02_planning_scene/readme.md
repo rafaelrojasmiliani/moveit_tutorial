@@ -137,11 +137,13 @@ graph TD;
     PSM -- expose --> APSS[apply_planning_scene service]
     PSM -- expose --> GPSS[get_planning_scene service]
     PSM -- Publish --> MPS[monitored_planning_scene]
+    JS[JointState] -- subscribes --> PSM;
 
     style PSM fill:#CFFFCD;
     style APSS fill:#FFD2D2;
     style GPSS fill:#FFD2D2;
     style MPS fill:#91bbff;
+    style JS fill:#91bbff;
 ```
 ## Kinematic constraints
 
