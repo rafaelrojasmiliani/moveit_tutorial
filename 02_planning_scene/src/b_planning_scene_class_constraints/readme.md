@@ -63,36 +63,3 @@ target_link_libraries(${PROJECT_NAME}_node
 )
 ```
 
-## Kinematic constraints
-
-The base class for custon MoveIt constraints is `kinematic_constraints::KinematicConstraint` [defined here](https://github.com/ros-planning/moveit/blob/ff552bf861609f99ca97a7e173fcbeb0c03e9f45/moveit_core/kinematic_constraints/include/moveit/kinematic_constraints/kinematic_constraint.h#L78) and [implemented here](https://github.com/ros-planning/moveit/blob/ff552bf861609f99ca97a7e173fcbeb0c03e9f45/moveit_core/kinematic_constraints/src/kinematic_constraint.cpp#L61).
-- `kinematic_constraints::JointConstraint`
-- `kinematic_constraints::PositionConstraint`
-- `kinematic_constraints::OrientationConstraint`
-- `kinematic_constraints::VisibilityConstraint`
-
-
-The Ros message `moveit_msgs::Constraints`is [defined here](https://github.com/ros-planning/moveit_msgs/blob/melodic-devel/msg/Constraints.msg).
-- `name` of type `string` 
-- `joint_constraints` of type `JointConstraint[]` 
-- `position_constraints` of type `PositionConstraint[]` 
-    - `header` of type `Header`
-    - `link_name` of type `string`
-    - `target_point_offset` of type `geometry_msgs/Vector3`
-    - `constraint_region` of type `BoundingVolume`
-    - `weigh` of type `float64`
-- `orientation_constraints` of type `OrientationConstraint[]` 
-    - `header` of type `Header`
-    - `orientation` of type `geometry_msgs/Quaternion`
-    - `link_name` of type `string`
-    - `absolute_x_axis_tolerance` of type `float64`
-    - `absolute_y_axis_tolerance` of type `float64`
-    - `absolute_z_axis_tolerance` of type `float64`
-    - `weight` of type `float64`
-- `visibility_constraints` of type `VisibilityConstraint[]`
-
-The `moveit_msgs::BoundingVolume`
-- `primitives` of type `shape_msgs/SolidPrimitive[]`
-- `primitive_poses` of type `geometry_msgs/Pose[]`
-- `meshes` of type `shape_msgs/Mesh[]`
-- `mesh_poses` of type `geometry_msgs/Pose[]`
