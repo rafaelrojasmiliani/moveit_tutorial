@@ -41,6 +41,14 @@ graph TD;
     PS -- contains --> CD[Collision detection interface];
     RS -- manipulates --> MG;
     end
+    subgraph PSM
+    RML2[Robot Model Loader] -- instantiates --> PSM[Planning Scene Monitor];
+    PSM -- instantiates --> RM2[Robot Model];
+    PSM -- expose --> APSS[apply_planning_scene service]
+    PSM -- expose --> GPSS[get_planning_scene service]
+    PSM -- Publish --> MPS[monitored_planning_scene]
+    end
+    JS[JointState] -- subscribes --> PSM;
     style PS fill:#CFFFCD;
     style RS fill:#CFFFCD;
     style CD fill:#CFFFCD;
