@@ -32,7 +32,7 @@ graph TD;
     K[`moveit_cfg_pkg/config/kinematics.yaml`] -- loaded by --> RML;
     RML -- instantiates --> RM[Robot Model];
     RM -- contains --> MG[MoveIt Group];
-    RM -- used to instantiate --> PS[`PlanningScene`];
+    PS[`PlanningScene`] -- uses to instantiate --> RM;
     PS -- contains --> RS[Robot State Representation];
     RS -- manipulates --> MG;
 ```
