@@ -26,26 +26,28 @@ In this instance we learn the basics of motion planning
 ```mermaid
 graph TD;
     subgraph Planner
-    subgraph loop
-    RPS[Request actual<br/>planning scene] --> GRP[Get random joint pose];
-    GRP --> CC{collision?};
-    CC -- NO --> CMP[Compute Motion Plan];
-    CC -- YES --> GRP;
-    end
-    RML[Robot Model Loader] -- instantiates --> RM[Robot Model];
-    MPP[pluginlib::ClassLoader<br/>planning_interface::PlannerManager] -- instantiates --> PM[PlannerManager];
-    PPP[ROS param <br/>planning_plugin] -- constructor<br/>argument --> PM;
-    RM -- initialize method --> PM;
-    RM -- contains --> MG[Move Group];
-    PM -- instantiates --> PC[PlanningContext];
-    MPR[MotionPlanRequest] -- instantiation arg. --> PC;
-    PS -- instantiation arg. --> PC;
-    PC -- solve --> MPRES[MotionPlanResponse];
-    PS[`PlanningScene`] -- contains --> RM;
-    RM -- used to instantiate --> PS;
-    PS -- contains --> RS[Robot State Representation];
-    PS -- contains --> CD[Collision detection interface];
-    RS -- manipulates --> MG;
+        subgraph loop
+            RPS[Request actual<br/>planning scene] --> GCS[Get current state];
+            GCS --> GRP[Get random joint pose];
+            GRP --> CC{collision?};
+            CC -- NO --> CMP[Compute Motion Plan];
+            CC -- YES --> GRP;
+        end
+        RML[Robot Model Loader] -- instantiates --> RM[Robot Model];
+        MPP[pluginlib::ClassLoader<br/>planning_interface::PlannerManager] -- instantiates --> PM[PlannerManager];
+        PPP[ROS param <br/>planning_plugin] -- constructor<br/>argument --> PM;
+        RM -- initialize method --> PM;
+        RM -- contains --> MG[Move Group];
+        PM -- instantiates --> PC[PlanningContext];
+        MPR[MotionPlanRequest] -- instantiation arg. --> PC;
+        PS -- instantiation arg. --> PC;
+        PC -- solve --> MPRES[MotionPlanResponse];
+        PS[`PlanningScene`] -- contains --> RM;
+        RM -- used to instantiate --> PS;
+        PS -- contains --> RS[Robot State Representation];
+        PS -- contains --> CD[Collision detection interface];
+        RS -- manipulates --> MG;
+        RPS -- setPlanningSceneMsg --> PS;
     end
     subgraph PSM
     RML2[Robot Model Loader] -- instantiates --> PSM[Planning Scene Monitor];
@@ -56,6 +58,7 @@ graph TD;
     end
     JS[JointState] -- subscribes --> PSM;
     style PS fill:#CFFFCD;
+    style loop fill:#CFFFCD;
     style RS fill:#CFFFCD;
     style CD fill:#CFFFCD;
     style PM fill:#FFD2D2;
