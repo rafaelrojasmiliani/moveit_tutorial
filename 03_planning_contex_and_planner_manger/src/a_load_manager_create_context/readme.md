@@ -49,6 +49,8 @@ graph TD;
         RS -- manipulates --> MG;
         RPS -- setPlanningSceneMsg --> PS;
         PS -- getCurrentStateNonConst --> GCS;
+        GRP -- uses --> RS;
+        GRP -- uses --> MG;
     end
     subgraph PSM
         RML2[Robot Model Loader] -- instantiates --> PSM[Planning Scene Monitor];
