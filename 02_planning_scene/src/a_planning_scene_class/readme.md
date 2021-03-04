@@ -35,6 +35,7 @@ graph TD;
     PS -- contains --> RS[Robot State Representation];
     PS -- contains --> CD[Collision detection interface];
     RS -- manipulates --> MG;
+    style PS fill:#CFFFCD;
 ```
 
 # Parameters required by the Planning Scene instance
