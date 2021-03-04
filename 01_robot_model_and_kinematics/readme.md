@@ -23,7 +23,7 @@ The SRDF and ulterior information can be generated using the moveit setup assist
 
 ```mermaid
 graph TD;
-    URDF --> RML [Robot Model Loader];
+    URDF --> RML;
 ```
 ## Robot Model Loader
 
