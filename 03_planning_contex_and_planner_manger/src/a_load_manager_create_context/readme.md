@@ -53,8 +53,6 @@ graph TD;
         GRP -- uses --> RS;
         GRP -- uses --> MG;
         CC -- uses --> CD;
-        CMP -- uses --> PS;
-        CMP -- uses --> PC;
     end
     subgraph PSM
         RML2[Robot Model Loader] -- instantiates --> PSM[Planning Scene Monitor];
