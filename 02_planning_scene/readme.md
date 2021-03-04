@@ -114,7 +114,7 @@ graph TD;
     RM -- contains --> MG[MoveIt Group];
     PS[`PlanningScene`] -- contains --> RM;
     RM -- used to instantiate --> PS;
-    subgraph PSM
+    subgraph PSM[Planning Scene Monitor]
     PS -- contains --> RS[Robot State Representation];
     PS -- contains --> CD[Collision detection interface];
     RS -- manipulates --> MG;
