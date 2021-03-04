@@ -95,11 +95,19 @@ graph TD;
     RM -- contains --> MG[MoveIt Group];
     RS -- manipulates --> MG;
     N -- instantiates --> MG;
-    N -- used to set<br/> joint positions --> RS;
     N -- used to instantiate `RobotModel` --> RML;
     N -- used to instantiate `RobotState` --> RM;
     N -- used to get and set<br/>joint positions and get<br/>link poses --> RS;
 ```
+
+### Task 1 Set the state of the MoveIt Model using the topic of the robot's state
+The following is inside an asynchronous subscriber
+```C++
+    joint_mutex_.lock();
+    robot_state_instance_->setJointGroupPositions(joint_group_instance_, _joint_sate_message->position);
+    joint_mutex_.unlock();
+```
+### Task 1 Set the state of the MoveIt Model using the topic of the robot's state
 
 # Methods and clases used in this example
 - `robot_model_loader::RobotModelLoader`
