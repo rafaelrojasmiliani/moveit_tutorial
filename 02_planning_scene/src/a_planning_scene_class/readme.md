@@ -25,7 +25,6 @@ We use `PlanningScene` only for collision detection.
 
 ```mermaid
 graph TD;
-    JSP[Joint State Publisher] -- publish JointState --> N[node in `b_robot_model_example_02_node.cpp`];
     URDF -- loaded by --> RML[Robot Model Loader];
     SRDF -- loaded by --> RML;
     J[`moveit_cfg_pkg/config/joint_limits.yaml`] -- loaded by --> RML;
