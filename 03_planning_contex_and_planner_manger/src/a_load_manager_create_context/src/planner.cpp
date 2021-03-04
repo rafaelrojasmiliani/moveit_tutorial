@@ -40,6 +40,7 @@ plan_group_to_state(planning_scene::PlanningScenePtr _ps,
                     robot_state::RobotState &_state);
 // publish the trajectory to joint_states_cmd
 void publish_trajectory(planning_interface::MotionPlanResponse &res);
+
 int main(int argc, char **argv) {
   ros::init(argc, argv, "plan_manager");
   ros::AsyncSpinner spinner(1);

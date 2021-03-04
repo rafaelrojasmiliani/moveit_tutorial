@@ -1,5 +1,12 @@
+# Simple motion planning with moveit
+
+| MoveIt concept | class | task |
+| -------------- | ----- | ---- |
+| Planner Manager | `PlanningManager` | |
+| Planning Context | `PlanningContext` | |
 
 # Motion planning with Planning context and Planner manager
+
 The `PlanningContext` [defined here](https://github.com/ros-planning/moveit/blob/382aa5a8cdd39eace07536d39c497a4b21f0f653/moveit_core/planning_interface/include/moveit/planning_interface/planning_interface.h#L80) and [implemened here](https://github.com/ros-planning/moveit/blob/master/moveit_core/planning_interface/src/planning_interface.cpp), and the planner manager `PlannerManager` [defined here](https://github.com/ros-planning/moveit/blob/ba4b60e079fd14a61c50ef34c156eee6d63e58f7/moveit_core/planning_interface/include/moveit/planning_interface/planning_interface.h#L150) and [implemented here](https://github.com/ros-planning/moveit/blob/master/moveit_core/planning_interface/src/planning_interface.cpp#L94) are the MoveIt motion planners Plugins base class.
 
 In other words, these are the classes that must be overrided in order to create a custom MoveIt motion planner.
@@ -21,3 +28,17 @@ solved = context ? context->solve(res) : false;
 ```
 
 
+```mermaid
+graph TD;
+    URDF -- loaded by --> RML[Robot Model Loader];
+    SRDF -- loaded by --> RML;
+    J[`moveit_cfg_pkg/config/joint_limits.yaml`] -- loaded by --> RML;
+    K[`moveit_cfg_pkg/config/kinematics.yaml`] -- loaded by --> RML;
+    RML -- instantiates --> RM[Robot Model];
+    MPP[pluginlib::ClassLoader<br/>planning_interface::PlannerManager] -- instantiates --> PM[PlannerManager];
+    PPP[RPS param <br/>"planning_plugin"] -- constructor<br/>argument --> PM;
+    RM -- initialize method --> PM;
+    style PS fill:#CFFFCD;
+    style RS fill:#CFFFCD;
+    style CD fill:#CFFFCD;
+```
