@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<launch>
+  <group ns="myrobot">
+    <!-- BEGIN MoveIt Minimal parameters -->
+    <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find workspace_description)/urdf/robot.xacro'"/>
+    <param name="robot_description_semantic" command="cat $(find myrobot_config_package)/config/myrobot.srdf"/>
+    <group ns="robot_description_planning">
+      <rosparam command="load" file="$(find myrobot_config_package)/config/joint_limits.yaml"/>
+    </group>
+    <group ns="robot_description_kinematics">
+      <rosparam command="load" file="$(find myrobot_config_package)/config/kinematics.yaml"/>
+    </group>
+    <!-- END MoveIt Minimal parameters -->
+    <node name="moveit_robot_model_publisher" pkg="a_show_robot_state" type="a_show_robot_state_node" output="screen"/>
+    <node name="rviz" pkg="rviz" type="rviz" output="screen" args="-d $(find a_show_robot_state)/cfg/rvizconfig.rviz"/>
+  </group>
+</launch>
