@@ -1,4 +1,4 @@
-# MoveiT Robot Model ans State Representation
+# MoveIt Robot Model and State Representation
 
 MoveIt provide custom tools to represent a a robot and its state
 
@@ -11,10 +11,11 @@ There are three main concepts that MoveIt provides
 | ------- | ----- | --------------- |
 | Robot model loader| `robot_model_loader::RobotModelLoader` | Load the robot model from ROS parameters |
 | Robot geometric/dynamic model representation | `moveit::core::RobotModel` | Main interface to the robot model |
+| MoveIt Group| `moveit::core::JointModelGroup` | Main interface to the MoveItGroup |
 | Robot state representation | `moveit::core::RobotState` | Main interface to get the state of the robot |
 
 
-The moveit robot model `moveit::core::RobotModel` is a geomtric/dynamic model container. 
+The moveit robot model `moveit::core::RobotModel` is a geometric/dynamic model container. 
 In order to instantiate a `moveit::core::RobotModel` we required some parameters that provide ulterior information about the robot that is not provided by URDF. 
 In fact, URDF is not intended to provide some information that is necessary for motion planning.
 The extra information required by moveit is contained in semantic robot description files SRDF.
@@ -23,11 +24,13 @@ The SRDF and ulterior information can be generated using the moveit setup assist
 
 ```mermaid
 graph TD;
-    URDF --> RML[Robot Model Loader];
-    SRDF --> RML;
-    J[`moveit_cfg_pkg/config/joint_limits.yaml`] --> RML;
-    K[`moveit_cfg_pkg/config/kinematics.yaml`] --> RML;
-    RML --> RM[Robot Model];
+    URDF -- loaded by --> RML[Robot Model Loader];
+    SRDF -- loaded by --> RML;
+    J[`moveit_cfg_pkg/config/joint_limits.yaml`] -- loaded by --> RML;
+    K[`moveit_cfg_pkg/config/kinematics.yaml`] -- loaded by --> RML;
+    RML -- instantiates --> RM[Robot Model];
+    RM -- instantiates --> RS[Robot State Representation];
+    RM -- contains --> MG[MoveIt Group];
 ```
 ## Robot Model Loader
 
@@ -77,6 +80,9 @@ The model of the robot is wrapped in the class `moveit::core::RobotModel` [defin
 - [`srdf`](https://wiki.ros.org/srdf)
     - `srdf::Model`
 
+## MoveIt group
+
+[Declared here](https://github.com/ros-planning/moveit/blob/a29a30caaecbd130d85056d959d4eb1c30d4088f/moveit_core/robot_model/include/moveit/robot_model/joint_model_group.h#L68) and [implemented here](https://github.com/ros-planning/moveit/blob/a29a30caaecbd130d85056d959d4eb1c30d4088f/moveit_core/robot_model/src/joint_model_group.cpp#L101).
 
 ## Robot State
 

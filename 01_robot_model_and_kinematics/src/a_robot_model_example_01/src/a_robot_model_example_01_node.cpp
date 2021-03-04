@@ -7,7 +7,7 @@
 // MoveIt
 #include <moveit/robot_model/robot_model.h> //robot_model::RobotModel
 #include <moveit/robot_model_loader/robot_model_loader.h> // robot_model_loader::RobotModelLoader
-#include <moveit/robot_state/robot_state.h>
+#include <moveit/robot_state/robot_state.h> // robot_state::RobotStatePtr
 
 int main(int argc, char **argv) {
   ros::init(argc, argv, "a_robot_model_example_01");
@@ -32,21 +32,26 @@ int main(int argc, char **argv) {
 
   /*Get the names of all groups that are defined for this mode*/
   {
+    // Names of all groups in the model
     const std::vector<std::string> &group_names =
         my_robot_model->getJointModelGroupNames();
     ROS_INFO("-- Groups in this model ");
     for (const std::string &gname : group_names) {
+      // ask if the group in and end-effector
       bool is_end_effector = my_robot_model->hasEndEffector(gname);
       ROS_INFO("    %s which is %s an end-effector", gname.c_str(),
                is_end_effector ? "" : "not");
+      // Get the jointModelGroup instance
       const moveit::core::JointModelGroup *joint_model_group =
           my_robot_model->getJointModelGroup(gname);
       ROS_INFO("    -- variable (join) names in the group %s", gname.c_str());
+      // Get the joint names in the group
       const std::vector<std::string> &variable_names =
           joint_model_group->getVariableNames();
       for (const std::string &vname : variable_names)
         ROS_INFO("        %s", vname.c_str());
       ROS_INFO("    -- link names in the group %s", gname.c_str());
+      // Get the link names in the group
       const std::vector<std::string> &link_names =
           joint_model_group->getLinkModelNames();
       for (const std::string &lname : link_names)
@@ -55,7 +60,7 @@ int main(int argc, char **argv) {
   }
 
   // Test the moveit kinematic model (called robot state).
-  // WHwere we get all the "groups" in the robot model. These groups are
+  // We get all the "groups" in the robot model. These groups are
   // kinematic chains. They have joints and links.
   // The next loop does the following:
   // 1. instantiate a vector of strings with the names of the joint groups in

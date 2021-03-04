@@ -1,6 +1,31 @@
-# Robot Model, Robot State, Robot Model Loader and Robot Inverce and Direct Kinematics
+# Example 1 `a_robot_model_example_01_node.cpp`
 
+In this example we explore the members of `RobotModel`
 
+- **Get the groups info**
+    - **Groups in the model**
+    ```C++
+        const std::vector<std::string> &group_names = my_robot_model->getJointModelGroupNames();
+    ```
+    - **Get a group by its name**
+    ```C++
+      const moveit::core::JointModelGroup *joint_model_group =
+          my_robot_model->getJointModelGroup(group_name);
+    ```
+    - **If group is an end-effector**
+    ```C++
+      bool is_end_effector = my_robot_model->hasEndEffector(group_name);
+    ```
+    - **Joint Names associated to a group**
+    ```C++
+      const std::vector<std::string> &variable_names =
+          joint_model_group->getVariableNames();
+    ```
+    - **Link Names associated to a group**
+    ```C++
+      const std::vector<std::string> &link_names =
+          joint_model_group->getLinkModelNames();
+    ```
 
 ## Ros parameters Required
 
