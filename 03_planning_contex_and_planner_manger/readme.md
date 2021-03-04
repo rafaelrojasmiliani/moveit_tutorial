@@ -48,4 +48,8 @@ graph TD;
     PS -- contains --> CD[Collision detection interface];
     RS -- manipulates --> MG;
     style PS fill:#CFFFCD;
+    style PM fill:#FFD2D2;
+    style PC fill:#FFD2D2;
+    style MPR fill:#FFD2D2;
+    style MPRES fill:#FFD2D2;
 ```
