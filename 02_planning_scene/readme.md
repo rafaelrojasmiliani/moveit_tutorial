@@ -116,9 +116,9 @@ graph TD;
     subgraph PSM
     PS -- contains --> RS[Robot State Representation];
     PS -- contains --> CD[Collision detection interface];
-    RS -- manipulates --> MG;
     end
-    RM -- used to instantiate --> PSM;
+    RS -- manipulates --> MG;
+    PSM -- used to instantiate --> RM;
     style PS fill:#CFFFCD;
     style RS fill:#CFFFCD;
     style CD fill:#CFFFCD;
