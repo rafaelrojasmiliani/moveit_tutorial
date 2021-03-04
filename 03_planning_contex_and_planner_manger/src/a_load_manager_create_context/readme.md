@@ -64,6 +64,11 @@ graph TD;
     end
     JS[joint_state_publisher] -- publish to --> PSM;
     PUBM -- joint_states_cmd --> JS;
+    subgraph Orchestrator
+        SP[shape_msgs::SolidPrimitive] --> CO[moveit_msgs::CollisionObject];
+        PSMSG[planning_plugin] -- contains --> LOCO[List of colsion objects]
+        CO --> LOCO;
+    end
     style PS fill:#CFFFCD;
     style RS fill:#CFFFCD;
     style CD fill:#CFFFCD;
