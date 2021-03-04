@@ -87,18 +87,25 @@ catkin create pkg PROJECT_NAME --catkin-deps roscpp moveit_core moveit_ros_plann
 
 ```mermaid
 graph TD;
-    URDF -- loaded by --> RML[Robot Model Loader];
-    SRDF -- loaded by --> RML;
-    J[`moveit_cfg_pkg/config/joint_limits.yaml`] -- loaded by --> RML;
-    K[`moveit_cfg_pkg/config/kinematics.yaml`] -- loaded by --> RML;
-    RML -- instantiates --> RM[Robot Model];
-    RM -- contains --> MG[MoveIt Group];
-    PS[`PlanningScene`] -- contains --> RM;
-    RM -- used to instantiate --> PS;
-    PS -- contains --> RS[Robot State Representation];
-    PS -- contains --> CD[Collision detection interface];
-    RS -- manipulates --> MG;
-    style PS fill:#CFFFCD;
-    style RS fill:#CFFFCD;
-    style CD fill:#CFFFCD;
+    subgraph node
+        URDF -- loaded by --> RML[Robot Model Loader];
+        SRDF -- loaded by --> RML;
+        J[`moveit_cfg_pkg/config/joint_limits.yaml`] -- loaded by --> RML;
+        K[`moveit_cfg_pkg/config/kinematics.yaml`] -- loaded by --> RML;
+        RML -- instantiates --> RM[Robot Model];
+        RM -- contains --> MG[MoveIt Group];
+        PS[`PlanningScene`] -- contains --> RM;
+        RM -- used to instantiate --> PS;
+        PS -- contains --> RS[Robot State Representation];
+        PS -- contains --> CD[Collision detection interface];
+        RS -- manipulates --> MG;
+        style PS fill:#CFFFCD;
+        style RS fill:#CFFFCD;
+        style CD fill:#CFFFCD;
+        MVS[MoveItVisualTools] --> RST[RobotState topic];
+    end
+    subgraph RVIZ
+        MRSP[MoveIt Robot State plugin];
+    end
+    RST -- publish to --> MRSP;
 ```
