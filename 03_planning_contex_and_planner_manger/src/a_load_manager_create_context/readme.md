@@ -26,6 +26,9 @@ In this instance we learn the basics of motion planning
 ```mermaid
 graph TD;
     subgraph Planner
+    subgraph loop
+    A --> B
+    end
     RML[Robot Model Loader] -- instantiates --> RM[Robot Model];
     MPP[pluginlib::ClassLoader<br/>planning_interface::PlannerManager] -- instantiates --> PM[PlannerManager];
     PPP[RPS param <br/>planning_plugin] -- constructor<br/>argument --> PM;
