@@ -73,6 +73,7 @@ graph TD;
         end
     end
     RPS -- calls --> GPSS;
+    ATS -- calls --> APSS;
     style PS fill:#CFFFCD;
     style RS fill:#CFFFCD;
     style CD fill:#CFFFCD;
