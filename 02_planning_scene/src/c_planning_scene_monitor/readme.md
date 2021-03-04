@@ -1,6 +1,8 @@
 # What does this examples do?
 This example teaches how `PlanningSceneMonitor` is implemented and how to use its ROS service API to add or remove objects.
 
+It generates random objects and place them in random positions.
+
 
 ## Files
 
@@ -29,8 +31,9 @@ target_link_libraries(${PROJECT_NAME}_node
 )
 ```
 ## Planning Scene ROS API
-Here we use the Planning Scene Monitor ROS service/topics API is to add or remove objects from the workspace.
+Here we use the Planning Scene Monitor ROS service/topics API to add or remove objects from the workspace.
 These objects are divided in two main categories
+
 1. Objects attached to the robot. These objects contains a variable which indicates the part of the robot that is in contact with the object. Then the collision detector will automatically ignore the contact between this object and the robot.
 2. Objects not attached to the robot. Objects that are treated normally by the collision detector.
 
@@ -71,11 +74,16 @@ In its construction, this runs a `ros::AsyncSpinner`.
 
 
 - **Subscribed topics**
-    - `planning_scene` of type `moveit_msgs::PlanningScene` [defined here](http://docs.ros.org/en/api/moveit_msgs/html/msg/PlanningScene.html). Thus subscriber is instantiated at `PlanningSceneMonitor::startSceneMonitor`.
-On this message the function `PlanningSceneMonitor::newPlanningSceneMessage` is called.
+    - `planning_scene` of type `moveit_msgs::PlanningScene` [defined here](http://docs.ros.org/en/api/moveit_msgs/html/msg/PlanningScene.html). This subscriber is instantiated at `PlanningSceneMonitor::startSceneMonitor`.
+    On this message the function `PlanningSceneMonitor::newPlanningSceneMessage` is called.
+**This updates the plannign scene**
+
     - `collision_object` of type `moveit_msgs::CollisionObject` [defined here](http://docs.ros.org/en/jade/api/moveit_msgs/html/msg/CollisionObject.html) with callback `PlanningSceneMonitor::collisionObjectCallback`. This subscriber is instantiated at `PlanningSceneMonitor::startWorldGeometryMonitor`
+
     - `planning_scene_world` of type `moveit_msgs::PlanningScene` with callback `PlanningSceneMonitor::newPlanningSceneWorldCallback`.  This subscriber is instantiated at `PlanningSceneMonitor::startWorldGeometryMonitor`
+
     - `attached_collision_object` of type `moveit_msgs::AttachedCollisionObject` [defined here](http://docs.ros.org/en/jade/api/moveit_msgs/html/msg/AttachedCollisionObject.html) with callback `PlanningSceneMonitor::attachObjectCallback`.
+
     - `joint_states` subscribed by `PlanningSceneMonitor::current_state_monitor_` of type `CurrentStateMonitorPtr` with callback `planning_scene_monitor::CurrentStateMonitor::jointStateCallback` [implemented here](https://github.com/ros-planning/moveit/blob/382aa5a8cdd39eace07536d39c497a4b21f0f653/moveit_ros/planning/planning_scene_monitor/src/current_state_monitor.cpp#L336).
 
 - **Published topics**

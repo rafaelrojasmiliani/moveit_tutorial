@@ -30,6 +30,23 @@ This is, however, not the recommended way to instantiate a `PlanningScene`.
 The `PlanningSceneMonitor` is the recommended method to create and maintain the current planning scene using data from the robot’s joints and the sensors on the robot.
 In this tutorial, we will instantiate a `PlanningScene` class directly, but this method of instantiation is only intended for illustration.
 
+```mermaid
+graph TD;
+    URDF -- loaded by --> RML[Robot Model Loader];
+    SRDF -- loaded by --> RML;
+    J[`moveit_cfg_pkg/config/joint_limits.yaml`] -- loaded by --> RML;
+    K[`moveit_cfg_pkg/config/kinematics.yaml`] -- loaded by --> RML;
+    RML -- instantiates --> RM[Robot Model];
+    RM -- contains --> MG[MoveIt Group];
+    PS[`PlanningScene`] -- contains --> RM;
+    RM -- used to instantiate --> PS;
+    PS -- contains --> RS[Robot State Representation];
+    PS -- contains --> CD[Collision detection interface];
+    RS -- manipulates --> MG;
+    style PS fill:#CFFFCD;
+    style RS fill:#CFFFCD;
+    style CD fill:#CFFFCD;
+```
 
 ## Planning Scene Monitor
 
@@ -87,6 +104,25 @@ This service is initiated by `PlanningSceneMonitor::providePlanningSceneService`
     - `collision_detection::CollisionPluginLoader collision_loader_;`
     - `DynamicReconfigureImpl* reconfigure_impl_;`
 
+```mermaid
+graph TD;
+    URDF -- loaded by --> RML[Robot Model Loader];
+    SRDF -- loaded by --> RML;
+    J[`moveit_cfg_pkg/config/joint_limits.yaml`] -- loaded by --> RML;
+    K[`moveit_cfg_pkg/config/kinematics.yaml`] -- loaded by --> RML;
+    RML -- instantiates --> RM[Robot Model];
+    RM -- contains --> MG[MoveIt Group];
+    PS[`PlanningScene`] -- contains --> RM;
+    RM -- used to instantiate --> PS;
+    subgraph PSM
+    PS -- contains --> RS[Robot State Representation];
+    PS -- contains --> CD[Collision detection interface];
+    RS -- manipulates --> MG;
+    end
+    style PS fill:#CFFFCD;
+    style RS fill:#CFFFCD;
+    style CD fill:#CFFFCD;
+```
 ## Kinematic constraints
 
 The base class for custon MoveIt constraints is `kinematic_constraints::KinematicConstraint` [defined here](https://github.com/ros-planning/moveit/blob/ff552bf861609f99ca97a7e173fcbeb0c03e9f45/moveit_core/kinematic_constraints/include/moveit/kinematic_constraints/kinematic_constraint.h#L78) and [implemented here](https://github.com/ros-planning/moveit/blob/ff552bf861609f99ca97a7e173fcbeb0c03e9f45/moveit_core/kinematic_constraints/src/kinematic_constraint.cpp#L61).
