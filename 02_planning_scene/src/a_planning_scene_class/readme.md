@@ -33,6 +33,7 @@ graph TD;
     RM -- contains --> MG[MoveIt Group];
     PS[`PlanningScene`] -- uses to instantiate --> RM;
     PS -- contains --> RS[Robot State Representation];
+    PS -- contains --> CD[Collision detection interface];
     RS -- manipulates --> MG;
 ```
 
