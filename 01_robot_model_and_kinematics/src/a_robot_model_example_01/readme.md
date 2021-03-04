@@ -80,7 +80,7 @@ But in this example we use smart poiters
         const Eigen::Isometry3d &link_pose =
                     my_kinematic_model->getGlobalLinkTransform(link_name_string);
 ```
-# Example 2 `b_monitor_state.launch` and `b_robot_model_example_02_node.cpp`
+## Example 2 `b_monitor_state.launch` and `b_robot_model_example_02_node.cpp`
 
 We use this example to simulate how to monitor the state of a robot using MoveIt
 ```mermaid
@@ -95,10 +95,10 @@ graph TD;
     RM -- contains --> MG[MoveIt Group];
     RS -- manipulates --> MG;
     N -- instantiates --> MG;
-    N -- used to set joint positions --> RS;
-    N -- used to get `RobotModel` --> RML;
-    N -- used to get poses --> RM;
-    N -- used to get<br/> Joint Positions --> RM;
+    N -- used to set<br/> joint positions --> RS;
+    N -- used to instantiate `RobotModel` --> RML;
+    N -- used to instantiate `RobotState` --> RM;
+    N -- used to get and set<br/>joint positions and get<br/>link poses --> RS;
 ```
 
 # Methods and clases used in this example
