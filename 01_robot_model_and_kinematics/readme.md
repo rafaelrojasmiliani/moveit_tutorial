@@ -31,6 +31,7 @@ graph TD;
     RML -- instantiates --> RM[Robot Model];
     RM -- instantiates --> RS[Robot State Representation];
     RM -- contains --> MG[MoveIt Group];
+    RS -- manipulates --> MG
 ```
 ## Robot Model Loader
 
