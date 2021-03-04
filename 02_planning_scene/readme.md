@@ -105,7 +105,7 @@ This service is initiated by `PlanningSceneMonitor::providePlanningSceneService`
     - `DynamicReconfigureImpl* reconfigure_impl_;`
 
 ```mermaid
-flowchart TD;
+flowchart TB;
     URDF -- loaded by --> RML[Robot Model Loader];
     SRDF -- loaded by --> RML;
     J[`moveit_cfg_pkg/config/joint_limits.yaml`] -- loaded by --> RML;
