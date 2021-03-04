@@ -105,7 +105,7 @@ This service is initiated by `PlanningSceneMonitor::providePlanningSceneService`
     - `DynamicReconfigureImpl* reconfigure_impl_;`
 
 ```mermaid
-graph TD;
+flowchart TD;
     URDF -- loaded by --> RML[Robot Model Loader];
     SRDF -- loaded by --> RML;
     J[`moveit_cfg_pkg/config/joint_limits.yaml`] -- loaded by --> RML;
@@ -118,7 +118,7 @@ graph TD;
     PS -- contains --> CD[Collision detection interface];
     end
     RS -- manipulates --> MG;
-    PSM -- used to instantiate --> RM;
+    RM -- used to instantiate --> PSM;
     style PS fill:#CFFFCD;
     style RS fill:#CFFFCD;
     style CD fill:#CFFFCD;
