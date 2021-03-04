@@ -18,21 +18,36 @@ In this instance we learn the basics of motion planning
 | `src/planner.cpp` | Implementation of the motion planning serice with moveit OMPL plugin. |
 | `src/orchestrator.cpp` | Adds/removes random objects as class the motion planning service. |
 | `src/trajectory_plot.py` | Plots the output of the motion planning|
-| `src/trajectory_plot.py` | Plots the output of the motion planning|
 | `launch/planner.launch` | Launch the example|
 | `launch/planning_scene_monitor.launch` | Launch the Planning Scene Monitor|
 
 
 
 ```mermaid
-    sequenceDiagram
-    participant Planning Scene Monitor
-    participant Planner
-    participant Joinst State Publisher
-    participant Robot State Publisher
-    participant Rviz
-    Rviz->>Planning Scene Monitor: "get_scene" `moveit_msgs/GetPlanningScene` 
-    Planning Scene Monitor->>Rviz: Planning Scene 
+graph TD;
+    subgraph Planner
+    RML[Robot Model Loader] -- instantiates --> RM[Robot Model];
+    MPP[pluginlib::ClassLoader<br/>planning_interface::PlannerManager] -- instantiates --> PM[PlannerManager];
+    PPP[RPS param <br/>planning_plugin] -- constructor<br/>argument --> PM;
+    RM -- initialize method --> PM;
+    RM -- contains --> MG[Move Group];
+    PM -- instantiates --> PC[PlanningContext];
+    MPR[MotionPlanRequest] -- instantiation arg. --> PC;
+    PS -- instantiation arg. --> PC;
+    PC -- solve --> MPRES[MotionPlanResponse];
+    PS[`PlanningScene`] -- contains --> RM;
+    RM -- used to instantiate --> PS;
+    PS -- contains --> RS[Robot State Representation];
+    PS -- contains --> CD[Collision detection interface];
+    RS -- manipulates --> MG;
+    end
+    style PS fill:#CFFFCD;
+    style RS fill:#CFFFCD;
+    style CD fill:#CFFFCD;
+    style PM fill:#FFD2D2;
+    style PC fill:#FFD2D2;
+    style MPR fill:#FFD2D2;
+    style MPRES fill:#FFD2D2;
 ```
 
 # How did we create this package?
