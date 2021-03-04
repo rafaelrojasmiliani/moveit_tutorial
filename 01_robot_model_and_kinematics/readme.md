@@ -27,7 +27,7 @@ graph TD;
     SRDF --> RML;
     J[`moveit_cfg_pkg/config/joint_limits.yaml`] --> RML;
     K[`moveit_cfg_pkg/config/kinematics.yaml`] --> RML;
-    RML --> RM [Robot Model];
+    RML --> RM[Robot Model];
 ```
 ## Robot Model Loader
 
