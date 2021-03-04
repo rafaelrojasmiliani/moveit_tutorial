@@ -27,11 +27,14 @@ In this instance we learn the basics of motion planning
 graph TD;
     subgraph Planner
     subgraph loop
-    A --> B
+    RPS[Request actual<br/>planning scene] --> GRP[Get random joint pose];
+    GRP --> CC{collision?};
+    CC -- NO --> CMP[Compute Motion Plan];
+    CC -- YES --> GRP;
     end
     RML[Robot Model Loader] -- instantiates --> RM[Robot Model];
     MPP[pluginlib::ClassLoader<br/>planning_interface::PlannerManager] -- instantiates --> PM[PlannerManager];
-    PPP[RPS param <br/>planning_plugin] -- constructor<br/>argument --> PM;
+    PPP[ROS param <br/>planning_plugin] -- constructor<br/>argument --> PM;
     RM -- initialize method --> PM;
     RM -- contains --> MG[Move Group];
     PM -- instantiates --> PC[PlanningContext];
