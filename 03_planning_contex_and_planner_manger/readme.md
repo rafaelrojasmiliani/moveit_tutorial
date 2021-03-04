@@ -38,7 +38,14 @@ graph TD;
     MPP[pluginlib::ClassLoader<br/>planning_interface::PlannerManager] -- instantiates --> PM[PlannerManager];
     PPP[RPS param <br/>planning_plugin] -- constructor<br/>argument --> PM;
     RM -- initialize method --> PM;
+    PM -- instantiates --> PC[PlanningContext];
+    MPR[MotionPlanRequest] -- instantiation arg. --> PC;
+    PS -- instantiation arg. --> PC;
+    PC -- solve --> MPRES[MotionPlanResponse];
+    PS[`PlanningScene`] -- contains --> RM;
+    RM -- used to instantiate --> PS;
+    PS -- contains --> RS[Robot State Representation];
+    PS -- contains --> CD[Collision detection interface];
+    RS -- manipulates --> MG;
     style PS fill:#CFFFCD;
-    style RS fill:#CFFFCD;
-    style CD fill:#CFFFCD;
 ```

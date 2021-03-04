@@ -174,7 +174,7 @@ bool is_there_a_collision(planning_scene::PlanningScenePtr _ps) {
   return false;
 }
 
-/*Asksthe motion planning plugin to motion plan using the MotionPlanRequest and
+/*Asks the motion planning plugin to motion plan using the MotionPlanRequest and
  * MotionPlanResponse*/
 planning_interface::MotionPlanResponse
 plan_group_to_state(planning_scene::PlanningScenePtr _ps,
