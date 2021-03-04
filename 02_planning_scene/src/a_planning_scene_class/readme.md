@@ -1,4 +1,6 @@
-# Planning Scene Example 01: Collision detection
+# Planning Scene Example 01: How to use `planning_scene::PlanningScene` for collision detection
+
+This example intends to create an instance of a `planning_scene::PlanningScene` with the minimum required set-up and use it for collision detection. 
 
 The planning scene class `planning_scene::PlanningScene` is the central class for motion planning in MoveIt.
 It is [defined here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_core/planning_scene/include/moveit/planning_scene/planning_scene.h#L86) and [implemented here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_core/planning_scene/src/planning_scene.cpp).
@@ -14,6 +16,26 @@ By default `planning_scene::PlanningScene` instantiates a FCL collision checker.
 
 The `planning_scene::PlanningScene` class is tightly connected to the `planning_scene_monitor::PlannningSceneMonitor` class, which maintains a planning scene using information from the ROS Parameter Server and subscription to topics.
 **The `PlanningSceneMonitor` is the recommended method to create and maintain the current planning scene using data from the robot’s joints and the sensors on the robot**.
+
+## What do we do with `PlanningScene`
+
+We use `PlanningScene` only for collision detection.
+1. As a container for a `RobotState` which represents the current state of the robot in the workspace
+2. As an interface to the collision detectin system (FCL)
+
+```mermaid
+graph TD;
+    JSP[Joint State Publisher] -- publish JointState --> N[node in `b_robot_model_example_02_node.cpp`];
+    URDF -- loaded by --> RML[Robot Model Loader];
+    SRDF -- loaded by --> RML;
+    J[`moveit_cfg_pkg/config/joint_limits.yaml`] -- loaded by --> RML;
+    K[`moveit_cfg_pkg/config/kinematics.yaml`] -- loaded by --> RML;
+    RML -- instantiates --> RM[Robot Model];
+    RM -- contains --> MG[MoveIt Group];
+    RM -- used to instantiate --> PS[`PlanningScene`];
+    PS -- contains --> RS[Robot State Representation];
+    RS -- manipulates --> MG;
+```
 
 # Parameters required by the Planning Scene instance
 

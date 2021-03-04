@@ -5,7 +5,7 @@
 #include <sensor_msgs/JointState.h>
 
 // MoveIt
-#include <moveit/planning_scene/planning_scene.h>
+#include <moveit/planning_scene/planning_scene.h> //planning_scene::PlanningScene
 #include <moveit/robot_model_loader/robot_model_loader.h>
 
 #include <moveit/kinematic_constraints/utils.h>

@@ -1,14 +1,24 @@
-## Planning Scene Manager
+# Enviroment representation in MoveIt
+
+| MoveIt concept | class | task |
+| -------------- | ----- | ---- |
+| Planninc Scene Manager |`planning_scene::PlanningScene`| Wraper for `RobotModel`, contains actual `Robotstate` and performs Colision detection|
+| Collision request | `collision_detection::CollisionRequest` and `collision_detection::CollisionResult` | Specify the characteristic of the collision check request |
+| Planning Scene Monitor | `planning_scene_monitor::PlannningSceneMonitor` | Wraper for `RobotModel`, `PlanningScene` and provides the infrastructore of subscriber and publishers|
+
+## Planning Scene Manager (`planning_scene::PlanningScene`)
 
 The planning scene `planning_scene::PlanningScene` is the central class for motion planning in MoveIt.
 It is [declared here](https://github.com/ros-planning/moveit/blob/382aa5a8cdd39eace07536d39c497a4b21f0f653/moveit_core/planning_scene/include/moveit/planning_scene/planning_scene.h#L87) and [defined here](https://github.com/ros-planning/moveit/blob/master/moveit_core/planning_scene/src/planning_scene.cpp).
 A planning scene represents all the information needed to compute motion plans: 
-    - The robot's current state
-    - its representation (geometric, kinematic, dynamic)
-    - the world representation.
+
+- The robot's current state
+- its representation (geometric, kinematic, dynamic)
+- the world representation.
+
 Using this information, things like forward kinematics, inverse kinematics, evaluation of constraints, collision checking, are all possible.
 
-The `planning_scene::PlanningScene` class is tightly connected to the `planning_scene_monitor::PlannningSceneMonitor` class, which maintains a planning scene using information from the ROS Parameter Server and subscription to topics.
+The `planning_scene::PlanningScene` class is intended to be tightly connected to the `planning_scene_monitor::PlannningSceneMonitor` class, which maintains a planning scene using information from the ROS Parameter Server and subscription to topics.
 
 The `PlanningScene` class provides the main interface that you will use for collision checking and constraint checking. 
 
