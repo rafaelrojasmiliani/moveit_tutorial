@@ -7,8 +7,8 @@ You should always use that when possible.
 In these example, we will discuss only the basic API.
 We will start by instantiating a `RobotModelLoader` object, then we will instante the required objects.
 
-# Example 1 `a_create_model.launch` and `a_robot_model_example_01_node.cpp`
-## Task1 instantate a `robot_model_loader::RobotModelLoader`
+## Example 1 `a_create_model.launch` and `a_robot_model_example_01_node.cpp`
+### Task 1 instantate a `robot_model_loader::RobotModelLoader`
 
 ```C++
   robot_model_loader::RobotModelLoader my_robot_model_loader("robot_description");
@@ -26,13 +26,13 @@ This requires the following set-up od ROS parameters
     - `"robot_description_kinematics/PLANNING_GROUP_NAME/kinematics_solver_search_resolution"`
     - `"robot_description_kinematics/PLANNING_GROUP_NAME/kinematics_solver_timeout"`
 
-## Task2 get an instance of `RobotModel` 
+### Task 2 get an instance of `RobotModel` 
 ```C++
   const robot_model::RobotModelPtr &my_robot_model =
         my_robot_model_loader.getModel();
 ```
 
-## Task 3 Explore `JointModelGroup` 
+### Task 3 Explore `JointModelGroup` 
 - **Get the groups info**
     - **Groups in the model**
     ```C++
@@ -57,7 +57,7 @@ This requires the following set-up od ROS parameters
       const std::vector<std::string> &link_names =
           joint_model_group->getLinkModelNames();
     ```
-## Task 4 Instantiate a `RobotState`
+### Task 4 Instantiate a `RobotState`
 
 A robot State may be constructed using a robot model
 ```C++
@@ -69,13 +69,13 @@ But in this example we use smart poiters
       new robot_state::RobotState(my_robot_model));
 ```
 
-## Task 5 Get the joint values of the `JointModelGroup`
+### Task 5 Get the joint values of the `JointModelGroup`
 ```C++
       my_kinematic_model->copyJointGroupPositions(joint_model_group_instance,
                                                   joint_values);
 ```
 
-## Task 6 Get the Pose of a link
+### Task 6 Get the Pose of a link
 ```C++
         const Eigen::Isometry3d &link_pose =
                     my_kinematic_model->getGlobalLinkTransform(link_name_string);
@@ -85,7 +85,7 @@ But in this example we use smart poiters
 We use this example to simulate how to monitor the state of a robot using MoveIt
 ```mermaid
 graph TD;
-    JSP -- publish JointState --> N[node in `b_robot_model_example_02_node.cpp`];
+    JSP[Joint State Publisher] -- publish JointState --> N[node in `b_robot_model_example_02_node.cpp`];
     URDF -- loaded by --> RML[Robot Model Loader];
     SRDF -- loaded by --> RML;
     J[`moveit_cfg_pkg/config/joint_limits.yaml`] -- loaded by --> RML;
@@ -95,9 +95,10 @@ graph TD;
     RM -- contains --> MG[MoveIt Group];
     RS -- manipulates --> MG;
     N -- instantiates --> MG;
-    N -- use to set and get joint positions --> RS;
-    N -- use to get `RobotModel` --> RML;
-    N -- use to get poses --> RM;
+    N -- used to set joint positions --> RS;
+    N -- used to get `RobotModel` --> RML;
+    N -- used to get poses --> RM;
+    N -- used to get<br/> Joint Positions --> RM;
 ```
 
 # Methods and clases used in this example
