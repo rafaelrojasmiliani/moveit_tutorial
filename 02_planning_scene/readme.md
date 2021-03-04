@@ -105,7 +105,7 @@ This service is initiated by `PlanningSceneMonitor::providePlanningSceneService`
     - `DynamicReconfigureImpl* reconfigure_impl_;`
 
 ```mermaid
-flowchart TB;
+graph TD;
     URDF -- loaded by --> RML[Robot Model Loader];
     SRDF -- loaded by --> RML;
     J[`moveit_cfg_pkg/config/joint_limits.yaml`] -- loaded by --> RML;
@@ -117,11 +117,29 @@ flowchart TB;
     PS -- contains --> RS[Robot State Representation];
     PS -- contains --> CD[Collision detection interface];
     end
-    RS -- manipulates --> MG;
-    RM -- used to instantiate --> PSM;
+    RM -- used to instantiate --> PS;
     style PS fill:#CFFFCD;
     style RS fill:#CFFFCD;
     style CD fill:#CFFFCD;
+```
+
+```mermaid
+graph TD;
+    URDF -- loaded by --> RML[Robot Model Loader];
+    SRDF -- loaded by --> RML;
+    J[`moveit_cfg_pkg/config/joint_limits.yaml`] -- loaded by --> RML;
+    K[`moveit_cfg_pkg/config/kinematics.yaml`] -- loaded by --> RML;
+    RML -- instantiates --> PSM[Planning Scene Monitor];
+    RM -- contains --> MG[MoveIt Group];
+    PSM -- contains --> RM;
+    PSM -- expose --> APSS[apply_planning_scene service]
+    PSM -- expose --> GPSS[get_planning_scene service]
+    PSM -- Publish --> MPS[monitored_planning_scene]
+
+    style PSM fill:#CFFFCD;
+    style APSS fill:#FFD2D2;
+    style GPSS fill:#FFD2D2;
+    style MPS fill:#91bbff;
 ```
 ## Kinematic constraints
 
