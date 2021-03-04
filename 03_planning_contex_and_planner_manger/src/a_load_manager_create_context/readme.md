@@ -68,6 +68,9 @@ graph TD;
         SP[shape_msgs::SolidPrimitive] --> CO[moveit_msgs::CollisionObject];
         PSMSG[planning_plugin] -- contains --> LOCO[List of colsion objects]
         CO --> LOCO;
+        subgraph list
+        A --> B
+        end
     end
     style PS fill:#CFFFCD;
     style RS fill:#CFFFCD;
