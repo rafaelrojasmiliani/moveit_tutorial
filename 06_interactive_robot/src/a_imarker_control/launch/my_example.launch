@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<launch>
+  <group ns="myrobot">
+    <!-- MoveIt Minimal parameters -->
+    <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find workspace_description)/urdf/robot.xacro'"/>
+    <param name="robot_description_semantic" command="cat $(find myrobot_config_package)/config/myrobot.srdf"/>
+    <group ns="robot_description_planning">
+      <rosparam command="load" file="$(find myrobot_config_package)/config/joint_limits.yaml"/>
+    </group>
+    <group ns="robot_description_kinematics">
+      <rosparam command="load" file="$(find myrobot_config_package)/config/kinematics.yaml"/>
+    </group>
+    <!-- call my planning scene montor-->
+    <include file="$(find simple_planning_scene_monitor)/launch/planning_scene_monitor.launch"/>
+    <node name="rviz" pkg="rviz" type="rviz" output="screen" args="-d $(find a_imarker_control)/cfg/rviz_cfg.rviz"/>
+    <node name="example" pkg="a_imarker_control" type="interactivity_tutorial" output="screen"/>
+  </group>
+</launch>
