@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<launch>
+  <rosparam command="delete" param="/myrobot"/>
+  <group ns="myrobot">
+    <!-- 1 ros params for Robot Model on MoveIt -->
+    <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find workspace_description)/urdf/robot.xacro'"/>
+    <param name="robot_description_semantic" command="cat $(find myrobot_config_package)/config/myrobot.srdf"/>
+    <group ns="robot_description_planning">
+      <rosparam command="load" file="$(find myrobot_config_package)/config/joint_limits.yaml"/>
+    </group>
+    <group ns="robot_description_kinematics">
+      <rosparam command="load" file="$(find myrobot_config_package)/config/kinematics.yaml"/>
+    </group>
+    <!-- 2 Fake robot joint and robot state publisher  -->
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+      <param name="/use_gui" value="false"/>
+      <rosparam param="source_list">[joint_states_cmd]</rosparam>
+    </node>
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen"/>
+    <!-- 3 RVIZ -->
+    <node name="rviz" pkg="rviz" type="rviz" output="screen" args="-d $(find a_planning_scene_class)/cfg/rvizconf.rviz"/>
+  </group>
+</launch>

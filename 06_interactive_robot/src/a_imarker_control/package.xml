@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>a_imarker_control</name>
+  <version>0.0.0</version>
+  <description>The a_interactivity package</description>
+  <maintainer email="Administrator@todo.todo">Administrator</maintainer>
+  <license>TODO</license>
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>Eigen3</build_depend>
+  <build_depend>interactive_markers</build_depend>
+  <build_depend>moveit_core</build_depend>
+  <build_depend>moveit_ros_planning_interface</build_depend>
+  <build_depend>moveit_visual_tools</build_depend>
+  <build_depend>rviz_visual_tools</build_depend>
+  <build_export_depend>Eigen3</build_export_depend>
+  <build_export_depend>interactive_markers</build_export_depend>
+  <build_export_depend>moveit_core</build_export_depend>
+  <build_export_depend>moveit_ros_planning_interface</build_export_depend>
+  <build_export_depend>moveit_visual_tools</build_export_depend>
+  <build_export_depend>rviz_visual_tools</build_export_depend>
+  <exec_depend>Eigen3</exec_depend>
+  <exec_depend>interactive_markers</exec_depend>
+  <exec_depend>moveit_core</exec_depend>
+  <exec_depend>moveit_ros_planning_interface</exec_depend>
+  <exec_depend>moveit_visual_tools</exec_depend>
+  <exec_depend>rviz_visual_tools</exec_depend>
+  <export>
+  </export>
+</package>
