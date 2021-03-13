@@ -1,6 +1,7 @@
 #ifndef MY_INTERACTIVE_ROBOT_H
 #define MY_INTERACTIVE_ROBOT_H
 
+#include <interactive_markers/interactive_marker_server.h>
 #include <moveit/robot_model/robot_model.h> //robot_model::RobotModel
 #include <moveit/robot_model_loader/robot_model_loader.h> // robot_model_loader::RobotModelLoader
 #include <moveit/robot_state/robot_state.h>
@@ -30,6 +31,8 @@ public:
   virtual ~MyInteractiveRobot() {}
   void spin();
   bool initialize();
+  void imarker_callback(
+      const visualization_msgs::InteractiveMarkerFeedbackConstPtr &fb);
 };
 
 #endif /* MY_INTERACTIVE_ROBOT_H */

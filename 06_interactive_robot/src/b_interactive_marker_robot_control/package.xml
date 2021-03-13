@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>a_imarker_control</name>
+  <name>b_interactive_marker_robot_control</name>
   <version>0.0.0</version>
   <description>The a_interactivity package</description>
   <maintainer email="Administrator@todo.todo">Administrator</maintainer>

@@ -12,7 +12,7 @@
     </group>
     <!-- call my planning scene montor-->
     <include file="$(find simple_planning_scene_monitor)/launch/planning_scene_monitor.launch"/>
-    <node name="rviz" pkg="rviz" type="rviz" output="screen" args="-d $(find a_imarker_control)/cfg/rviz_cfg.rviz"/>
-    <node name="example" pkg="a_imarker_control" type="interactivity_tutorial" output="screen"/>
+    <node name="rviz" pkg="rviz" type="rviz" output="screen" args="-d $(find b_interactive_marker_robot_control)/cfg/rviz_cfg.rviz"/>
+    <node name="example" pkg="b_interactive_marker_robot_control" type="interactivity_tutorial" output="screen"/>
   </group>
 </launch>

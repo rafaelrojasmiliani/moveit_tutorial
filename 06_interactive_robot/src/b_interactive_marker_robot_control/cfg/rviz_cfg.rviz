@@ -8,6 +8,7 @@ Panels:
         - /Status1
         - /PlanningScene1
         - /RobotState1
+        - /InteractiveMarkers1
       Splitter Ratio: 0.5
     Tree Height: 376
   - Class: rviz/Selection
@@ -211,6 +212,15 @@ Visualization Manager:
       Show Highlights: true
       Value: true
       Visual Enabled: true
+    - Class: rviz/InteractiveMarkers
+      Enable Transparency: true
+      Enabled: true
+      Name: InteractiveMarkers
+      Show Axes: true
+      Show Descriptions: true
+      Show Visual Aids: true
+      Update Topic: /myrobot/interactive_marker_server/update
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -239,7 +249,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 3.6232807636260986
+      Distance: 7.371227264404297
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1

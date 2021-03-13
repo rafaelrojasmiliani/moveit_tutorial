@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(a_imarker_control)
+project(b_interactive_marker_robot_control)
 
 find_package(
   catkin REQUIRED
@@ -11,7 +11,7 @@ find_package(Eigen3 REQUIRED)
 catkin_package()
 
 include_directories(${catkin_INCLUDE_DIRS} ${Eigen3_INCLUDE_DIRS} include)
-add_executable(interactivity_tutorial src/my_example.cpp
+add_executable(interactivity_tutorial src/tools.cpp src/my_example.cpp
                                       src/my_interactive_robot.cpp)
 target_link_libraries(interactivity_tutorial ${catkin_LIBRARIES}
                       ${Boost_LIBRARIES})

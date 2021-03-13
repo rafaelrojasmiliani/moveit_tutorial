@@ -21,8 +21,8 @@ Each control has an **interaction mode**, i.e. a way that the user can change it
 
 ```mermaid
 graph TB;
-    IM[InteractiveMarker<br/> position] --> IMC;
-    IMC[InteractiveMarkerControl<br/>orientation, interaction mode] -->M;
+    IM[InteractiveMarker<br/> position] -- contains --> IMC;
+    IMC[InteractiveMarkerControl<br/>orientation, interaction mode] -- contains -->M;
     M[Marker<br/>shape];
 ```
 ## Interactive marker server

@@ -1,6 +1,9 @@
 
 #include "my_interactive_robot.h"
+#include "tools.h"
 
+void my_callback(
+    const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback);
 MyInteractiveRobot::MyInteractiveRobot(const std::string &_base_link_name,
                                        const std::string &_group_name,
                                        const std::string &_link_name)
@@ -29,9 +32,30 @@ MyInteractiveRobot::MyInteractiveRobot(const std::string &_base_link_name,
 bool MyInteractiveRobot::initialize() { return true; }
 void MyInteractiveRobot::spin() {
 
+  visualization_msgs::InteractiveMarker imarker;
+  visualization_msgs::InteractiveMarkerControl control;
+  // 1. Get currest robot state
   const robot_state::RobotState &original_state = workspace_.getCurrentState();
+  // 2. Copy the state in a new variable
   robot_state::RobotState new_state(original_state);
-
+  // 3. get the position of the link that we want to control
+  const Eigen::Isometry3d &link_pose =
+      new_state.getGlobalLinkTransform(link_name_);
+  // 4. Decompose the pose into 3d position and quaternion
+  Eigen::Quaterniond orientation(link_pose.linear());
+  Eigen::Vector3d position = link_pose.translation();
+  // 5. Instantiate an interactive marker message
+  imarker =
+      tools::get_imarker_msg("marker", "base_link", position, orientation, 0.5);
+  control = tools::get_control();
+  imarker.controls.push_back(control);
+  // 6. Instantiate the interactive marker server
+  interactive_markers::InteractiveMarkerServer server(
+      "interactive_marker_server");
+  // 7. Associate the iteractiv marker to the server
+  server.insert(imarker);
+  server.setCallback(imarker.name, &my_callback);
+  server.applyChanges();
   while (ros::ok()) {
     new_state.setToRandomPositions(joint_group_);
     visualizer_.publishRobotState(new_state, rviz_visual_tools::GREEN);
@@ -41,4 +65,14 @@ void MyInteractiveRobot::spin() {
     ros::WallDuration(1).sleep();
     ros::spinOnce();
   }
+}
+void MyInteractiveRobot::imarker_callback(
+    const visualization_msgs::InteractiveMarkerFeedbackConstPtr &fb) {
+
+  printf("callllll baaack!");
+}
+
+void my_callback(
+    const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback) {
+  printf("callllll baaack!");
 }
