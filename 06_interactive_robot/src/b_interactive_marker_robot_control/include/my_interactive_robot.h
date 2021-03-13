@@ -13,6 +13,7 @@ private:
   moveit_visual_tools::MoveItVisualTools visualizer_;
   robot_model_loader::RobotModelLoader loader_;
   const robot_model::RobotModelPtr model_;
+  robot_model::RobotStatePtr robot_state_display_;
   planning_scene::PlanningScene workspace_;
   const robot_model::JointModelGroup *const joint_group_;
   // base ross stuff
@@ -31,8 +32,7 @@ public:
   virtual ~MyInteractiveRobot() {}
   void spin();
   bool initialize();
-  void imarker_callback(
-      const visualization_msgs::InteractiveMarkerFeedbackConstPtr &fb);
+  void set_robot_state_display(const Eigen::Isometry3d &_pose);
 };
 
 #endif /* MY_INTERACTIVE_ROBOT_H */

@@ -36,17 +36,21 @@ visualization_msgs::Marker get_axis_marker(Axis axis) {
   return marker;
 }
 
-visualization_msgs::InteractiveMarkerControl get_control() {
-  visualization_msgs::InteractiveMarkerControl control;
+visualization_msgs::InteractiveMarkerControl get_interactive_marker_control_msg(
+    const std::string &_name, const std::string &_description,
+    const int _orientation_mode, const int _interaction_mode,
+    const Eigen::Quaterniond &_orientation, bool _is_visible) {
 
-  control.always_visible = true;
-  /*control.markers.push_back(get_axis_marker(X));
-  control.markers.push_back(get_axis_marker(Y));
-  control.markers.push_back(get_axis_marker(Z));*/
-  control.name = std::string("rotate_");
-  control.interaction_mode =
-      visualization_msgs::InteractiveMarkerControl::MOVE_ROTATE_3D;
-  return control;
+  visualization_msgs::InteractiveMarkerControl result;
+
+  result.name = _name;
+  result.description = _description;
+  result.orientation_mode = _orientation_mode;
+
+  result.orientation = tf2::toMsg(_orientation);
+  result.interaction_mode = _interaction_mode;
+  result.always_visible = _is_visible;
+  return result;
 }
 
 visualization_msgs::InteractiveMarker
@@ -62,5 +66,45 @@ get_imarker_msg(const std::string &_name, const std::string &_frame_id,
   result.name = _name;
   result.description = _name;
   return result;
+}
+
+void append_so3_control_msg_to_interactive_marker_msg(
+    visualization_msgs::InteractiveMarker &_imaker) {
+  // 1. Instantiate an array with the desired orientations to use
+  std::vector<Eigen::Quaterniond> axis_orientation;
+  axis_orientation.push_back(Eigen::Quaterniond(1, 1, 0, 0));
+  axis_orientation.push_back(Eigen::Quaterniond(1, 0, 0, 1));
+  axis_orientation.push_back(Eigen::Quaterniond(1, 0, 1, 0));
+  // 2. Instantiate an array with the desired strings
+  std::vector<std::string> axis_name;
+  axis_name.push_back("move_x");
+  axis_name.push_back("move_y");
+  axis_name.push_back("move_z");
+  // 3. Instantiate an interactive marker control for each
+  // direaction/orientation
+  for (int i = 0; i < 3; i++) {
+    // 3.0. Declare interacive marker control message
+    visualization_msgs::InteractiveMarkerControl single_axis_control;
+    // 3.1 set the members of interactive marker control as a rotate axis
+    // control.
+    single_axis_control = get_interactive_marker_control_msg(
+        axis_name[i], axis_name[i],
+        visualization_msgs::InteractiveMarkerControl::INHERIT,
+        visualization_msgs::InteractiveMarkerControl::ROTATE_AXIS,
+        axis_orientation[i], true);
+    // 3.3. Associate the rotation interactive marker control to the interactive
+    // marker
+    _imaker.controls.push_back(single_axis_control);
+    // 3.4 set the members of interactive marker control as a axis traslation
+    // control.
+    single_axis_control = get_interactive_marker_control_msg(
+        axis_name[i], axis_name[i],
+        visualization_msgs::InteractiveMarkerControl::INHERIT,
+        visualization_msgs::InteractiveMarkerControl::MOVE_AXIS,
+        axis_orientation[i], true);
+    // 3.5. Associate the translation interactive marker control to the
+    // interactive marker
+    _imaker.controls.push_back(single_axis_control);
+  }
 }
 } // namespace tools

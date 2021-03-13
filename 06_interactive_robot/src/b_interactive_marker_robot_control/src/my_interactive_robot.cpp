@@ -1,8 +1,10 @@
 
 #include "my_interactive_robot.h"
 #include "tools.h"
+#include <tf2_eigen/tf2_eigen.h>
 
 void my_callback(
+    MyInteractiveRobot *const robot,
     const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback);
 MyInteractiveRobot::MyInteractiveRobot(const std::string &_base_link_name,
                                        const std::string &_group_name,
@@ -21,12 +23,13 @@ MyInteractiveRobot::MyInteractiveRobot(const std::string &_base_link_name,
       nh_.serviceClient<moveit_msgs::GetPlanningScene>("get_planning_scene");
   // 2. wait for the existence of the client
   client.waitForExistence();
-  // 3. instantes a pointer to the joint group where the
-  // plan will be done.
-  // 4. retrieve the planning scene
+  // 3. retrieve the planning scene
   moveit_msgs::GetPlanningScene srv;
   client.call(srv);
   workspace_.setPlanningSceneMsg(srv.response.scene);
+
+  robot_state_display_.reset(
+      new robot_state::RobotState(workspace_.getCurrentState()));
 }
 
 bool MyInteractiveRobot::initialize() { return true; }
@@ -46,33 +49,35 @@ void MyInteractiveRobot::spin() {
   Eigen::Vector3d position = link_pose.translation();
   // 5. Instantiate an interactive marker message
   imarker =
-      tools::get_imarker_msg("marker", "base_link", position, orientation, 0.5);
-  control = tools::get_control();
-  imarker.controls.push_back(control);
+      tools::get_imarker_msg("marker", "base_link", position, orientation, 0.1);
+  // 6. Append to the interactive marker message the InteractiveMarkerControl's
+  // for position and orienation
+  tools::append_so3_control_msg_to_interactive_marker_msg(imarker);
   // 6. Instantiate the interactive marker server
   interactive_markers::InteractiveMarkerServer server(
       "interactive_marker_server");
   // 7. Associate the iteractiv marker to the server
   server.insert(imarker);
-  server.setCallback(imarker.name, &my_callback);
+  server.setCallback(imarker.name, boost::bind(my_callback, this, _1));
   server.applyChanges();
   while (ros::ok()) {
-    new_state.setToRandomPositions(joint_group_);
-    visualizer_.publishRobotState(new_state, rviz_visual_tools::GREEN);
-    ros::WallDuration(1).sleep();
-    ros::spinOnce();
-    visualizer_.publishRobotState(original_state, rviz_visual_tools::GREEN);
+    visualizer_.publishRobotState(*robot_state_display_,
+                                  rviz_visual_tools::GREEN);
     ros::WallDuration(1).sleep();
     ros::spinOnce();
   }
 }
-void MyInteractiveRobot::imarker_callback(
-    const visualization_msgs::InteractiveMarkerFeedbackConstPtr &fb) {
+void MyInteractiveRobot::set_robot_state_display(
+    const Eigen::Isometry3d &_pose) {
 
-  printf("callllll baaack!");
+  robot_state_display_->setFromIK(joint_group_, _pose, 0.1);
 }
 
 void my_callback(
-    const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback) {
-  printf("callllll baaack!");
+    MyInteractiveRobot *const _robot,
+    const visualization_msgs::InteractiveMarkerFeedbackConstPtr &_feedback) {
+
+  Eigen::Isometry3d pose;
+  tf2::fromMsg(_feedback->pose, pose);
+  _robot->set_robot_state_display(pose);
 }
