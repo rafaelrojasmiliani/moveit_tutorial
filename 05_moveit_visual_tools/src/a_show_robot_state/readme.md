@@ -79,12 +79,13 @@ void MoveItVisualTools::publishRobotState(const moveit_msgs::DisplayRobotState& 
 }
 ```
 
-# How did we create this package?
+## How did we create this package?
 
 ```
 catkin create pkg PROJECT_NAME --catkin-deps roscpp moveit_core moveit_ros_planning_interface moveit_visual_tools --system-deps Eigen3
 ```
 
+## Architecture
 ```mermaid
 graph TD;
     subgraph node
