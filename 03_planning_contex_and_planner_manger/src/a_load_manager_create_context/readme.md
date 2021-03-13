@@ -25,55 +25,6 @@ In this instance we learn the basics of motion planning
 
 ```mermaid
 graph TD;
-    subgraph Planner
-        subgraph loop
-            RPS[Request actual<br/>planning scene] --> GCS[Get current state];
-            GCS --> GRP[Get random joint pose<br/>for the desired group];
-            GRP --> CC{collision?};
-            CC -- NO --> CMP[Compute Motion Plan];
-            CC -- YES --> GRP;
-            CMP --> PUBM[Publish motion]
-        end
-        RML[Robot Model Loader] -- instantiates --> RM[Robot Model];
-        MPP[pluginlib::ClassLoader<br/>planning_interface::PlannerManager] -- instantiates --> PM[PlannerManager];
-        PPP[ROS param <br/>planning_plugin] -- constructor<br/>argument --> PM;
-        RM -- initialize method --> PM;
-        RM -- contains --> MG[Move Group];
-        PM -- instantiates --> PC[PlanningContext];
-        MPR[MotionPlanRequest] -- instantiation arg. --> PC;
-        PS -- instantiation arg. --> PC;
-        PC -- solve --> MPRES[MotionPlanResponse];
-        PS[`PlanningScene`] -- contains --> RM;
-        RM -- used to instantiate --> PS;
-        PS -- contains --> RS[Robot State Representation];
-        PS -- contains --> CD[Collision detection interface];
-        RS -- manipulates --> MG;
-        RPS -- setPlanningSceneMsg --> PS;
-        PS -- getCurrentStateNonConst --> GCS;
-        GRP -- uses --> RS;
-        GRP -- uses --> MG;
-        CC -- uses --> CD;
-    end
-    subgraph PSM
-        RML2[Robot Model Loader] -- instantiates --> PSM[Planning Scene Monitor];
-        PSM -- instantiates --> RM2[Robot Model];
-        PSM -- expose --> APSS[apply_planning_scene service]
-        PSM -- expose --> GPSS[get_planning_scene service]
-        PSM -- Publish --> MPS[monitored_planning_scene]
-    end
-    JS[joint_state_publisher] -- publish to --> PSM;
-    PUBM -- joint_states_cmd --> JS;
-    subgraph Orchestrator
-        SP[shape_msgs::SolidPrimitive] --> CO[moveit_msgs::CollisionObject];
-        PSMSG[planning_plugin] -- contains --> LOCO[List of colsion objects]
-        CO --> LOCO;
-        subgraph objectloop
-        CRO[Create random object] --> CIRA[Chose if remove of append];
-        CIRA --> ATS[Append/remove to scene]
-        end
-    end
-    RPS -- calls --> GPSS;
-    ATS -- calls --> APSS;
     style PS fill:#CFFFCD;
     style RS fill:#CFFFCD;
     style CD fill:#CFFFCD;
