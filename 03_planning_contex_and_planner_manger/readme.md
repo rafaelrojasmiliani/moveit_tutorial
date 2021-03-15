@@ -63,6 +63,50 @@ C -- contains --> VC[VisibilityConstraint];
 MPR -- contains --> GN[group_name];
 ```
 
+## Motion Planning problem solution
+
+The custon output of a Motion Planner in MoveIt is an instance of `planning_interface::MotionPlanResponse` [declared here](https://github.com/ros-planning/moveit/blob/45e2be9879880ac9c18b228c64ca7c0d17d5041d/moveit_core/planning_interface/include/moveit/planning_interface/planning_response.h#L47) and [defined here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_core/planning_interface/src/planning_response.cpp).
+There is also a `planning_interface::MotionPlanDetailedResponse`.
+These classes are wraper of `moveit_msgs::MotionPlanResponse` [defined here](http://docs.ros.org/en/melodic/api/moveit_msgs/html/msg/MotionPlanResponse.html) and `moveit_msgs::MotionPlanDetailedResponse` [defined here](http://docs.ros.org/en/melodic/api/moveit_msgs/html/msg/MotionPlanDetailedResponse.html).
+
+| `MotionPlanResponse` member | meaning |
+| --------------------------  | ------- |
+|`moveit_msgs/RobotState trajectory_start`| Initial conditions|
+|`string group_name`| Joint Group name|
+|`moveit_msgs/RobotTrajectory[] trajectory`| wrapper of [`trajectory_msgs/JointTrajectory`](http://docs.ros.org/en/melodic/api/trajectory_msgs/html/msg/JointTrajectory.html)|
+|`string[] description`||
+|`float64[] processing_time`| time to solve the problem|
+|`moveit_msgs/MoveItErrorCodes error_code`| eventual error code |
+
+| MoveIt Error code | meaning |
+| ----------------  | ------- |
+|1 | `SUCCESS` |
+|99999 | `FAILURE` |
+|-1 | `PLANNING_FAILED` |
+|-2 | `INVALID_MOTION_PLAN` |
+|-3 | `MOTION_PLAN_INVALIDATED_BY_ENVIRONMENT_CHANGE` |
+|-4 | `CONTROL_FAILED` |
+|-5 | `UNABLE_TO_AQUIRE_SENSOR_DATA` |
+|-6 | `TIMED_OUT` |
+|-7 | `PREEMPTED` |
+|-10 | `START_STATE_IN_COLLISION` |
+|-11 | `START_STATE_VIOLATES_PATH_CONSTRAINTS` |
+|-12 | `GOAL_IN_COLLISION` |
+|-13 | `GOAL_VIOLATES_PATH_CONSTRAINTS` |
+|-14 | `GOAL_CONSTRAINTS_VIOLATED` |
+|-15 | `INVALID_GROUP_NAME` |
+|-16 | `INVALID_GOAL_CONSTRAINTS` |
+|-17 | `INVALID_ROBOT_STATE` |
+|-18 | `INVALID_LINK_NAME` |
+|-19 | `INVALID_OBJECT_NAME` |
+|-21 | `FRAME_TRANSFORM_FAILURE` |
+|-22 | `COLLISION_CHECKING_UNAVAILABLE` |
+|-23 | `ROBOT_STATE_STALE` |
+|-24 | `SENSOR_INFO_STALE` |
+|-31 | `NO_IK_SOLUTION` |
+
+
+
 ## MoveIt tools to build constraints
 
 Several tools to define constraints are written in [`moveit/moveit_core/kinematic_constraints/src/utils.cpp`](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_core/kinematic_constraints/src/utils.cpp).
