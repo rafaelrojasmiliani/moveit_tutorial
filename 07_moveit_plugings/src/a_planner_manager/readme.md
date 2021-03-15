@@ -36,8 +36,8 @@ This is the proper pluging.
 | -------------- | ---- |
 | `PlannerManager()` | Does nothing| 
 | `virtual ~PlannerManager()` | Does nothing| 
-| `virtual std::string getDescription() const` | | 
-|`virtual void getPlanningAlgorithms(std::vector<std::string> & algs) const`| returns an empty string. |
+| `virtual std::string getDescription() const` | returns an empty string.| 
+|`virtual void getPlanningAlgorithms(std::vector<std::string> & algs) const`| clear the imput string array. |
 |`NOVIRTUAL PlanningContextPtr getPlanningContext(const planning_scene::PlanningSceneConstPtr & planning_scene,const MotionPlanRequest & req) const`| wrapper for the custom implementation of `getPlanningContext`|
 |`virtual bool initialize(const moveit::core::RobotModelConstPtr &,const std::string &)`|Does nothing and returns true. |
 |`virtual void setPlannerConfigurations(const PlannerConfigurationMap & pcs)`| One line `config_settings_=pcs`.|
