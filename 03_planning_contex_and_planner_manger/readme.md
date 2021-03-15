@@ -2,8 +2,8 @@
 
 | MoveIt concept | class | task |
 | -------------- | ----- | ---- |
-| Planner Manager | `PlanningManager` | |
 | Planning Context | `PlanningContext` | Representation of a particular planning context, i.e. a planning scene with a planning request |
+| Planner Manager | `PlanningManager` | Builds a motion planning problem. |
 
 ## Motion planning with Planning context and Planner manager
 
@@ -26,8 +26,15 @@ planning_interface::PlanningContextPtr context = planner_instance_->getPlanningC
 solved = context ? context->solve(res) : false;
 ```
 
-## How does MoveIt represent a motion planning request
+## How does MoveIt represent a motion planning request ?
 
+Moveit represent a motion plan a tuple which contains
+1. Initial state of the robot
+2. A set of constraints which define a set of desired final states of the robot
+3. Constrains along the path
+4. A workspace bounding box
+
+There are two MoveIt types used to represent a motion planning problem, the `planning_interface::MotionPlanRequest` and the `moveit_msgs::MotionPlanRequest` type.
 As can be seen [here](https://github.com/ros-planning/moveit/blob/45e2be9879880ac9c18b228c64ca7c0d17d5041d/moveit_core/planning_interface/include/moveit/planning_interface/planning_request.h#L46) the type `planning_interface::MotionPlanRequest` is the same as `moveit_msgs::MotionPlanRequest`.
 
 | MoveIt message | definition | task |
@@ -41,15 +48,19 @@ As can be seen [here](https://github.com/ros-planning/moveit/blob/45e2be9879880a
 |`moveit_msgs::PositionConstraint` | [here](http://docs.ros.org/en/melodic/api/moveit_msgs/html/msg/PositionConstraint.html) | A desired position in R3 of a named link with a [`moveit_msgs::BoundingVolume`](moveit_msgs/BoundingVolume) of tolerance.|
 |`moveit_msgs::OrientationConstraint` |[here](http://docs.ros.org/en/melodic/api/moveit_msgs/html/msg/OrientationConstraint.html) | A  orientation in quaternion of a named link with tolerances. |
 |`moveit_msgs::VisibilityConstraint` | [here](http://docs.ros.org/en/melodic/api/moveit_msgs/html/msg/VisibilityConstraint.html) | The constraint is useful to maintain visibility to a disc (the target) in a particular frame. |
+| `moveit_msgs::TrajectoryConstraints ` | [here](http://docs.ros.org/en/melodic/api/moveit_msgs/html/msg/TrajectoryConstraints.html) | Seems that this will be soon deprecated. |
 
 ```mermaid
 graph TD;
-MPR[MotionPlanRequest] -- contains --> WP;
+MPR[MotionPlanRequest] -- contains --> WP[WorkspaceParameters<br/> cartesian bounding box of the workspace];
 MPR -- contains --> C;
-C[Constraints] -- contains --> JC[JointConstraint];
+MPR -- contains --> RS[RobotState<br/>Robot's initial state.]
+MPR -- contains --> PC[Constraints<br/> Path constraints]
+C[Constraints<br/>Desired final state definition] -- contains --> JC[JointConstraint];
 C -- contains --> PC[PositionConstraint];
 C -- contains --> OC[OrientationConstraint];
 C -- contains --> VC[VisibilityConstraint];
+MPR -- contains --> GN[group_name];
 ```
 
 Serveral tools to define constraints are written in [`moveit/moveit_core/kinematic_constraints/src/utils.cpp`](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_core/kinematic_constraints/src/utils.cpp).
