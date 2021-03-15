@@ -28,9 +28,7 @@ graph TD;
 
 | `planning_interface::PlannerManager` pure virtual method | task |
 | -------------- | ---- |
-| `PlanningContextPtr getPlanningContext(const planning_scene::PlanningSceneConstPtr& planning_scene,
-                                                const MotionPlanRequest& req,
-                                                moveit_msgs::MoveItErrorCodes& error_code) const ` | Construct a planning context given the current scene and a planning request |
+| `PlanningContextPtr getPlanningContext(const planning_scene::PlanningSceneConstPtr& planning_scene,const MotionPlanRequest& req,moveit_msgs::MoveItErrorCodes& error_code) const ` | Construct a planning context given the current scene and a planning request |
 | `bool canServiceRequest(const MotionPlanRequest& req)` |  Determine whether this plugin instance is able to solve this planning request |
 
 
