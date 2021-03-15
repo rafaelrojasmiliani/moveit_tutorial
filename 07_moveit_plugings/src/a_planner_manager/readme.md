@@ -24,27 +24,29 @@ graph TD;
 
 ## Planning Manager
 
+This is the proper pluging. 
 
-
-| `planning_interface::PlannerManager` pure virtual method | task |
+| `planning_interface::PlannerManager` pure virtual method | intended task of the implementation |
 | -------------- | ---- |
 | `PlanningContextPtr getPlanningContext(const planning_scene::PlanningSceneConstPtr& planning_scene,const MotionPlanRequest& req,moveit_msgs::MoveItErrorCodes& error_code) const ` | Construct a planning context given the current scene and a planning request |
 | `bool canServiceRequest(const MotionPlanRequest& req)` |  Determine whether this plugin instance is able to solve this planning request |
 
 
-|`planning_interface::PlannerManager` implemented classes | task |
+|`planning_interface::PlannerManager` implemented classes | default task |
 | -------------- | ---- |
 | `PlannerManager()` | Does nothing| 
-| `~PlannerManager()` | Does nothing| 
-| `getDescription() const` | | 
-|`getPlanningAlgorithms(std::vector<std::string> & algs) const`| |
-|`getPlanningContext(const planning_scene::PlanningSceneConstPtr & planning_scene,const MotionPlanRequest & req) const`| |
-|`initialize(const moveit::core::RobotModelConstPtr &,const std::string &)`| |
-|`setPlannerConfigurations(const PlannerConfigurationMap & pcs)`| |
-|`terminate() const`| |
+| `virtual ~PlannerManager()` | Does nothing| 
+| `virtual std::string getDescription() const` | | 
+|`virtual void getPlanningAlgorithms(std::vector<std::string> & algs) const`| returns an empty string. |
+|`NOVIRTUAL PlanningContextPtr getPlanningContext(const planning_scene::PlanningSceneConstPtr & planning_scene,const MotionPlanRequest & req) const`| wrapper for the custom implementation of `getPlanningContext`|
+|`virtual bool initialize(const moveit::core::RobotModelConstPtr &,const std::string &)`|Does nothing and returns true. |
+|`virtual void setPlannerConfigurations(const PlannerConfigurationMap & pcs)`| One line `config_settings_=pcs`.|
+|`NOVIRTUAL void const PlannerConfigurationMap& getPlannerConfigurations()const `|returns `this->config_settings_` |
+|`NOVIRTUAL void terminate() const`| Calls the the `terminate` method of all the contexts available via `getActiveContexts` see **Active Context tracking**|
 
 
 
+# Planning context
 | `planning_interface::PlanningContext` pure virtual method | task |
 | -------------- | ---- |
 | `bool solve(MotionPlanDetailedResponse& res)` | Solve the motion planning problem |
