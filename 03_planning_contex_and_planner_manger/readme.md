@@ -55,7 +55,7 @@ graph TD;
 MPR[MotionPlanRequest] -- contains --> WP[WorkspaceParameters<br/> cartesian bounding box of the workspace];
 MPR -- contains --> C;
 MPR -- contains --> RS[RobotState<br/>Robot's initial state.]
-MPR -- contains --> PC[Constraints<br/> Path constraints]
+MPR -- contains --> PathC[Constraints<br/> Path constraints]
 C[Constraints<br/>Desired final state definition] -- contains --> JC[JointConstraint];
 C -- contains --> PC[PositionConstraint];
 C -- contains --> OC[OrientationConstraint];
