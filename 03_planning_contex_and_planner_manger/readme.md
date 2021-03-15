@@ -2,8 +2,11 @@
 
 | MoveIt concept | class | task |
 | -------------- | ----- | ---- |
+| Motion Plan Request | `MotionPlanRequest` | Definition of a complete motion planning problem |
+| Motion Plan Response | `MotionPlanResponse` | Output of a motion planner  |
+| Robot Trajectory | `RobotTrajectory` | Solution of a motion planning problem (wrapper of `trajectory_msgs::JointTrajectory`)|
 | Planning Context | `PlanningContext` | Representation of a particular planning context, i.e. a planning scene with a planning request |
-| Planner Manager | `PlanningManager` | Builds a motion planning problem. |
+| Planner Manager | `PlanningManager` | Custom motion planning solver. |
 
 ## Motion planning with Planning context and Planner manager
 
