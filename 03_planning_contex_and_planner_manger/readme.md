@@ -63,4 +63,41 @@ C -- contains --> VC[VisibilityConstraint];
 MPR -- contains --> GN[group_name];
 ```
 
-Serveral tools to define constraints are written in [`moveit/moveit_core/kinematic_constraints/src/utils.cpp`](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_core/kinematic_constraints/src/utils.cpp).
+## MoveIt tools to build constraints
+
+Several tools to define constraints are written in [`moveit/moveit_core/kinematic_constraints/src/utils.cpp`](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_core/kinematic_constraints/src/utils.cpp).
+
+### `constructGoalConstraints` from RobotState
+Implemented [here](https://github.com/ros-planning/moveit/blob/45e2be9879880ac9c18b228c64ca7c0d17d5041d/moveit_core/kinematic_constraints/src/utils.cpp#L135) as
+```C++
+moveit_msgs::Constraints constructGoalConstraints(const robot_state::RobotState& state,
+                                                  const robot_model::JointModelGroup* jmg, double tolerance_below,
+                                                  double tolerance_above)
+```
+Builds a constrains with only the join constraints which defines the state of the robot for a given group.
+
+### `constructGoalConstraints` from link name and pose
+Implemented [here](https://github.com/ros-planning/moveit/blob/45e2be9879880ac9c18b228c64ca7c0d17d5041d/moveit_core/kinematic_constraints/src/utils.cpp#L155) as
+```C++
+moveit_msgs::Constraints constructGoalConstraints(const std::string& link_name, const geometry_msgs::PoseStamped& pose,
+                                                  double tolerance_pos, double tolerance_angle)
+```
+
+- A second version allows to introduce tolerances for  each single coordinate
+```C++
+moveit_msgs::Constraints constructGoalConstraints(const std::string& link_name, const geometry_msgs::PoseStamped& pose,
+                                                  const std::vector<double>& tolerance_pos,
+                                                  const std::vector<double>& tolerance_angle)
+```
+- Just using orientation
+```C++
+
+moveit_msgs::Constraints constructGoalConstraints(const std::string& link_name,
+                                                  const geometry_msgs::QuaternionStamped& quat, double tolerance)
+```
+
+- Just using position
+```C++
+moveit_msgs::Constraints constructGoalConstraints(const std::string& link_name,
+                                                  const geometry_msgs::PointStamped& goal_point, double tolerance)
+```
