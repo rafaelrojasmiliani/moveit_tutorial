@@ -36,11 +36,11 @@ As can be seen [here](https://github.com/ros-planning/moveit/blob/45e2be9879880a
 |`moveit_msgs::WorkspaceParameters` | [here](http://docs.ros.org/en/melodic/api/moveit_msgs/html/msg/WorkspaceParameters.html) | Represents a box in R3 in which the robot is allowed to move. |
 |`moveit_msgs::RobotState` | [here](http://docs.ros.org/en/melodic/api/moveit_msgs/html/msg/RobotState.html) | a `sensor_msgs::JointState` with attached objects |
 |`moveit_msgs::AttachedCollisionObject`| [here](http://docs.ros.org/en/melodic/api/moveit_msgs/html/msg/AttachedCollisionObject.html) | A collision object attached to the robot. |
-|`moveit_msgs::Constraints` | [here](http://docs.ros.org/en/melodic/api/moveit_msgs/html/msg/Constraints.html)| a set of `JointConstraint`'s, `PositionConstraint`'s, `OrientationConstraint`'s and `VisibilityConstraint`'s .|
-|`moveit_msgs::JointConstraint`|[here](http://docs.ros.org/en/melodic/api/moveit_msgs/html/msg/JointConstraint.html)||
-|`moveit_msgs::PositionConstraint` | [here](http://docs.ros.org/en/melodic/api/moveit_msgs/html/msg/PositionConstraint.html) ||
-|`moveit_msgs::OrientationConstraint` |[here](http://docs.ros.org/en/melodic/api/moveit_msgs/html/msg/OrientationConstraint.html) ||
-|`moveit_msgs::VisibilityConstraint` | [here](http://docs.ros.org/en/melodic/api/moveit_msgs/html/msg/VisibilityConstraint.html) ||
+|`moveit_msgs::Constraints` | [here](http://docs.ros.org/en/melodic/api/moveit_msgs/html/msg/Constraints.html)| a set of `JointConstraint`'s, `PositionConstraint`'s, `OrientationConstraint`'s and `VisibilityConstraint`'s wich define the final desired state of the robot.|
+|`moveit_msgs::JointConstraint`|[here](http://docs.ros.org/en/melodic/api/moveit_msgs/html/msg/JointConstraint.html)| A desired position with upper and lower tolerances for a named joint. It also has a weight.|
+|`moveit_msgs::PositionConstraint` | [here](http://docs.ros.org/en/melodic/api/moveit_msgs/html/msg/PositionConstraint.html) | A desired position in R3 of a named link with a [`moveit_msgs::BoundingVolume`](moveit_msgs/BoundingVolume) of tolerance.|
+|`moveit_msgs::OrientationConstraint` |[here](http://docs.ros.org/en/melodic/api/moveit_msgs/html/msg/OrientationConstraint.html) | A  orientation in quaternion of a named link with tolerances. |
+|`moveit_msgs::VisibilityConstraint` | [here](http://docs.ros.org/en/melodic/api/moveit_msgs/html/msg/VisibilityConstraint.html) | The constraint is useful to maintain visibility to a disc (the target) in a particular frame. |
 
 ```mermaid
 graph TD;
