@@ -14,9 +14,12 @@ graph TD;
     PM[PlannerManager Implementation] -- instantiates --> PCI;
     PCI[Planning Context Implementation] --  contains -->  PI;
     MPR[MotionPlanRequest] -- instantiation arg. --> PCI;
-    PS[Planning Scene] -- instantiation arg. --> PC;
+    PS[Planning Scene] -- instantiation arg. --> PCI;
     PCI -- computes --> MPRES[MotionPlanResponse];
     PI[Custon Planner Interface] -- <br/>contains --> CMP[Custom Motion Planner];
+    style PM fill:#CFFFCD;
+    style PCI fill:#CFFFCD;
+    style PI fill:#CFFFCD;
 ```
 
 ## Planning Manager
