@@ -1,0 +1,3 @@
+[submodule "07_moveit_plugings/src/ros_gsplines"]
+	path = 07_moveit_plugings/src/ros_gsplines
+	url = https://github.com/rafaelrojasmiliani/ros_gsplines.git
