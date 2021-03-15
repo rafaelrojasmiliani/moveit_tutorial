@@ -33,6 +33,7 @@ graph TD;
 
 
 |`planning_interface::PlannerManager` implemented classes | task |
+| -------------- | ---- |
 | `PlannerManager()` | Does nothing| 
 | `~PlannerManager()` | Does nothing| 
 | `getDescription() const` | | 
