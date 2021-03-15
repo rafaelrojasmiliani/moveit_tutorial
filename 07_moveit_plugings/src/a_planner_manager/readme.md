@@ -35,12 +35,12 @@ graph TD;
 |`planning_interface::PlannerManager` implemented classes | task |
 | `PlannerManager()` | Does nothing| 
 | `~PlannerManager()` | Does nothing| 
-| `getDescription() const` || 
-|`getPlanningAlgorithms(std::vector<std::string> & algs) const`||
-|`getPlanningContext(const planning_scene::PlanningSceneConstPtr & planning_scene,const MotionPlanRequest & req) const`||
-|`initialize(const moveit::core::RobotModelConstPtr &,const std::string &)`||
-|`setPlannerConfigurations(const PlannerConfigurationMap & pcs)`||
-|`terminate() const`||
+| `getDescription() const` | | 
+|`getPlanningAlgorithms(std::vector<std::string> & algs) const`| |
+|`getPlanningContext(const planning_scene::PlanningSceneConstPtr & planning_scene,const MotionPlanRequest & req) const`| |
+|`initialize(const moveit::core::RobotModelConstPtr &,const std::string &)`| |
+|`setPlannerConfigurations(const PlannerConfigurationMap & pcs)`| |
+|`terminate() const`| |
 
 
 
