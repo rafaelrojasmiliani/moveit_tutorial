@@ -23,8 +23,27 @@ In this instance we learn the basics of motion planning
 
 
 
+
 ```mermaid
 graph TD;
+    URDF -- loaded by --> RML[Robot Model Loader];
+    SRDF -- loaded by --> RML;
+    J[`moveit_cfg_pkg/config/joint_limits.yaml`] -- loaded by --> RML;
+    K[`moveit_cfg_pkg/config/kinematics.yaml`] -- loaded by --> RML;
+    RML -- instantiates --> RM[Robot Model];
+    MPP[pluginlib::ClassLoader<br/>planning_interface::PlannerManager] -- instantiates --> PM[PlannerManager];
+    PPP[RPS param <br/>planning_plugin] -- constructor<br/>argument --> PM;
+    RM -- initialize method --> PM;
+    RM -- contains --> MG[Move Group];
+    PM -- instantiates --> PC[PlanningContext];
+    MPR[MotionPlanRequest] -- instantiation arg. --> PC;
+    PS -- instantiation arg. --> PC;
+    PC -- solve --> MPRES[MotionPlanResponse];
+    PS[`PlanningScene`] -- contains --> RM;
+    RM -- used to instantiate --> PS;
+    PS -- contains --> RS[Robot State Representation];
+    PS -- contains --> CD[Collision detection interface];
+    RS -- manipulates --> MG;
     style PS fill:#CFFFCD;
     style RS fill:#CFFFCD;
     style CD fill:#CFFFCD;
@@ -32,8 +51,6 @@ graph TD;
     style PC fill:#FFD2D2;
     style MPR fill:#FFD2D2;
     style MPRES fill:#FFD2D2;
-    style APSS fill:#91bbff;
-    style GPSS fill:#91bbff;
 ```
 
 # How did we create this package?
@@ -67,7 +84,6 @@ In order to load the motion planner plugin this examples as the moveit configura
 
 ## Defining constraints
     
-    Serveral tools to define constraints are written in [`moveit/moveit_core/kinematic_constraints/src/utils.cpp`](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_core/kinematic_constraints/src/utils.cpp).
 
 ## `moveit_msg::JointConstraints`
 
