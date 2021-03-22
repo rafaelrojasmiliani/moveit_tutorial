@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
   <group ns="myrobot">
-    <!-- MoveIt Minimal parameters -->
+    <!-- Planning scene required parameters -->
     <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find workspace_description)/urdf/robot.xacro'"/>
     <param name="robot_description_semantic" command="cat $(find myrobot_config_package)/config/myrobot.srdf"/>
     <group ns="robot_description_planning">
@@ -10,7 +10,15 @@
     <group ns="robot_description_kinematics">
       <rosparam command="load" file="$(find myrobot_config_package)/config/kinematics.yaml"/>
     </group>
-    <!-- call my planning scene montor-->
+    <!-- Fake robot with fake control -->
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+      <param name="/use_gui" value="false"/>
+      <rosparam param="source_list">[joint_states_cmd]</rosparam>
+    </node>
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen"/>
+    <!-- Simple Planning Scene Monitor -->
+    <include file="$(find simple_planning_scene_monitor)/launch/planning_scene_monitor.launch"/>
+    <!-- Main procedure -->
     <include file="$(find simple_planning_scene_monitor)/launch/planning_scene_monitor.launch"/>
     <node name="rviz" pkg="rviz" type="rviz" output="screen" args="-d $(find b_interactive_marker_robot_control)/cfg/rviz_cfg.rviz"/>
     <node name="example" pkg="b_interactive_marker_robot_control" type="interactivity_tutorial" output="screen"/>
