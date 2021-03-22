@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<launch>
+  <group ns="myrobot">
+    <!-- 1. Launch the robot description, joint limits, kinematics and planning scene monitor -->
+    <include file="$(find simple_planning_scene_monitor)/launch/planning_scene_monitor.launch"/>
+    <!-- 2. Launch the random object service (place random objects on the planning scene) -->
+    <node name="random_object_service" pkg="random_objects" type="random_objects_service" respawn="false" output="screen"/>
+    <!-- 3. Load ROS Planner Manager plugin and pipeline pars. and launch the random motion plan service -->
+    <param name="planning_plugin" value="ompl_interface/OMPLPlanner"/>
+    <param name="request_adapters" value="default_planner_request_adapters/AddTimeParameterization default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints"/>
+    <node name="random_motions_service" pkg="random_motions" type="random_motion_plan_service" respawn="false" output="screen"/>
+    <!-- 4. Load control parameters and spawn controls insto gazebo -->
+    <rosparam file="$(find a_trajectory_control)/cfg/trajectory_control_pars.yaml" command="load"/>
+    <node name="control_spawner" pkg="controller_manager" type="spawner" args="--namespace='/myrobot' arm_controller" respawn="false" output="screen"/>
+    <!-- 5. Introduce robot in Gazebo  -->
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model ur10 -z 0.5 -gazebo_namespace '/myrobot/gazebo'"/>
+    <!-- 6. Launch RVIZ and Gazebo -->
+    <node name="rviz" pkg="rviz" type="rviz" output="screen" args="-d $(find a_trajectory_control)/cfg/rvizconfig.rviz"/>
+    <node name="gazebo" pkg="gazebo_ros" type="gazebo" respawn="false" output="screen" args=""/>
+    <!-- 7. Simple implementation of trajectory execution manager -->
+    <node name="simple_trajectory_execution_manager" pkg="a_trajectory_control" type="trajectory_manager_node" output="screen" />
+  </group>
+</launch>
