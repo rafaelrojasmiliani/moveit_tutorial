@@ -10,14 +10,7 @@
     <group ns="robot_description_kinematics">
       <rosparam command="load" file="$(find myrobot_config_package)/config/kinematics.yaml"/>
     </group>
-    <!-- Fake robot with fake control -->
-    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
-      <param name="/use_gui" value="false"/>
-      <rosparam param="source_list">[joint_states_cmd]</rosparam>
-    </node>
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen"/>
-    <!-- Simple Planning Scene Monitor -->
-    <include file="$(find simple_planning_scene_monitor)/launch/planning_scene_monitor.launch"/>
     <!-- Main procedure -->
     <!-- 1. Launch the planning scene monitor -->
     <include file="$(find simple_planning_scene_monitor)/launch/planning_scene_monitor.launch"/>
@@ -32,14 +25,14 @@
     <!-- 6. Launch RVIZ and Gazebo -->
     <node name="rviz" pkg="rviz" type="rviz" output="screen" args="-d $(find a_trajectory_control)/cfg/rvizconfig.rviz"/>
     <node name="gazebo" pkg="gazebo_ros" type="gazebo" respawn="false" output="screen" args=""/>
-    <!-- 7. Simple implementation of trajectory execution manager -->
+    <!-- 7. Launch simple implementation of trajectory execution manager -->
     <node name="simple_trajectory_execution_manager" pkg="a_trajectory_control" type="trajectory_manager_node" output="screen">
       <!-- 7.1. Set the moveit controller manager -->
       <rosparam file="$(find a_trajectory_control)/cfg/moveit_control_manager_pars.yaml" command="load"/>
     </node>
     <!-- 4. Load control parameters and spawn controls insto gazebo -->
     <rosparam file="$(find a_trajectory_control)/cfg/trajectory_control_pars.yaml" command="load"/>
-    <node name="control_spawner" pkg="controller_manager" type="spawner" args="--namespace='/myrobot' arm_controller" respawn="false" output="screen"/>
+    <node name="control_spawner" pkg="controller_manager" type="spawner" args="--namespace='/myrobot' arm_controller joint_state_controller" respawn="false" output="screen"/>
     <!-- 8. Load moeit control parameters -->
   </group>
 </launch>

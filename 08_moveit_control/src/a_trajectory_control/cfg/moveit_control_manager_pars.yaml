@@ -1,6 +1,7 @@
+moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControllerManager
 controller_list:
   - name: arm_controller
-    action_ns: arm_controller
+    action_ns: 'follow_joint_trajectory'
     type: FollowJointTrajectory
     joints:
        - shoulder_pan_joint
