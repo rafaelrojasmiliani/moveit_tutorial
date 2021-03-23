@@ -12,20 +12,21 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o
 RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $UBUNTU_RELEASE main" > /etc/apt/sources.list.d/ros-latest.list'
 RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 
+RUN apt-get update
 # Install packages
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confnew" \
-                    ros-melodic-desktop-full ros-melodic-moveit-setup-assistant iputils-ping net-tools netcat screen build-essential
+                    ros-melodic-desktop-full ros-melodic-moveit-setup-assistant iputils-ping net-tools netcat screen build-essential ros-melodic-moveit-simple-controller-manager
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confnew" \
                    ros-melodic-cartographer-rviz ros-melodic-distance-map-rviz ros-melodic-grid-map-rviz-plugin ros-melodic-jsk-rviz-plugins ros-melodic-octomap-rviz-plugins ros-melodic-rviz-visual-tools
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confnew" \
                     ros-melodic-ompl ros-melodic-moveit-planners ros-melodic-moveit-commander python-catkin-tools
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confnew" \
                     python-rosinstall-generator python-rosinstall python-rosdep ros-melodic-moveit-visual-tools \
-                    python-tk ros-melodic-plotjuggler
+                    python-tk ros-melodic-plotjuggler ros-melodic-joint-trajectory-controller ros-melodic-joint-trajectory-action
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confnew" \
                     python3-sympy coinor-libipopt-dev sudo
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confnew" \
-                    build-essential pkg-config git
+                    build-essential pkg-config git less
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confnew" \
                     liblapack-dev liblapack3 libopenblas-base libopenblas-dev libgfortran-7-dev 
 
@@ -42,7 +43,6 @@ ARG myuser
 ARG myuid
 ARG mygroup
 ARG mygid
-ARG scriptdir
 RUN addgroup --gid ${mygid} ${mygroup} --force-badname
 RUN adduser --gecos "" --disabled-password  --uid ${myuid} --gid ${mygid} ${myuser} --force-badname
 #add user to sudoers
