@@ -1,5 +1,12 @@
 
-The class `planning_interface::MoveGroupInterface` is [declared here](https://github.com/ros-planning/moveit/blob/45e2be9879880ac9c18b228c64ca7c0d17d5041d/moveit_ros/planning_interface/move_group_interface/include/moveit/move_group_interface/move_group_interface.h#L99) and [defined here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/visualization/motion_planning_rviz_plugin/src/motion_planning_frame.cpp).
+The class `planning_interface::MoveGroupInterface` is [declared here](https://github.com/ros-planning/moveit/blob/45e2be9879880ac9c18b228c64ca7c0d17d5041d/moveit_ros/planning_interface/move_group_interface/include/moveit/move_group_interface/move_group_interface.h#L99) and [defined here](https://github.com/ros-planning/moveit/blob/45e2be9879880ac9c18b228c64ca7c0d17d5041d/moveit_ros/planning_interface/move_group_interface/src/move_group_interface.cpp#L1282).
+
+
+```mermaid
+graph LR;
+
+MG[Move Group] -- exposes --> C[Capabilities]
+```
 
 ## Its constructor
 
@@ -45,11 +52,10 @@ moveit::planning_interface::MoveGroupInterface::MoveGroupInterface(const std::st
       end_effector_link_ = joint_model_group_->getLinkModelNames().back();
     pose_reference_frame_ = getRobotModel()->getModelFrame();
 
-    trajectory_event_publisher_ = node_handle_.advertise<std_msgs::String>(
-        trajectory_execution_manager::TrajectoryExecutionManager::EXECUTION_EVENT_TOPIC, 1, false);
-
-    attached_object_publisher_ = node_handle_.advertise<moveit_msgs::AttachedCollisionObject>(
-        planning_scene_monitor::PlanningSceneMonitor::DEFAULT_ATTACHED_COLLISION_OBJECT_TOPIC, 1, false);
+    /*
+        - advertize std_msgs::String on `trajectory_execution_event`
+        - advertize moveit_msgs::AttachedCollisionObject on `attached_collision_object`
+    */
 
     current_state_monitor_ = getSharedStateMonitor(robot_model_, tf_buffer_, node_handle_);
 
@@ -59,29 +65,66 @@ moveit::planning_interface::MoveGroupInterface::MoveGroupInterface(const std::st
     double allotted_time = wait_for_servers.toSec();
     
     /*
-        instantiate simple action clients
+    ## instantiate simple action clients 
         - move_action_client_ moveit_msgs::MoveGroupAction on `move_group` relative namespace
         - pick_action_client_ moveit_msgs::PickupAction on `pickup` relative namespace
         - place_action_client_ moveit_msgs::PlaceAction on `place` relative namespace
-        - execute_action_client_ moveit_msgs::ExecuteTrajectoryAction on execute_trajectory`
+        - execute_action_client_ moveit_msgs::ExecuteTrajectoryAction on `execute_trajectory` namespace
+    ## Instantiates service clients
+        - query_service_ moveit_msgs::QueryPlannerInterfaces `query_planner_interface`
+        - query_service_ moveit_msgs::GetPlannerParams `get_planner_params`
+        - set_params_service_ moveit_msgs::SetPlannerParams ``
+        - cartesian_path_service_ moveit_msgs::GetCartesianPath CARTESIAN_PATH_SERVICE_NAME
+        - plan_grasps_service_ moveit_msgs::GraspPlanning GRASP_PLANNING_SERVICE_NAME
     */
-    execute_action_client_.reset(new actionlib::SimpleActionClient<moveit_msgs::ExecuteTrajectoryAction>(
-        node_handle_, move_group::EXECUTE_ACTION_NAME, false));
-    waitForAction(execute_action_client_, move_group::EXECUTE_ACTION_NAME, timeout_for_servers, allotted_time);
 
-    query_service_ =
-        node_handle_.serviceClient<moveit_msgs::QueryPlannerInterfaces>(move_group::QUERY_PLANNERS_SERVICE_NAME);
-    get_params_service_ =
-        node_handle_.serviceClient<moveit_msgs::GetPlannerParams>(move_group::GET_PLANNER_PARAMS_SERVICE_NAME);
-    set_params_service_ =
-        node_handle_.serviceClient<moveit_msgs::SetPlannerParams>(move_group::SET_PLANNER_PARAMS_SERVICE_NAME);
-
-    cartesian_path_service_ =
-        node_handle_.serviceClient<moveit_msgs::GetCartesianPath>(move_group::CARTESIAN_PATH_SERVICE_NAME);
-
-    plan_grasps_service_ = node_handle_.serviceClient<moveit_msgs::GraspPlanning>(GRASP_PLANNING_SERVICE_NAME);
-
-    ROS_INFO_STREAM_NAMED("move_group_interface",
-                          "Ready to take commands for planning group " << opt.group_name_ << ".");
   }
 ```
+#### Wait for action
+```C++
+  template <typename T>
+  void waitForAction(const T& action, const std::string& name, const ros::WallTime& timeout, double allotted_time)
+  {
+    ROS_DEBUG_NAMED("move_group_interface", "Waiting for move_group action server (%s)...", name.c_str());
+
+    // wait for the server (and spin as needed)
+    if (timeout == ros::WallTime())  // wait forever
+    {
+      while (node_handle_.ok() && !action->isServerConnected())
+      {
+        ros::WallDuration(0.001).sleep();
+        // explicit ros::spinOnce on the callback queue used by NodeHandle that manages the action client
+        ros::CallbackQueue* queue = dynamic_cast<ros::CallbackQueue*>(node_handle_.getCallbackQueue());
+        if (queue)
+          queue->callAvailable();
+      }
+    }
+    else  // wait with timeout
+    {
+      while (node_handle_.ok() && !action->isServerConnected() && timeout > ros::WallTime::now())
+      {
+        ros::WallDuration(0.001).sleep();
+        // explicit ros::spinOnce on the callback queue used by NodeHandle that manages the action client
+        ros::CallbackQueue* queue = dynamic_cast<ros::CallbackQueue*>(node_handle_.getCallbackQueue());
+        if (queue)
+          queue->callAvailable();
+      }
+    }
+
+    if (!action->isServerConnected())
+    {
+      std::stringstream error;
+      error << "Unable to connect to move_group action server '" << name << "' within allotted time (" << allotted_time
+            << "s)";
+      throw std::runtime_error(error.str());
+    }
+  }
+```
+
+
+## Move Group Capabilirieis
+
+The Movegroup capability pluging base class is [declared here](https://github.com/ros-planning/moveit/blob/45e2be9879880ac9c18b228c64ca7c0d17d5041d/moveit_ros/move_group/include/moveit/move_group/move_group_capability.h#L58) and [defined here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/move_group/src/move_group_capability.cpp).
+
+The default capabilities are declared and implemented [here](https://github.com/ros-planning/moveit/tree/melodic-devel/moveit_ros/move_group/src/default_capabilities)
+
