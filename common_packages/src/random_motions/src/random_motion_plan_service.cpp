@@ -45,8 +45,8 @@ public:
   }
 
   virtual ~MotionPlanningService() {}
-  bool plan_random_motions(moveit_msgs::GetMotionPlanRequest &request,
-                           moveit_msgs::GetMotionPlanResponse &response);
+  bool plan_random_motions(moveit_msgs::GetMotionPlan::Request &request,
+                           moveit_msgs::GetMotionPlan::Response &response);
   ros::NodeHandle nh_;
   ros::Publisher robot_trajectory_pub_;
   ros::ServiceServer service_;
@@ -68,8 +68,8 @@ int main(int argc, char **argv) {
 }
 
 bool MotionPlanningService::plan_random_motions(
-    moveit_msgs::GetMotionPlanRequest &req,
-    moveit_msgs::GetMotionPlanResponse &res) {
+    moveit_msgs::GetMotionPlan::Request &req,
+    moveit_msgs::GetMotionPlan::Response &res) {
   moveit_msgs::GetPlanningScene get_ps_srv_msg; // used in 1. to get planning
   std::vector<double> start_joint_position;     // used in 3. to store joint
   // 1. get the planning scene
