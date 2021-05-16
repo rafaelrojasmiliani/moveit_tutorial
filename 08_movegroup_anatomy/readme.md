@@ -5,7 +5,7 @@ The movegroup is a combination of a planning scene monitor, a move group context
 ```mermaid
 graph TB;
 MG[MoveGroup node] --> PSM[PlanningSceneMonitor];
-MG --> MC[MoveIt Capabilities] --> AST[Actions, services topics];
+MG --> MC[MoveIt Capabilities] --> AST[Actions services topics];
 MG --> MGC[MoveGroup Context];
 MGC --> MC;
 ```

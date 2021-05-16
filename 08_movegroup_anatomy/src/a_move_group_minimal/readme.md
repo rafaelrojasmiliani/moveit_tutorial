@@ -39,7 +39,7 @@ The list of required parameters are
 - `move_group/GROUP_NAME/*`custon parameters for the planner.
 - `move_group/request_adapters` a space separated list of planning request adapter plugings
 - `move_group/start_state_max_bounds_error` ?
-- `move_group/planning_scene_monitor/[publish_planning_scene,publish_geometry_updates,publish_state_updates,publish_transforms_updates]` ?
+- `move_group/planning_scene_monitor/[publish_planning_scene,publish_geometry_updates,publish_state_updates,publish_transforms_updates]` boolean parameters of the planning scene monitor
 
 
 ## Movegroup default capabilities
@@ -57,21 +57,59 @@ Provides a [GetCartesianPath](http://docs.ros.org/en/melodic/api/moveit_msgs/htm
 
 - `move_group/MoveGroupPlanService` [defined here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/move_group/src/default_capabilities/plan_service_capability.cpp). This is a wrapper to `planning_pipeline::PlanningPipeline::generatePlan`.
 
-- `move_group/MoveGroupQueryPlannersService` [defined here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/move_group/src/default_capabilities/query_planners_service_capability.cpp). Services to get and set information from the `planning_interface::PlannerManager` associated to the pipeline context.
+- `move_group/MoveGroupQueryPlannersService` [defined here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/move_group/src/default_capabilities/query_planners_service_capability.cpp). Services to get and set information from the `planning_interface::PlannerManager`.
 
 - `move_group/MoveGroupStateValidationService` [defined here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/move_group/src/default_capabilities/state_validation_service_capability.cpp).
 
 - `move_group/MoveGroupGetPlanningSceneService` [defined here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/move_group/src/default_capabilities/get_planning_scene_service_capability.cpp). Calls `PlanningSceneMonitor::providePlanningSceneService` at its initialization.
+
 - `move_group/ApplyPlanningSceneService` [defined here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/move_group/src/default_capabilities/apply_planning_scene_service_capability.cpp). Wrapper to `PlanningSceneMonitor::newPlanningSceneMessage`.
+
 - `move_group/ClearOctomapService` [defined here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/move_group/src/default_capabilities/clear_octomap_service_capability.cpp).
+
+
+
 ## Package creation
 
-1. Create the catking package
 ```CMake
 catkin create pkg package_name --catkin-deps roscpp moveit_core moveit_ros_planning_interface
 ```
 
 **Note** this package does not have compilation dependencies. The catkin dependecies here are just formal. 
+
+# Move Group
+
+```mermaid
+graph TB;
+    MG[move_group node] --> MGE[MoveGroupExe];
+    MG -- instantiates --> TB[tf2_ros::Buffer];
+    MG -- instantiates --> TL[tf2_ros::TransformListener];
+    TB -- constructor arg --> TL;
+    MG -- instantiates --> PSM[PlanningSceneMonitor];
+    MGE --> MGContext[MoveGroupContext];
+    TB -- constructor arg --> PSM;
+    PSM -- constructor arg --> MGE;
+    PSM -- constructor arg --> MGContext;
+    MGE --> MGCapabilities[MoveGroupCapability's];
+    classDef tfclass fill:#CFFFCD;
+    class TB,TL,PSM tfclass;
+    classDef movegroup fill:#FFD2D2;
+    class MGE,MGContext,MGCapabilities movegroup;
+```
+
+
+In rviz the planer are populated [`populatePlannersList`](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/visualization/motion_planning_rviz_plugin/src/motion_planning_frame_planning.cpp).
+See the member [`changePlanningGroupHelper`](https://github.com/ros-planning/moveit/blob/45e2be9879880ac9c18b228c64ca7c0d17d5041d/moveit_ros/visualization/motion_planning_rviz_plugin/src/motion_planning_frame.cpp#L340)
+
+
+Services 
+- `query_planner_interface` returns the name of the planner interface and the planer id's 
+- `get_planner_params`
+- `move_group/<GROUP_NAME>/default_planner_config`
+
+  std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
+  robot_model::RobotModelConstPtr robot_model_;
+  planning_scene_monitor::CurrentStateMonitorPtr current_state_monitor_;
 
 
 
