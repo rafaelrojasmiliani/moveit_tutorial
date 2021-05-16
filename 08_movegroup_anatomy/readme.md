@@ -1,6 +1,11 @@
 # Move Group
 
-The movegroup is a combination of a planning scene monitor, a move group context and moveit capabilities
+The movegroup is a combination of a Planning Scene Monitor, a Movegroup Context and MoveIt Capabilities.
+
+- The Planning Scene Monitor was addressed in the in section 02.
+- The Movegroup Context, [declared here](https://github.com/ros-planning/moveit/blob/45e2be9879880ac9c18b228c64ca7c0d17d5041d/moveit_ros/move_group/include/moveit/move_group/move_group_context.h#L67) and [defined here](https://github.com/ros-planning/moveit/blob/45e2be9879880ac9c18b228c64ca7c0d17d5041d/moveit_ros/move_group/src/move_group_context.cpp#L43) is a grapper of several MoveIt components that make it possible to plan and execute a motion.
+
+- A MoveIt Capability is the standart way to interact with the movegroup node. A MoveIt Capability is an implementation of the plugin base class is [declared here](https://github.com/ros-planning/moveit/blob/45e2be9879880ac9c18b228c64ca7c0d17d5041d/moveit_ros/move_group/include/moveit/move_group/move_group_capability.h#L58) and [defined here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/move_group/src/move_group_capability.cpp). MoveIt capabilities are wrappers to interact with the MoveGroup Context.
 
 ```mermaid
 graph TB;
@@ -9,6 +14,7 @@ graph TB;
     MC --> AST[Actions services topics];
     MG --> MGC[MoveGroup Context];
     MGC --> MC;
+    SN[Another node] -->AST;
 ```
 
 ## Move Group context
