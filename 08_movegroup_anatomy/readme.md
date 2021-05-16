@@ -14,7 +14,6 @@ graph TB;
     MC --> AST[Actions services topics];
     MG --> MGC[MoveGroup Context];
     MGC --> MC;
-    SN[Another node] -->AST;
 ```
 
 ## Move Group context
