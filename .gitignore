@@ -1,6 +1,8 @@
 .*.swp
 */build
 */devel
+.catkin_tools
+logs
 */.catkin_workspace
-*/*/CMakeLists.txt
+*/src/CMakeLists.txt
 *.pyc
