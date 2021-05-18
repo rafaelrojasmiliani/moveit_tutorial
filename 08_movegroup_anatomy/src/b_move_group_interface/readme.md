@@ -3,7 +3,7 @@
 catkin create pkg a_b_moveit_interface --catkin-deps rospy roscpp moveit_core moveit_ros_planning_interface moveit_visual_tools --system-deps Eigen3
 ```
 
-# Move Group Interface
+# Movegroup Interface and Planningscene Interface
 
 ```mermaid
 graph TB;
@@ -27,7 +27,9 @@ graph TB;
     class URDF,SRDF,J,K rosparam;
 ```
 
-The class `moveit::planning_interface::MoveGroupInterface` is [declared here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/planning_interface/move_group_interface/include/moveit/move_group_interface/move_group_interface.h) [defined here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/planning_interface/move_group_interface/src/move_group_interface.cpp).
+- The class `planning_interface::PlanningSceneInterface` is [declared here](https://github.com/ros-planning/moveit/blob/46f110491ed9a21c88f89a09f30029ac251d6d94/moveit_ros/planning_interface/planning_scene_interface/include/moveit/planning_scene_interface/planning_scene_interface.h#L53) and [defined here](https://github.com/ros-planning/moveit/blob/46f110491ed9a21c88f89a09f30029ac251d6d94/moveit_ros/planning_interface/planning_scene_interface/src/planning_scene_interface.cpp#L296).  Its main implementation is done in `planning_interface::PlanningSceneInterface::PlanningSceneInterfaceImpl` is [defined and implemented here](https://github.com/ros-planning/moveit/blob/46f110491ed9a21c88f89a09f30029ac251d6d94/moveit_ros/planning_interface/planning_scene_interface/src/planning_scene_interface.cpp#L50).
+
+- The class `moveit::planning_interface::MoveGroupInterface` is [declared here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/planning_interface/move_group_interface/include/moveit/move_group_interface/move_group_interface.h) [defined here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_ros/planning_interface/move_group_interface/src/move_group_interface.cpp).
 However, the main implementations happens in the class `moveit::planning_interface::MoveGroupInterface::MoveGroupInterfaceImpl`.
 **By default the construction of this instance will block until the `MoveGroup` capability services are up**.
 
@@ -157,4 +159,8 @@ moveit::planning_interface::MoveGroupInterface::MoveGroupInterface(const std::st
 
 
 
+## Pick and place capability
 
+Declared [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.h#L49) and defined [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.cpp#L42). 
+
+Uses the pick place base [declared here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/include/moveit/pick_place/pick_place.h#L53) and [defined here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick_place.cpp);
