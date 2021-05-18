@@ -74,9 +74,51 @@ string[] allowed_touch_objects
 |`GripperTranslation`| `pre_grasp_approach` | `approach_`                  |                                               | `approach_.direction.vector` is used to compute a cartesian path [here](https://github.com/ros-planning/moveit/blob/46f110491ed9a21c88f89a09f30029ac251d6d94/moveit_ros/manipulation/pick_place/src/approach_and_translate_stage.cpp#L240)| |
 |`GripperTranslation`| `post_grasp_retreat` | `retreat_`                   | | `retreat_.direction.vector` is used to compute a cartesian path [here](https://github.com/ros-planning/moveit/blob/46f110491ed9a21c88f89a09f30029ac251d6d94/moveit_ros/manipulation/pick_place/src/approach_and_translate_stage.cpp#L282)|  |
 |`PoseStamped`| `grasp_pose`         |`goal_pose_`                  | in [isEndEffectorFree](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/reachable_valid_pose_filter.cpp#L92), to construc the Constraint Sampler | | |
-|`string`| `target_name`   | `goal_pose_.header.frame_id` | Check that the goal is in the planner frame [here](https://github.com/ros-planning/moveit/blob/46f110491ed9a21c88f89a09f30029ac251d6d94/moveit_ros/manipulation/pick_place/src/reachable_valid_pose_filter.cpp#L117)| | |
-|`trajectory_msgs/JointTrajectory`| `pre_grasp_posture`  |`approach_posture_`           | To define the Constraint Sampler validation check [here](https://github.com/ros-planning/moveit/blob/46f110491ed9a21c88f89a09f30029ac251d6d94/moveit_ros/manipulation/pick_place/src/reachable_valid_pose_filter.cpp#L56)| | |
+|`trajectory_msgs/JointTrajectory`| `pre_grasp_posture`  |`approach_posture_`           | To define the Constraint Sampler validation check [here](https://github.com/ros-planning/moveit/blob/46f110491ed9a21c88f89a09f30029ac251d6d94/moveit_ros/manipulation/pick_place/src/reachable_valid_pose_filter.cpp#L56). May be [empty](https://github.com/ros-planning/moveit/blob/46f110491ed9a21c88f89a09f30029ac251d6d94/moveit_ros/manipulation/pick_place/src/reachable_valid_pose_filter.cpp#L67)| | |
 |`trajectory_msgs/JointTrajectory`| `grasp_posture`      |`retreat_posture_`            | | To define the Constraint Sampler validation check [here](https://github.com/ros-planning/moveit/blob/46f110491ed9a21c88f89a09f30029ac251d6d94/moveit_ros/manipulation/pick_place/src/approach_and_translate_stage.cpp#L58)| |
+
+
+- `string target_name` The name of the object to pick up (as known in the planning scene)
+
+- `string group_name` which group should be used to plan for pickup
+
+- `string end_effector` which end-effector to be used for pickup (ideally descending from the group above)
+
+- `Grasp[] possible_grasps` a list of possible grasps to be used. At least one grasp must be filled in
+
+- `string support_surface_name`  the name that the support surface (e.g. table) has in the collision map can be left empty if no name is available
+
+- `bool allow_gripper_support_collision` whether collisions between the gripper and the support surface should be acceptable during move from pre-grasp to grasp and during lift. Collisions when moving to the pre-grasp location are still not allowed even if this is set to true.
+
+- `string[] attached_object_touch_links`  The names of the links the object to be attached is allowed to touch. If this is left empty, it defaults to the links in the used end-effector
+
+- `bool minimize_object_distance` Optionally notify the pick action that it should approach the object further, as much as possible (this minimizing the distance to the object before the grasp) along the approach direction; Note: this option changes the grasping poses  supplied in possible_grasps[] such that they are closer to the object when possible.
+
+- `Constraints path_constraints` Optional constraints to be imposed on every point in the motion plan
+
+- `string planner_id` The name of the motion planner to use. If no name is specified, a default motion planner will be used
+
+- `string[] allowed_touch_objects` an optional list of obstacles that we have semantic information about and that can be touched/pushed/moved in the course of grasping; CAREFUL: If the object name 'all' is used, collisions with all objects are disabled during the approach & lift.
+
+- `float64 allowed_planning_time` The maximum amount of time the motion planner is allowed to plan for
+
+- `PlanningOptions planning_options` Planning options
+
+| Type     |  Pick up Goal |  `ManipulationPlanSharedData` |
+| -------- | ------------- | ---------------------------- |
+| `string` | `target_name` | `goal_pose_.header.frame_id` |
+| `string` | `group_name` | `planning_group_`, `planning_scene->getRobotModel()->getJointModelGroup(group_name)`|
+| `string` | `end_effector` | `ik_link_=planning_scene->getRobotModel()->getLinkModel(eef->getEndEffectorParentGroup().second)`, `end_effector_group_ = planning_scene->getRobotModel()->getEndEffector(end_effector)`  |
+| `Grasp[]` | `possible_grasps` | For each graspa a Manipulation plan is instantiated |
+| `string` | `support_surface_name` | Used in the collision matrices at the stages|
+| `bool` | `allow_gripper_support_collision` | Used in the collision matrices at the stages |
+| `string[]` | `attached_object_touch_links` |Used in the collision matrices at the stages|
+| `bool` | `minimize_object_distance` | `minimize_object_distance_`|
+| `Constraints` | `path_constraints` | `path_constraints_` |
+| `string` | `planner_id` | `planner_id_` |
+| `string[]` | `allowed_touch_objects` | Used in the collision matrices at the stages | 
+| `float64` | `allowed_planning_time` | |
+| `PlanningOptions` | `planning_options` | |
 
 ### Gripper Translation
 
