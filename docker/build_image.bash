@@ -9,7 +9,7 @@ docker build -t "moveit_docker" \
     --build-arg myuid="$myuid" \
     --build-arg mygroup="$mygroup" \
     --build-arg mygid="$mygid" \
-      -f ./image.dockerfile .
+    -f ./image.dockerfile .
 
 exit 0
 
