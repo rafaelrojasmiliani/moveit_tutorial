@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <launch>
   <!-- 1. Launch move group -->
-  <include file="$(find a_move_group_minimal)/launch/example.launch"/>
+  <include file="$(find c_pick_and_place)/launch/move_group.launch"/>
   <group ns="myrobot">
-    <node name="move_group_iterface_example" pkg="b_move_group_interface" type="b_move_group_interface_node" respawn="false" output="screen"/>
+    <node name="move_group_iterface_example" pkg="c_pick_and_place" type="c_pick_and_place_node" respawn="false" output="screen"/>
   </group>
 </launch>

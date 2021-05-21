@@ -17,6 +17,8 @@ get_colision_object(const std::string &_header_frame,
                     const shape_msgs::SolidPrimitive &_shape, double _x,
                     double _y, double _z);
 
+shape_msgs::SolidPrimitive get_primitive(const std::string &_type);
+
 int main(int argc, char **argv) {
   // ---------------------------------------
   // 1. Ros node initialization
@@ -74,12 +76,13 @@ int main(int argc, char **argv) {
   // ---------------------------------------
   // 4. Add a random object and move it
   // ---------------------------------------
-  moveit_msgs::CollisionObject ro = get_colision_object(
-      planning_frame, shape_msgs::SolidPrimitive::CYLINDER, 0.7, 0, 1.5);
+  moveit_msgs::CollisionObject object;
+  object =
+      get_colision_object(planning_frame, get_primitive("box"), 0.7, 0, 1.5);
 
-  geometry_msgs::Pose target_pose = ro.primitive_poses[0];
+  geometry_msgs::Pose target_pose = object.primitive_poses[0];
   target_pose.position.z += -0.05;
-  psi.applyCollisionObject(ro);
+  psi.applyCollisionObject(object);
   // mgi.setStartState(*mgi.getCurrentState());
   mgi.setStartStateToCurrentState();
   mgi.setPoseTarget(target_pose);
@@ -93,7 +96,7 @@ int main(int argc, char **argv) {
     return 0;
   }
 
-  mgi.attachObject(ro.id);
+  mgi.attachObject(object.id);
   target_pose.position.z += -0.1;
   mgi.setPoseTarget(target_pose);
   moveit_error_code = mgi.plan(my_plan);
