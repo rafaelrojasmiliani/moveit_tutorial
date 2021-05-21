@@ -1,0 +1,3 @@
+[submodule "common_packages/src/moveit_grasps"]
+	path = common_packages/src/moveit_grasps
+	url = https://github.com/ros-planning/moveit_grasps.git
