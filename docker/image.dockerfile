@@ -7,8 +7,7 @@ ENV TZ=Europe/Rome
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confnew" \
-                    gnupg \
-                    lsb-release
+                    gnupg lsb-release apt-utils
 
 RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
@@ -58,7 +57,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o
                     python3-tk \
                     python3-dev \
                     python-dev \
-                    ros-noetic-rosparam-shortcuts
+                    ros-noetic-rosparam-shortcuts \
+                    ros-noetic-marker-msgs
 
 RUN pip3 install setuptools matplotlib scipy quadpy six cython osrf-pycommon
 
@@ -75,5 +75,8 @@ RUN echo "source /opt/ros/noetic/setup.bash" >> /etc/bash.bashrc
 WORKDIR /
 
 
-COPY ./configfiles/screenrc /root/.screenrc
-COPY ./configfiles/screenrc /home/${myuser}/.screenrc
+COPY ./vim_installation.bash /
+RUN cd / && bash vim_installation.bash
+COPY ./configfiles/screenrc /usr/local/etc/screenrc
+COPY ./configfiles/vimrc /etc/vim/
+COPY ./configfiles/ycm_extra_conf.py /etc/vim/
