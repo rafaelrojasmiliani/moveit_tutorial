@@ -73,6 +73,9 @@ int main(int argc, char **argv) {
   object =
       get_colision_object(planning_frame, get_primitive("box"), 0.7, 0, 1.5);
 
+  // ---------------------------------------
+  // 5. grasp data
+  // ---------------------------------------
   moveit_grasps::TwoFingerGraspDataPtr grasp_data;
   moveit_grasps::TwoFingerGraspGeneratorPtr grasp_generator;
 
