@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <launch>
   <!-- 1. Launch move group -->
+  <param name="/use_sim_time" value="true"/>
   <include file="$(find a_move_group_minimal)/launch/example.launch"/>
   <group ns="myrobot">
     <node name="move_group_iterface_example" pkg="b_move_group_interface" type="b_move_group_interface_node" respawn="false" output="screen"/>

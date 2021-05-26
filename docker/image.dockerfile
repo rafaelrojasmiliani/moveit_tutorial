@@ -1,6 +1,6 @@
 # This file tells docker what image must be created
 # in order to be ahble to test this library
-FROM nvidia/cudagl:11.3.0-base-ubuntu20.04
+FROM ubuntu:20.04
 
 
 ENV TZ=Europe/Rome
