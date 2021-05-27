@@ -4,29 +4,22 @@ catkin create pkg d_moveit_graps --catkin-deps rospy roscpp moveit_core moveit_r
 ```
 
 # Components
-- Grasp Candidate: collected data for each potential grasp after it has been verified / filtered this includes the pregrasp and grasp IK solution
-- Grasp Data:
-    - `std::string tcp_name_`
-    - `Eigen::Isometry3d tcp_to_eef_mount_`  Convert generic grasp pose to the parent arm's `eef_mount` frame of reference
-    - `std::string base_link_` name of global frame with z pointing up
-    - `const robot_model::JointModelGroup* ee_jmg_` this end effector
-    - `const robot_model::JointModelGroup* arm_jmg_`  // the arm that attaches to this end effector
-    - `const robot_model::LinkModel* parent_link_` the last link in the kinematic chain before the end effector
-    - `double grasp_resolution_`
-    - `double grasp_min_depth_` ;inimum amount fingers must overlap object
-    - `double grasp_max_depth_` Maximum distance from tip of end effector inwords that an object can be for a grasp
-    - `double {approach,retreat, lift}_distance_desired_`
+- **Grasp Candidate**: Container of "how to grasp" information. Is the container of data structure GraspTrajectories (array of array of robot states).
+- **Grasp Data**: holds the information that characterizes a grasp. This is necssra to construct the Grasp Candidate.
+- **Grasp Generator**: Generate grasps candidates for a cuboit
+- **Grasp Filter**: From a list of grasp candidates, return the grasp that are kinematically feasible.
+- **Grasp Planner**: Takes a grasp candidate and fill the `GraspTrajectories` with the approach, lift and retread motions necessary for the grasp.
 
-- Grasp Generator: Generate grasps candidates for a cuboit
+```mermaid
+graph TD;
 
-- Grasp Filter: From a list of grasp candidates, return the grasp that are kinematically feasible.
-    - inputs
-    - `grasp_candidates`
-    - planning scene or planning scene monitor
-    - arm `JointModelGroup`
-    - `target_object_id`
-
-1. Generate Grasp Data
+    GD[Grasp Data] --> GG[Grasp Generator];
+    GG --> GCV[Grasp Candidates Vector];
+    GCV --> GF[Grasp Filter];
+    GF -->  FGCV[Grasp Candidates with feasible grasp poses];
+    FGCV --> GPALR[Grasp Planner planApproachLiftRetreat];
+    GPALR --> RESULT[Gras Candidates with feaible approach-lifr-retread motions];
+```
 
 # Grasp Generation
 
@@ -106,3 +99,25 @@ GraspGenerator::GraspGenerator(const moveit_visual_tools::MoveItVisualToolsPtr& 
 - `tcp_to_eef_mount_transform`
 - `tcp_name`
 - `define_tcp_by_name`
+# Components
+- Grasp Candidate: collected data for each potential grasp after it has been verified / filtered this includes the pregrasp and grasp IK solution
+- Grasp Data:
+    - `std::string tcp_name_`
+    - `Eigen::Isometry3d tcp_to_eef_mount_`  Convert generic grasp pose to the parent arm's `eef_mount` frame of reference
+    - `std::string base_link_` name of global frame with z pointing up
+    - `const robot_model::JointModelGroup* ee_jmg_` this end effector
+    - `const robot_model::JointModelGroup* arm_jmg_`  // the arm that attaches to this end effector
+    - `const robot_model::LinkModel* parent_link_` the last link in the kinematic chain before the end effector
+    - `double grasp_resolution_`
+    - `double grasp_min_depth_` ;inimum amount fingers must overlap object
+    - `double grasp_max_depth_` Maximum distance from tip of end effector inwords that an object can be for a grasp
+    - `double {approach,retreat, lift}_distance_desired_`
+
+- Grasp Generator: Generate grasps candidates for a cuboit
+
+- Grasp Filter: From a list of grasp candidates, return the grasp that are kinematically feasible.
+    - inputs
+    - `grasp_candidates`
+    - planning scene or planning scene monitor
+    - arm `JointModelGroup`
+    - `target_object_id`
