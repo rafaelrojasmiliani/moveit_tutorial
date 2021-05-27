@@ -12,7 +12,7 @@ catkin create pkg d_moveit_graps --catkin-deps rospy roscpp moveit_core moveit_r
 
 ```mermaid
 graph TD;
-
+    GY[Grasp yaml file] --> GD;
     GD[Grasp Data] --> GG[Grasp Generator];
     GG --> GCV[Grasp Candidates Vector];
     GCV --> GF[Grasp Filter];
@@ -103,7 +103,15 @@ GraspGenerator::GraspGenerator(const moveit_visual_tools::MoveItVisualToolsPtr& 
 - Grasp Candidate: collected data for each potential grasp after it has been verified / filtered this includes the pregrasp and grasp IK solution
 - Grasp Data:
     - `std::string tcp_name_`
-    - `Eigen::Isometry3d tcp_to_eef_mount_`  Convert generic grasp pose to the parent arm's `eef_mount` frame of reference
+    - `Eigen::Isometry3d tcp_to_eef_mount_`  Convert generic grasp pose to the parent arm's `eef_mount` frame of reference.  We need to know the transform from the arm IK link to the grasp point.
+By default we define the transform manually with `tcp_to_eef_mount_transform`.
+ Alternatively, we can set this to a frame in the robot model and compute the transform automatically.
+this is done by setting `define_tcp_by_name: true` and providing a value for `tcp_name`.
+Distance from the eef mount to the palm of end effector `[x, y, z, r, p, y]`
+`z-axis` pointing toward object to grasp
+`x-axis` perp. to movement of grippers
+`y-axis` parallel to movement of grippers-
+If we have a tool center point frame, we would set: `define_tcp_by_name: true` and `tcp_name: tool_center_point` Alternatively, if we cannot add a frame for the tool center point, we can define tcp by transform `tcp_to_eef_mount_transform :  [0, 0, -0.105, 0, 0, -0.7853]`   NOTE: Imaginary point in the middle
     - `std::string base_link_` name of global frame with z pointing up
     - `const robot_model::JointModelGroup* ee_jmg_` this end effector
     - `const robot_model::JointModelGroup* arm_jmg_`  // the arm that attaches to this end effector
