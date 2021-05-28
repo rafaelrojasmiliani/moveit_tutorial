@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>d_moveit_graps</name>
+  <name>d_moveit_grasp</name>
   <version>0.0.0</version>
   <description>The d_moveit_graps package</description>
   <maintainer email="rafaelrojas@todo.todo">rafaelrojas</maintainer>
