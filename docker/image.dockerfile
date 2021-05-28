@@ -80,3 +80,4 @@ RUN cd / && bash vim_installation.bash
 COPY ./configfiles/screenrc /usr/local/etc/screenrc
 COPY ./configfiles/vimrc /etc/vim/
 COPY ./configfiles/ycm_extra_conf.py /etc/vim/
+COPY ./configfiles/yamllint.yaml /etc/vim/
