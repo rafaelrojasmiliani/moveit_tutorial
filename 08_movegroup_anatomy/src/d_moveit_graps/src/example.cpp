@@ -32,7 +32,6 @@ int main(int argc, char *argv[]) {
   spinner.start();
   ros::NodeHandle node_handle;
 
-  ROS_INFO("A\n");
   // ---------------------------------------
   // 2. Instantate moveit stuff
   // ---------------------------------------
@@ -50,36 +49,31 @@ int main(int argc, char *argv[]) {
   // -------------------
   // 3. Instantiate visual tools
   // ---------------------------
-  ROS_INFO("A %s \n", robot_model->getModelFrame().c_str());
   moveit_visual_tools::MoveItVisualToolsPtr visual_tools =
       std::make_shared<moveit_visual_tools::MoveItVisualTools>(
           robot_model->getModelFrame(), "/rviz_visual_tools");
 
   // -------------------
-  // 4. Instantiate Moveit Grasp stuff
+  // 4. Declrare Moveit Grasp objects
   // ---------------------------
-  ROS_INFO("A\n");
   moveit_grasps::SuctionGraspScoreWeightsPtr grasp_scores;
-  ROS_INFO(" to initiate grasp scores\n");
-  grasp_scores = get_grasp_suction_score(1, 1, 1, 2, 2, 2, 10);
-  ROS_INFO("A\n");
-  //moveit_grasps::SuctionGraspDataPtr grasp_data;
+  moveit_grasps::SuctionGraspDataPtr grasp_data;
   //moveit_grasps::SuctionGraspGeneratorPtr grasp_generator;
-/*
   // -------------------
   // 5. Get Grasp data from the ROS context (context=parameters in namespace)
   // ---------------------------
+
   grasp_data = get_grasp_data_initialized_from_parameters(
       node_handle, "end_effector", robot_model);
-
   // ------------------------
   // 6. Get grasping scores
   // ------------------------
   grasp_scores = get_grasp_suction_score(1, 1, 1, 2, 2, 2, 10);
   std::vector<double> ideal_orientation = {3.14, 0.0, 0.0};
 
-  std::vector<moveit_grasps::GraspCandidatePtr> grasp_candidates;
+  //std::vector<moveit_grasps::GraspCandidatePtr> grasp_candidates;
 
+/*
   get_feasible_grasp_poses(grasp_candidates, "arm", "object01", grasp_data, grasp_scores, ideal_orientation);
   */
   ros::shutdown();

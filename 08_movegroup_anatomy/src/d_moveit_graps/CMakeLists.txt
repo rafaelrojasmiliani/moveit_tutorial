@@ -3,8 +3,16 @@ project(d_moveit_grasp)
 
 find_package(
   catkin REQUIRED
-  COMPONENTS moveit_core moveit_grasps moveit_ros_planning_interface
-             moveit_visual_tools roscpp rospy)
+  COMPONENTS moveit_core
+             moveit_grasps
+             moveit_ros_planning_interface
+             moveit_visual_tools
+             roscpp
+             rospy
+             tf
+             tf_conversions
+             eigen_conversions
+             geometry_msgs)
 
 find_package(Eigen3 REQUIRED)
 

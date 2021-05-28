@@ -2,7 +2,6 @@
 #include <moveit/planning_scene_monitor/planning_scene_monitor.h>
 #include <moveit_grasps/suction_grasp_filter.h>
 #include<ros/ros.h>
-/*
 namespace {
 bool isStateValid(const planning_scene::PlanningScene *planning_scene,
                   robot_state::RobotState *robot_state,
@@ -14,7 +13,6 @@ bool isStateValid(const planning_scene::PlanningScene *planning_scene,
 }
 
 } // namespace
-*/
 moveit_grasps::SuctionGraspScoreWeightsPtr
 get_grasp_suction_score(double _x, double _y, double _z, double _raw,
                         double _pich, double _yaw, double _overhang) {
@@ -30,7 +28,7 @@ get_grasp_suction_score(double _x, double _y, double _z, double _raw,
 
   return result;
 }
-/*
+
 moveit_grasps::SuctionGraspDataPtr get_grasp_data_initialized_from_parameters(
     const ros::NodeHandle &_nh, const std::string &_end_effector_name,
     const moveit::core::RobotModelConstPtr &_robot_model) {
@@ -48,13 +46,13 @@ moveit_grasps::SuctionGraspGeneratorPtr get_initialized_grasp_generator(
     moveit_visual_tools::MoveItVisualToolsPtr _visual_tools,
     moveit_grasps::SuctionGraspScoreWeightsPtr _scores,
     std::vector<double> &_ideal_orientation) {
+
   moveit_grasps::SuctionGraspGeneratorPtr result =
       std::make_shared<moveit_grasps::SuctionGraspGenerator>(_visual_tools);
 
   result->setGraspScoreWeights(_scores);
   result->setIdealTCPGraspPoseRPY(_ideal_orientation);
   return result;
-    return nullptr;
 }
 
 robot_state::RobotStatePtr
@@ -90,16 +88,16 @@ get_initial_robot_state(const std::string _arm_name,const std::string _ee_name, 
   const std::string arm_flange_link_name = ee_jmg->getEndEffectorParentGroup().second;
 
       // ---- actual work
+      // This is an arbitrary pose, used only as a seed for the grasp filter
       Eigen::Isometry3d arm_flange_target_pose =
           _object_pose * _tcp_to_eef_mount.inverse();
   //  _data->tcp_to_eef_mount_.inverse();
 
   moveit::core::GroupStateValidityCallbackFn constraint_fn = boost::bind(
-      &isStateValid, planning_scene_monitor->getPlanningScene(), _1, _2);
+      &isStateValid, planning_scene_monitor->getPlanningScene().get(), _1, _2, _3);
 
   if (result->setFromIK(arm_jmg, arm_flange_target_pose, arm_flange_link_name, 10.0, constraint_fn))
     return result;
-
   return nullptr;
 }
 
@@ -182,5 +180,4 @@ bool get_feasible_grasp_poses(
   }
   return true;
 }
-*/
 
