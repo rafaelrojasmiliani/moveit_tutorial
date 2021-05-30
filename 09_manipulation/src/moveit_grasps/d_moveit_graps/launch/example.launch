@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<launch>
+  <param name="/use_sim_time" value="true"/>
+  <!-- 1. Launch move group -->
+  <include file="$(find d_moveit_grasp)/launch/move_group.launch"/>
+  <group ns="myrobot">
+    <rosparam command="load" file="$(find d_moveit_grasp)/config/object_grasp_config.yaml"/>
+    <!--
+    <node name="grasp_example" pkg="d_moveit_grasp" type="d_moveit_grasp_node" respawn="false" output="screen">
+          <rosparam command="load" file="$(find d_moveit_grasp)/config/moveit_grasp_config.yaml"/>
+
+          </node>
+      -->
+  </group>
+</launch>

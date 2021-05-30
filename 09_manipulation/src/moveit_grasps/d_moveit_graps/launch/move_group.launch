@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<launch>
+  <group ns="myrobot">
+    <!-- Planning scene required parameters -->
+    <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find workspace_description)/urdf/robot_with_end_effector.xacro'"/>
+    <param name="robot_description_semantic" command="cat $(find my_robot_with_end_effector_moveit_config)/config/myrobot.srdf"/>
+    <group ns="robot_description_planning">
+      <rosparam command="load" file="$(find my_robot_with_end_effector_moveit_config)/config/joint_limits.yaml"/>
+    </group>
+    <group ns="robot_description_kinematics">
+      <rosparam command="load" file="$(find my_robot_with_end_effector_moveit_config)/config/kinematics.yaml"/>
+    </group>
+    <!-- 5. Introduce robot in Gazebo  -->
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model ur10 -z 0.5 -gazebo_namespace '/myrobot/gazebo'"/>
+    <!-- 6. Launch RVIZ and Gazebo -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen"/>
+    <node name="rviz" pkg="rviz" type="rviz" output="screen" args="-d $(find d_moveit_grasp)/config/rviz_conf.rviz"/>
+    <node name="gazebo" pkg="gazebo_ros" type="gazebo" respawn="false" output="screen" args=""/>
+    <!-- 7. Launch Move group -->
+    <node name="move_group" pkg="moveit_ros_move_group" type="move_group" respawn="false" output="screen">
+      <!-- 7.1. Associate moveit control configuratio to actual control interface-->
+      <rosparam file="$(find a_move_group_minimal)/cfg/moveit_control_manager_pars.yaml" command="load"/>
+      <!-- 7.2. load the planning interface plugin-->
+      <param name="planning_plugin" value="ompl_interface/OMPLPlanner"/>
+      <!-- 7.3. Load the planning interface pluging parameters-->
+      <rosparam command="load" file="$(find my_robot_with_end_effector_moveit_config)/config/ompl_planning.yaml"/>
+      <!-- 7.4. Load the planning pipeline-->
+      <param name="request_adapters" value="default_planner_request_adapters/AddTimeParameterization default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints"/>
+      <param name="start_state_max_bounds_error" value="0.1"/>
+      <param name="planning_scene_monitor/publish_planning_scene" value="true"/>
+      <param name="planning_scene_monitor/publish_geometry_updates" value="true"/>
+      <param name="planning_scene_monitor/publish_state_updates" value="true"/>
+      <param name="planning_scene_monitor/publish_transforms_updates" value="true"/>
+      <param name="capabilities" value="move_group/TfPublisher"/>
+      <param name="allowed_goal_duration_margin" value="1.0"/>
+    </node>
+    <!-- 9. Load moeit control parameters -->
+    <rosparam file="$(find a_move_group_minimal)/cfg/trajectory_control_pars.yaml" command="load"/>
+    <node name="control_spawner" pkg="controller_manager" type="spawner" args="--namespace='/myrobot' arm_controller joint_state_controller" respawn="false" output="screen"/>
+  </group>
+</launch>
