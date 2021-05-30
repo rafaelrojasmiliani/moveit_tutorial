@@ -34,6 +34,8 @@ install_vim_plugins(){
     git clone https://github.com/puremourning/vimspector.git /etc/vim/bundle/vimspector
     git clone https://github.com/preservim/nerdtree.git /etc/vim/bundle/nerdtree
     git clone https://github.com/Xuyuanp/nerdtree-git-plugin.git /etc/vim/bundle/nerdtree-git-plugin
+    git clone https://github.com/lfv89/vim-interestingwords.git /etc/vim/bundle/vim-interestingwords
+
     cd /etc/vim/bundle/YouCompleteMe && git submodule update --init --recursive && python3 install.py --clang-completer --ts-completer --java-completer --cs-completer
     cd /etc/vim/bundle/vimspector && python3 install_gadget.py --enable-c --enable-cpp #--enable-python
 }
