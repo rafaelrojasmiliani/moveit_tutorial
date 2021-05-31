@@ -1,0 +1,118 @@
+---
+base_link: world
+# =====================================================
+# Note: these parameters are copied from Robotiq gripper without tweaking
+
+object:
+  translation_x_score_weight: 100
+  translation_y_score_weight: 100
+  translation_z_score_weight: 100
+  orientation_x_score_weight: 100
+  orientation_y_score_weight: 100
+  orientation_z_score_weight: 100
+  overhang_score: 100
+  ideal_grasp_pose: [0, 0, 0, 0, 0, 0]
+  end_effector_name: end_effector
+
+end_effector:
+  end_effector_name: end_effector  # ee group name
+  end_effector_type: suction  # 'finger' or 'suction'
+
+  # x/y translation and angle orientation grasp resolution parameters used
+  # for sampling grasp candidates
+  grasp_resolution: 1.0  # meter
+  angle_resolution: 360  # degrees (CANNOT BE 0)
+
+  # min/max values of the grasp depth range in meter.  This should fit to
+  # the distance from finger tip to inner palm or the suction cup stroke
+  grasp_max_depth: 0.05
+  grasp_min_depth: -0.1
+  # grasp_depth_resolution is the discretization distance in meter used for
+  # sampling the grasp depth value.  Idealy this should be a small fraction
+  # of the depth range (i.e. 0.005).  If the value exceeds the depth
+  # distance range grasp_max_depth is used by default.
+  grasp_depth_resolution: 0.04
+
+  # A grasp motion is composed of three linear paths: approach, retreat,
+  # lift The values below define the desired distances of each path.  Length
+  # of approach path (this is in addition to the grasp_max_depth)
+  # approach path (in addition to grasp_max_depth)
+  approach_distance_desired: 0.05
+  # retreat path (in addition to grasp_max_depth)
+  retreat_distance_desired: 0.05
+  # lift path (used as MINIMUM safety distance from surface)
+  lift_distance_desired: 0.01
+
+  # minimum padding on each side of the object on approach
+  grasp_padding_on_approach: 0.005  # meter
+
+  # We need to know the transform from the arm IK link to the grasp point.
+  # By default we define the transform manually with
+  # `tcp_to_eef_mount_transform`. Alternatively, we can set this to a frame
+  # in the robot model and compute the transform automatically. this is done
+  # by setting `define_tcp_by_name: true` and providing a value for
+  # `tcp_name`.
+  #
+  # Distance from the eef mount to the palm of end effector [x, y, z, r, p,
+  # y]
+  # z-axis pointing toward object to grasp
+  # x-axis perp. to movement of grippers
+  # y-axis parallel to movement of grippers
+  # If we have a tool center point frame, we would set:
+  define_tcp_by_name: false
+  # tcp_name: tool_center_point
+  # Alternatively, if we cannot add a frame for the tool center point, we
+  # can define tcp by transform
+  tcp_to_eef_mount_transform: [0, 0, -0.2, 0, 0, 0]
+  # NOTE: Imaginary point in the middle
+
+  # Target durations in seconds for reaching pregrasp and grasp positions in
+  # end effector motions
+  pregrasp_time_from_start: 0.0
+  grasp_time_from_start: 0.0
+
+  # Joint names and state values for the end effector.
+  # The names should match the values of pregrasp_posture and grasp_posture.
+  # These values can be left empty if end_effector_type is 'suction'
+  pregrasp_posture: []  #  open position (not used in suction)
+  grasp_posture: []  #  close position (not used in suction)
+  joints: []  #(not used in suction)
+
+  ##############################
+  ##  Finger gripper parameters
+  ##############################
+
+  # Distances between fingers matching to pregrasp_posture and
+  # grasp_posture, in meters
+  max_finger_width: 0.085
+  min_finger_width: 0.06
+
+  # Maximum allowed finger width for a grasp.
+  # This value should be considerably smaller than max_finger_width
+  # to allow padded collision checks
+  max_grasp_width: 0.08
+
+  # width of gripper fingers to ensure the finger tips fully overlap the
+  # object
+  gripper_finger_width: 0.015
+
+  ##############################
+  ## Suction gripper parameters
+  ##############################
+  # The width of the suction gripper along the specified axes. (Assumes that
+  # Z points in the direction of the suction cups)
+  active_suction_range_x: 0.01
+  active_suction_range_y: 0.01
+
+  # Some suction grippers can selectively enable and disable regions of
+  # suction. If you have more than one region that can be selectively
+  # activated or de-activated, set those values here and moveit_grasps will
+  # prioritize grasp candidates which use full suction regions rather than
+  # partial regions.  it will also set the suction_regions_in_contact_
+  # variable in the grasp candidates so that you are able to only enable
+  # suction on regions that are in contact with the grasp target.  Note that
+  # this metric assumes that suction regions are equally sized ie. width =
+  # active_suction_range_x / suction_cols_count
+  #
+  suction_rows_count: 1
+  suction_cols_count: 1
