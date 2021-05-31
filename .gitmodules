@@ -4,3 +4,6 @@
 [submodule "common_packages/src/urdf2collisionobject"]
 	path = common_packages/src/urdf2collisionobject
 	url = https://github.com/rafaelrojasmiliani/urdf2collisionobject.git
+[submodule "common_packages/src/rqt_joint_trajectory_plot"]
+	path = common_packages/src/rqt_joint_trajectory_plot
+	url = https://github.com/tork-a/rqt_joint_trajectory_plot.git

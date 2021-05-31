@@ -9,7 +9,7 @@ docker build -t "moveit_docker" \
     --build-arg myuid="$myuid" \
     --build-arg mygroup="$mygroup" \
     --build-arg mygid="$mygid" \
-    --no-cache -f ./image.dockerfile .
+    --no-cache -f ./image_nvidia.dockerfile .
 
 exit 0
 

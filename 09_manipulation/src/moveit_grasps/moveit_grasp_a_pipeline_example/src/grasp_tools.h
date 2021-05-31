@@ -1,5 +1,5 @@
 #ifndef GRASP_TOOLS
-#define GRASP_TOOLS 
+#define GRASP_TOOLS
 #include <moveit_grasps/grasp_planner.h>
 #include <moveit_grasps/suction_grasp_data.h>
 #include <moveit_grasps/suction_grasp_filter.h>
@@ -15,15 +15,14 @@ moveit_grasps::SuctionGraspDataPtr get_grasp_data_initialized_from_parameters(
     const ros::NodeHandle &_nh, const std::string &_end_effector_name,
     const moveit::core::RobotModelConstPtr &_robot_model);
 
-
 bool get_feasible_grasp_poses(
     std::vector<moveit_grasps::GraspCandidatePtr> &_grasp_candidates,
     const std::string &_arm_name, const std::string &_object_name,
     moveit_grasps::SuctionGraspDataPtr _grasp_data,
     moveit_grasps::SuctionGraspScoreWeightsPtr _scores,
-        Eigen::Isometry3d &_ideal_grasp_pose);
+    Eigen::Isometry3d &_ideal_grasp_pose);
 
 moveit_grasps::GraspPlannerPtr
-plan_grasp(
-    moveit_grasps::GraspCandidatePtr &_grasp_candidate, const std::string &_object_name);
+plan_grasp(moveit_grasps::GraspCandidatePtr &_grasp_candidate,
+           const std::string &_object_name);
 #endif /* ifndef  */

@@ -1,7 +1,7 @@
 #include "grasp_tools.h"
 #include <moveit/planning_scene_monitor/planning_scene_monitor.h>
 #include <moveit_grasps/suction_grasp_filter.h>
-#include<ros/ros.h>
+#include <ros/ros.h>
 namespace {
 bool isStateValid(const planning_scene::PlanningScene *planning_scene,
                   robot_state::RobotState *robot_state,
@@ -9,9 +9,10 @@ bool isStateValid(const planning_scene::PlanningScene *planning_scene,
                   const double *ik_solution) {
   robot_state->setJointGroupPositions(group, ik_solution);
   robot_state->update();
-  bool colides =planning_scene->isStateColliding(*robot_state, group->getName(), true); 
-  if(colides){
-      ROS_INFO("is state valied: COLIDES\n");
+  bool colides =
+      planning_scene->isStateColliding(*robot_state, group->getName(), true);
+  if (colides) {
+    ROS_INFO("is state valied: COLIDES\n");
   }
   return !colides;
 }
@@ -52,9 +53,10 @@ moveit_grasps::SuctionGraspGeneratorPtr get_initialized_grasp_generator(
     Eigen::Isometry3d &_ideal_grasp_pose) {
 
   moveit_grasps::SuctionGraspGeneratorPtr result =
-      std::make_shared<moveit_grasps::SuctionGraspGenerator>(_visual_tools, true);
+      std::make_shared<moveit_grasps::SuctionGraspGenerator>(_visual_tools,
+                                                             true);
 
-  ROS_INFO("%s-----------\n", result->getVerbose()?"verbose":"No Verbose");
+  ROS_INFO("%s-----------\n", result->getVerbose() ? "verbose" : "No Verbose");
 
   result->setGraspScoreWeights(_scores);
   result->setIdealTCPGraspPose(_ideal_grasp_pose);
@@ -62,7 +64,8 @@ moveit_grasps::SuctionGraspGeneratorPtr get_initialized_grasp_generator(
 }
 
 robot_state::RobotStatePtr
-get_initial_robot_state(const std::string _arm_name,const std::string _ee_name, Eigen::Isometry3d _object_pose,
+get_initial_robot_state(const std::string _arm_name, const std::string _ee_name,
+                        Eigen::Isometry3d _object_pose,
                         Eigen::Isometry3d _tcp_to_eef_mount) {
 
   planning_scene_monitor::PlanningSceneMonitorPtr planning_scene_monitor;
@@ -86,21 +89,23 @@ get_initial_robot_state(const std::string _arm_name,const std::string _ee_name, 
 
   arm_jmg = robot_model->getJointModelGroup(_arm_name);
 
-  const moveit::core::JointModelGroup* ee_jmg =
+  const moveit::core::JointModelGroup *ee_jmg =
       robot_model->getEndEffector(_ee_name);
 
-  const std::string arm_flange_link_name = ee_jmg->getEndEffectorParentGroup().second;
+  const std::string arm_flange_link_name =
+      ee_jmg->getEndEffectorParentGroup().second;
 
-      // ---- actual work
-      // This is an arbitrary pose, used only as a seed for the grasp filter
-      Eigen::Isometry3d arm_flange_target_pose =
-          _object_pose * _tcp_to_eef_mount;
+  // ---- actual work
+  // This is an arbitrary pose, used only as a seed for the grasp filter
+  Eigen::Isometry3d arm_flange_target_pose = _object_pose * _tcp_to_eef_mount;
   //  _data->tcp_to_eef_mount_.inverse();
 
-  moveit::core::GroupStateValidityCallbackFn constraint_fn = boost::bind(
-      &isStateValid, planning_scene_monitor->getPlanningScene().get(), _1, _2, _3);
-   
-  if (result->setFromIK(arm_jmg, arm_flange_target_pose, arm_flange_link_name, 10.0, constraint_fn))
+  moveit::core::GroupStateValidityCallbackFn constraint_fn =
+      boost::bind(&isStateValid,
+                  planning_scene_monitor->getPlanningScene().get(), _1, _2, _3);
+
+  if (result->setFromIK(arm_jmg, arm_flange_target_pose, arm_flange_link_name,
+                        10.0, constraint_fn))
     return result;
   return result;
 }
@@ -125,7 +130,7 @@ bool get_feasible_grasp_poses(
   //       Declear grasp stuff
   moveit_grasps::SuctionGraspFilterPtr grasp_filter;
 
-    moveit_grasps::SuctionGraspGeneratorPtr grasp_generator;
+  moveit_grasps::SuctionGraspGeneratorPtr grasp_generator;
 
   // -------------------------------
   // 2. Get data from Planning scene
@@ -142,7 +147,7 @@ bool get_feasible_grasp_poses(
   ROS_INFO("----------- calling tf\n");
   planning_scene_monitor->getPlanningScene()->getCollisionObjectMsg(
       collision_obj, _object_name);
-  
+
   ROS_INFO("----------- object name =  %s\n", _object_name.c_str());
   ROS_INFO("----------- object name =  %s\n", collision_obj.id.c_str());
 
@@ -156,17 +161,16 @@ bool get_feasible_grasp_poses(
   tf::poseMsgToEigen(object_pose_msg, object_pose);
   ROS_INFO("-----------\n");
 
-
   ROS_INFO("PLANNINS SCENE MONITOR AND OBJECT DONE\n");
   // -------------------------------
   // 3. Compute the robot configuration unsed as seed by the filter
   // -------------------------------
-  robot_state =
-      get_initial_robot_state("arm", "end_effector",object_pose, _grasp_data->tcp_to_eef_mount_);
+  robot_state = get_initial_robot_state("arm", "end_effector", object_pose,
+                                        _grasp_data->tcp_to_eef_mount_);
 
-  if(!robot_state){
-  ROS_INFO("We failed to find a feasible position\n");
-  return false;
+  if (!robot_state) {
+    ROS_INFO("We failed to find a feasible position\n");
+    return false;
   }
 
   ROS_INFO("ROBOT SEED COMPUTED\n");
@@ -176,20 +180,21 @@ bool get_feasible_grasp_poses(
   arm_jmg = robot_model->getJointModelGroup(_arm_name);
 
   visual_tools = std::make_shared<moveit_visual_tools::MoveItVisualTools>(
-      robot_model->getModelFrame(), "/rviz_visual_tools");// ---
-    visual_tools->loadMarkerPub();
-    visual_tools->loadRobotStatePub("/display_robot_state");
-    visual_tools->loadTrajectoryPub("/display_planned_path");
-    visual_tools->loadSharedRobotState();
-    visual_tools->enableBatchPublishing();
+      robot_model->getModelFrame(), "/rviz_visual_tools"); // ---
+  visual_tools->loadMarkerPub();
+  visual_tools->loadRobotStatePub("/display_robot_state");
+  visual_tools->loadTrajectoryPub("/display_planned_path");
+  visual_tools->loadSharedRobotState();
+  visual_tools->enableBatchPublishing();
 
-  grasp_generator = get_initialized_grasp_generator(visual_tools, _scores,_ideal_grasp_pose);
+  grasp_generator =
+      get_initialized_grasp_generator(visual_tools, _scores, _ideal_grasp_pose);
 
   ROS_INFO("grasp genereator done\n");
   if (!grasp_generator->generateGrasps(object_pose, object_x_depth,
-                                        object_y_width, object_z_height,
-                                        _grasp_data, _grasp_candidates)) {
-        ROS_ERROR("Grasp generator failed to generate any valid grasps");
+                                       object_y_width, object_z_height,
+                                       _grasp_data, _grasp_candidates)) {
+    ROS_ERROR("Grasp generator failed to generate any valid grasps");
     return false;
   }
   ROS_INFO("------------ GRASP generated ----------------- \n");
@@ -210,8 +215,8 @@ bool get_feasible_grasp_poses(
 }
 
 moveit_grasps::GraspPlannerPtr
-plan_grasp(
-    moveit_grasps::GraspCandidatePtr &_grasp_candidate, const std::string &_object_name) {
+plan_grasp(moveit_grasps::GraspCandidatePtr &_grasp_candidate,
+           const std::string &_object_name) {
 
   // ------------------------
   // 1. Declaration of variables
@@ -233,7 +238,7 @@ plan_grasp(
   planning_scene_monitor->requestPlanningSceneState();
 
   // 2.3 Get current robot state
-  robot_state= std::make_shared<robot_state::RobotState>(
+  robot_state = std::make_shared<robot_state::RobotState>(
       planning_scene_monitor->getPlanningScene()->getCurrentState());
   // 2.4 Get robot model
   const robot_model::RobotModelConstPtr &robot_model =
@@ -242,23 +247,21 @@ plan_grasp(
   // 3. Initialize visual tools
   // -------------------------------
   visual_tools = std::make_shared<moveit_visual_tools::MoveItVisualTools>(
-      robot_model->getModelFrame(), "/rviz_visual_tools");// ---
-    visual_tools->loadMarkerPub();
-    visual_tools->loadRobotStatePub("/display_robot_state");
-    visual_tools->loadTrajectoryPub("/display_planned_path");
-    visual_tools->loadSharedRobotState();
-    visual_tools->enableBatchPublishing();
+      robot_model->getModelFrame(), "/rviz_visual_tools"); // ---
+  visual_tools->loadMarkerPub();
+  visual_tools->loadRobotStatePub("/display_robot_state");
+  visual_tools->loadTrajectoryPub("/display_planned_path");
+  visual_tools->loadSharedRobotState();
+  visual_tools->enableBatchPublishing();
 
+  grasp_planner = std::make_shared<moveit_grasps::GraspPlanner>(visual_tools);
 
-    grasp_planner = std::make_shared<moveit_grasps::GraspPlanner>(visual_tools);
-
-    bool feasible_plan = grasp_planner->planApproachLiftRetreat(_grasp_candidate, robot_state, planning_scene_monitor, false,
-                                                   _object_name);
-    if(not feasible_plan)
-        return nullptr;
+  bool feasible_plan = grasp_planner->planApproachLiftRetreat(
+      _grasp_candidate, robot_state, planning_scene_monitor, false,
+      _object_name);
+  if (not feasible_plan)
+    return nullptr;
   return grasp_planner;
 }
 
-
-void robot_state_vector_to_robot_trajectory(){
-}
+void robot_state_vector_to_robot_trajectory() {}

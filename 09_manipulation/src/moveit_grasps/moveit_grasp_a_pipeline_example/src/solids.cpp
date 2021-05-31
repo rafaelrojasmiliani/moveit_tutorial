@@ -86,4 +86,3 @@ moveit_msgs::CollisionObject random_object(const std::string &_header_frame) {
 
   return object;
 }
-

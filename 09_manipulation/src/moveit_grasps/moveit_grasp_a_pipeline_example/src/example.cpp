@@ -9,9 +9,8 @@
 #include <moveit/planning_scene_monitor/planning_scene_monitor.h>
 #include <moveit/robot_state/conversions.h>
 #include <moveit/robot_state/robot_state.h>
-#include <moveit/trajectory_processing/iterative_time_parameterization.h>
 #include <moveit/robot_trajectory/robot_trajectory.h>
-
+#include <moveit/trajectory_processing/iterative_time_parameterization.h>
 
 // Parameter loading
 #include <rosparam_shortcuts/rosparam_shortcuts.h>
@@ -57,8 +56,8 @@ int main(int argc, char *argv[]) {
   // ---------------------------
 
   moveit_msgs::CollisionObject object;
-  object =
-      get_colision_object(mgi.getPlanningFrame(), get_primitive("box"), 0.7, 0, 1.5);
+  object = get_colision_object(mgi.getPlanningFrame(), get_primitive("box"),
+                               0.7, 0, 1.5);
   psi.applyCollisionObject(object);
   ros::Duration(3).sleep(); // wait for movegroup to process call
   // -------------------
@@ -70,7 +69,7 @@ int main(int argc, char *argv[]) {
   moveit::planning_interface::MoveGroupInterface::Plan motion_plan;
   moveit::planning_interface::MoveItErrorCode moveit_error;
   std::vector<moveit::core::RobotStatePtr> robot_state_sequence;
-  //moveit_grasps::SuctionGraspGeneratorPtr grasp_generator;
+  // moveit_grasps::SuctionGraspGeneratorPtr grasp_generator;
   // -------------------
   // 5. Get Grasp data from the ROS context (context=parameters in namespace)
   // ---------------------------
@@ -87,40 +86,41 @@ int main(int argc, char *argv[]) {
   ideal_grasp_pose.setIdentity();
   // 6.3 get a vector of feasible grasp candidates for the given object
   std::vector<moveit_grasps::GraspCandidatePtr> grasp_candidates;
-  get_feasible_grasp_poses(grasp_candidates, "arm",object.id, grasp_data, grasp_scores, ideal_grasp_pose);
+  get_feasible_grasp_poses(grasp_candidates, "arm", object.id, grasp_data,
+                           grasp_scores, ideal_grasp_pose);
 
   // ------------------------
   // 6. Get grasping candidates
   // ------------------------
 
-    grasp_planner= plan_grasp(grasp_candidates[0], object.id);
+  grasp_planner = plan_grasp(grasp_candidates[0], object.id);
 
+  robot_state::RobotStatePtr pre_grasp_state =
+      grasp_candidates[0]
+          ->segmented_cartesian_traj_[moveit_grasps::APPROACH]
+          .front();
+  mgi.setJointValueTarget(*pre_grasp_state);
+  moveit_error = mgi.plan(motion_plan);
+  if (moveit_error == moveit::planning_interface::MoveItErrorCode::SUCCESS) {
+    mgi.execute(motion_plan);
 
-    robot_state::RobotStatePtr pre_grasp_state =
-          grasp_candidates[0]->segmented_cartesian_traj_[moveit_grasps::APPROACH].front();
-    mgi.setJointValueTarget(*pre_grasp_state);
-    moveit_error = mgi.plan(motion_plan);
-    if(moveit_error == moveit::planning_interface::MoveItErrorCode::SUCCESS){
-        mgi.execute(motion_plan);
+    mgi.setStartStateToCurrentState();
 
-        mgi.setStartStateToCurrentState();
+    trajectory_processing::IterativeParabolicTimeParameterization tptp;
 
-        trajectory_processing::IterativeParabolicTimeParameterization tptp;
+    moveit_msgs::RobotTrajectory trajectory_message;
 
-        moveit_msgs::RobotTrajectory trajectory_message;
-
-        robot_trajectory::RobotTrajectory trajectory(robot_model, "arm");
-        std::vector<robot_state::RobotStatePtr> &approach = grasp_candidates[0]->segmented_cartesian_traj_[moveit_grasps::APPROACH];
-        for(const robot_state::RobotStatePtr& rs:approach){
-            trajectory.addPrefixWayPoint(*rs, 0.0);
-        }
-        tptp.computeTimeStamps(trajectory, 0.5, 0.5);
-        trajectory.getRobotTrajectoryMsg(trajectory_message);
-
-        mgi.execute(trajectory_message);
-        
-
+    robot_trajectory::RobotTrajectory trajectory(robot_model, "arm");
+    std::vector<robot_state::RobotStatePtr> &approach =
+        grasp_candidates[0]->segmented_cartesian_traj_[moveit_grasps::APPROACH];
+    for (const robot_state::RobotStatePtr &rs : approach) {
+      trajectory.addSuffixWayPoint(*rs, 0.0);
     }
+    tptp.computeTimeStamps(trajectory, 0.1, 0.1);
+    trajectory.getRobotTrajectoryMsg(trajectory_message);
+
+    mgi.execute(trajectory_message);
+  }
 
   ros::shutdown();
 }
