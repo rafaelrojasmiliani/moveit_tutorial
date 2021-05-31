@@ -52,9 +52,6 @@ int main(int argc, char *argv[]) {
   // 2.4 PlanningSceneInterface
   moveit::planning_interface::PlanningSceneInterface psi;
 
-  moveit_visual_tools::MoveItVisualToolsPtr visual_tools;
-
-moveit_grasps::GraspPlannerPtr grasp_planner;
   // -------------------
   // 3. deploy object
   // ---------------------------
@@ -67,6 +64,7 @@ moveit_grasps::GraspPlannerPtr grasp_planner;
   // -------------------
   // 4. Declrare Moveit Grasp objects
   // ---------------------------
+  moveit_grasps::GraspPlannerPtr grasp_planner;
   moveit_grasps::SuctionGraspScoreWeightsPtr grasp_scores;
   moveit_grasps::SuctionGraspDataPtr grasp_data;
   moveit::planning_interface::MoveGroupInterface::Plan motion_plan;
@@ -80,17 +78,20 @@ moveit_grasps::GraspPlannerPtr grasp_planner;
   grasp_data = get_grasp_data_initialized_from_parameters(
       node_handle, "end_effector", robot_model);
   // ------------------------
-  // 6. Get grasping scores
+  // 6. Get grasping candidates
   // ------------------------
+  // 6.1 Get grasping scores
   grasp_scores = get_grasp_suction_score(1, 1, 1, 2, 2, 2, 10);
-  std::vector<double> ideal_orientation = {0.0, 0.0, 0.0};
+  // 6.2 Compute ideal grasp pose
   Eigen::Isometry3d ideal_grasp_pose;
   ideal_grasp_pose.setIdentity();
-  // ideal_grasp_pose.translation().z() = 0.1;
-
+  // 6.3 get a vector of feasible grasp candidates for the given object
   std::vector<moveit_grasps::GraspCandidatePtr> grasp_candidates;
-
   get_feasible_grasp_poses(grasp_candidates, "arm",object.id, grasp_data, grasp_scores, ideal_grasp_pose);
+
+  // ------------------------
+  // 6. Get grasping candidates
+  // ------------------------
 
     grasp_planner= plan_grasp(grasp_candidates[0], object.id);
 
