@@ -37,6 +37,7 @@ int main(int argc, char *argv[]) {
   object = get_colision_object("world", get_primitive("box"), 0.7, 0, 1.5);
   object.id = "object";
   psi.applyCollisionObject(object);
+  ros::Duration(3).sleep();
 
   ObjectDescription object_description("object");
 

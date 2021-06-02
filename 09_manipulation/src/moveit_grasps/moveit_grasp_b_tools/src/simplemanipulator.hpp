@@ -8,6 +8,7 @@
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 // moveit::planning_interface::PlanningSceneInterface
 #include <moveit_visual_tools/moveit_visual_tools.h>
+#include"objectdescription.hpp"
 class SimpleManipulator {
 private:
   robot_model_loader::RobotModelLoader robot_model_loader_;
@@ -29,6 +30,8 @@ private:
 public:
   SimpleManipulator(const std::string &_group_name,
                     const std::string &_ee_group_name);
+
+  bool pick(ObjectDescription& object);
   virtual ~SimpleManipulator();
 };
 

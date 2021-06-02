@@ -2,6 +2,7 @@
 #include <moveit_msgs/CollisionObject.h>
 #include <shape_msgs/SolidPrimitive.h>
 #include <string>
+#include <assert.h>
 
 shape_msgs::SolidPrimitive get_primitive(const std::string &_type) {
 
@@ -28,6 +29,28 @@ shape_msgs::SolidPrimitive get_primitive(const std::string &_type) {
     result.dimensions[0] = 0.1;
     result.dimensions[1] = 0.1;
   }
+
+  return result;
+}
+
+shape_msgs::SolidPrimitive get_primitive(const std::string &_type, 
+        std::vector<double> _dimension) {
+
+  shape_msgs::SolidPrimitive result;
+
+  if (_type == "box") {
+    result.type = result.BOX;
+    assert(_dimension.size()==3);
+  } else if (_type == "sphere") {
+    result.type = result.SPHERE;
+    assert(_dimension.size()==1);
+  } else if (_type == "cylinder") {
+    result.type = result.CYLINDER;
+    assert(_dimension.size()==2);
+  } else 
+      return result;
+
+    result.dimensions = _dimension;
 
   return result;
 }

@@ -15,3 +15,5 @@ SimpleManipulator::SimpleManipulator(const std::string &_arm_group_name,
       arm_flange_link_name_(ee_jmg_->getEndEffectorParentGroup().second) {}
 
 SimpleManipulator::~SimpleManipulator() {}
+
+bool SimpleManipulator::pick(ObjectDescription &object) { return true; }
