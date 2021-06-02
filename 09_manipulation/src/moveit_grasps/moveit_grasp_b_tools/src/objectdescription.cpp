@@ -11,6 +11,7 @@
 #include <xmlrpcpp/XmlRpcValue.h>
 
 #include <algorithm> // remove_if
+#include <moveit/collision_detection_bullet/bullet_integration/ros_bullet_utils.h> // urdfPose2Eigen
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2_ros/buffer.h>
 
@@ -199,18 +200,25 @@ void ObjectDescription::get_transforms() {
   // 3. for all links in the collision object list get push it position
   collision_object_.primitives = vector_of_solid_primitives_;
   for (int i = 1; i < vector_of_solid_primitives_.size(); i++) {
-    geometry_msgs::Pose pose;
-    tf::poseEigenToMsg(Eigen::Isometry3d::Identity(), pose);
 
     if (tf_buffer.canTransform(root_link_name_,
                                vector_of_solid_primitive_names_[i],
                                ros::Time::now())) {
 
+      ROS_INFO("---------\n");
       geometry_msgs::TransformStamped primitive_transform =
           tf_buffer.lookupTransform(vector_of_solid_primitive_names_[i],
                                     root_link_name_, ros::Time::now());
-      tf2::doTransform(pose, pose, primitive_transform);
+      ROS_INFO("---------\n");
+      tf2::doTransform(vector_of_solid_primitive_origins_[i],
+                       vector_of_solid_primitive_origins_[i],
+                       primitive_transform);
+      ROS_INFO("---------\n");
+      geometry_msgs::Pose pose;
+      pose = tf2::toMsg(vector_of_solid_primitive_origins_[i]);
+      ROS_INFO("---------\n");
       collision_object_.primitive_poses.push_back(pose);
+      ROS_INFO("---------\n");
     } else {
       ROS_INFO("cannot find a tranform from %s to %s\n",
                root_link_name_.c_str(),
@@ -219,7 +227,7 @@ void ObjectDescription::get_transforms() {
   }
 }
 
-void ObjectDescription::get_shapes_from_urdf() {
+bool ObjectDescription::get_shapes_from_urdf() {
 
   urdf_model_.initFile(object_description_file_);
   kdl_parser::treeFromUrdfModel(urdf_model_, kdl_tree_);
@@ -227,6 +235,9 @@ void ObjectDescription::get_shapes_from_urdf() {
 
   const std::string &root_name =
       GetTreeElementSegment(kdl_tree_.getRootSegment()->second).getName();
+  ROS_INFO("--------------\n");
+  ROS_INFO("-------------- %s \n", root_name.c_str());
+  ROS_INFO("--------------\n");
 
   urdf_model_.getLinks(links_in_object);
   std::vector<urdf::LinkSharedPtr>::iterator it =
@@ -246,13 +257,26 @@ void ObjectDescription::get_shapes_from_urdf() {
   shape_msgs::SolidPrimitive solid_primitive;
 
   for (const urdf::LinkSharedPtr &link : links_in_object) {
-    switch (link->collision->geometry->type) {
+    urdf::GeometrySharedPtr geometry;
+    urdf::Pose pose;
+
+    if (link->collision) {
+      geometry = link->collision->geometry;
+      pose = link->collision->origin;
+    } else if (link->visual) {
+      geometry = link->visual->geometry;
+      pose = link->visual->origin;
+    } else {
+      ROS_INFO("geometry is null\n");
+      return false;
+    }
+    switch (geometry->type) {
     case urdf::Geometry::BOX: {
       // set type
       solid_primitive.type = solid_primitive.BOX;
       // downcast
       const urdf::BoxConstSharedPtr box =
-          std::static_pointer_cast<const urdf::Box>(link->collision->geometry);
+          std::static_pointer_cast<const urdf::Box>(geometry);
       // set dimensions
       solid_primitive.dimensions =
           std::vector<double>{box->dim.x, box->dim.y, box->dim.z};
@@ -263,11 +287,10 @@ void ObjectDescription::get_shapes_from_urdf() {
       solid_primitive.type = solid_primitive.CYLINDER;
       // downcast
       const urdf::CylinderConstSharedPtr cylinder =
-          std::static_pointer_cast<const urdf::Cylinder>(
-              link->collision->geometry);
+          std::static_pointer_cast<const urdf::Cylinder>(geometry);
       // set dimensions
       solid_primitive.dimensions =
-          std::vector<double>{cylinder->radius, cylinder->length};
+          std::vector<double>{cylinder->length, cylinder->radius};
       break;
     }
     case urdf::Geometry::SPHERE: {
@@ -275,8 +298,7 @@ void ObjectDescription::get_shapes_from_urdf() {
       solid_primitive.type = solid_primitive.SPHERE;
       // downcast
       const urdf::SphereConstSharedPtr sphere =
-          std::static_pointer_cast<const urdf::Sphere>(
-              link->collision->geometry);
+          std::static_pointer_cast<const urdf::Sphere>(geometry);
       // set dimensions
       solid_primitive.dimensions = std::vector<double>{sphere->radius};
       break;
@@ -287,5 +309,9 @@ void ObjectDescription::get_shapes_from_urdf() {
     }
     vector_of_solid_primitives_.push_back(std::move(solid_primitive));
     vector_of_solid_primitive_names_.push_back(link->name);
+    ROS_INFO("+++ name %s ++++\n", link->name.c_str());
+    vector_of_solid_primitive_origins_.push_back(
+        collision_detection_bullet::urdfPose2Eigen(pose));
   }
+  return true;
 }

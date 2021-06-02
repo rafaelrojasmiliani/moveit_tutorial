@@ -38,6 +38,7 @@ private:
   std::vector<shape_msgs::SolidPrimitive> vector_of_solid_primitives_;
   std::vector<std::string> vector_of_solid_primitive_names_;
   std::string root_link_name_;
+  std::vector<Eigen::Isometry3d> vector_of_solid_primitive_origins_;
 
   ObjectDescription(const ObjectDescription &that);
   ObjectDescription &operator=(const ObjectDescription &);
@@ -45,7 +46,7 @@ private:
   std::map<std::string, robot_state_publisher::SegmentPair> segments_fixed_;
   void addChildren(const KDL::SegmentMap::const_iterator segment);
 
-  void get_shapes_from_urdf();
+  bool get_shapes_from_urdf();
   void get_transforms();
 
 public:

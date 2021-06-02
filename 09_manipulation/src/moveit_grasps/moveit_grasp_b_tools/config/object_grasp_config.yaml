@@ -15,7 +15,7 @@ object:
   ideal_grasp_pose: [0, 0, 0, 0, 0, 0]
   end_effector_name: end_effector
   object_description: $(find moveit_grasp_b_tools)/urdf/test.urdf
-  initial_pose: [3, 0, 0, 0, 0, 0]
+  initial_pose: [0, 0, 0, 0, 0, 0]
 
 end_effector:
   end_effector_name: end_effector  # ee group name
