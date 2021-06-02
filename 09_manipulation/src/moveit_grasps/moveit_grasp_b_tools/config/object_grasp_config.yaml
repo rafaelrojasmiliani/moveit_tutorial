@@ -4,6 +4,7 @@ base_link: world
 # Note: these parameters are copied from Robotiq gripper without tweaking
 
 object:
+  grasp_type: suction
   translation_x_score_weight: 100
   translation_y_score_weight: 100
   translation_z_score_weight: 100
@@ -13,6 +14,8 @@ object:
   overhang_score: 100
   ideal_grasp_pose: [0, 0, 0, 0, 0, 0]
   end_effector_name: end_effector
+  object_description: $(find moveit_grasp_b_tools)/urdf/test.urdf
+  initial_pose: [3, 0, 0, 0, 0, 0]
 
 end_effector:
   end_effector_name: end_effector  # ee group name

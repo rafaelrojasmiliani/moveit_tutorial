@@ -13,6 +13,14 @@
 #include <algorithm> // remove_if
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2_ros/buffer.h>
+
+std::string stripSlash(const std::string &in) {
+  if (in.size() && in[0] == '/') {
+    return in.substr(1);
+  }
+  return in;
+}
+
 shape_msgs::SolidPrimitive get_primitive(const std::string &_type,
                                          std::vector<double> _dimension);
 ObjectDescription::ObjectDescription(const std::string &_name)
@@ -41,7 +49,27 @@ ObjectDescription::ObjectDescription(const std::string &_name)
                                "object_description", object_description_file_);
 
   if (not error) {
-    error += urdf_model_.initFile(object_description_file_);
+    error += !urdf_model_.initFile(object_description_file_);
+  }
+  if (not error) {
+    ROS_INFO("---------------------------------------\n");
+    get_shapes_from_urdf();
+    ROS_INFO("---------------------------------------\n");
+    get_transforms();
+    Eigen::Isometry3d initial_pose;
+    error += !rosparam_shortcuts::get("object_description", nh_object_,
+                                      "initial_pose", initial_pose);
+
+    geometry_msgs::Pose pose;
+    tf::poseEigenToMsg(initial_pose, pose);
+    collision_object_.primitive_poses.push_back(pose);
+    ROS_INFO("number of primitive poses %zu\n",
+             collision_object_.primitive_poses.size());
+    ROS_INFO("number of primitive shapes %zu\n",
+             collision_object_.primitives.size());
+    collision_object_.header.frame_id = "world";
+    collision_object_.id = _name;
+    psi_.applyCollisionObject(collision_object_);
   }
   XmlRpc::XmlRpcValue xmlval;
 
@@ -146,11 +174,9 @@ void ObjectDescription::addChildren(
   }
 }
 void ObjectDescription::get_transforms() {
-
   tf2_ros::Buffer tf_buffer;
   // 1. populate segments_fixed_
   addChildren(kdl_tree_.getRootSegment());
-  geometry_msgs::TransformStamped tf_transform;
   // 2. for each segment compute the required transform
   for (std::map<std::string, robot_state_publisher::SegmentPair>::const_iterator
            segment_pair = segments_fixed_.begin();
@@ -166,19 +192,30 @@ void ObjectDescription::get_transforms() {
     tf_transform.header.frame_id = stripSlash(segment_pair->second.root);
     tf_transform.child_frame_id = stripSlash(segment_pair->second.tip);
     // 2.1 push the transform into the tf_buffer
-    tf_buffer.setTransform(tf_transform, "the_boss", true);
+    if (not tf_buffer.setTransform(tf_transform, "the_boss", true)) {
+      ROS_INFO("----- CANNOT SET TRANSFORM\n");
+    }
   }
   // 3. for all links in the collision object list get push it position
   collision_object_.primitives = vector_of_solid_primitives_;
-  for (int i = 0; i < vector_of_solid_primitives_.size(); i++) {
-    // collision_object_.primitive_poses[i] =
+  for (int i = 1; i < vector_of_solid_primitives_.size(); i++) {
     geometry_msgs::Pose pose;
+    tf::poseEigenToMsg(Eigen::Isometry3d::Identity(), pose);
 
-    geometry_msgs::TransformStamped primitive_transform =
-        tf_buffer.lookupTransform(vector_of_solid_primitive_names_[i],
-                                  root_link_name_, ros::Time::now());
-    tf2::toMsg(primitive_transform.transform, pose);
-    collision_object_.primitive_poses[i] = pose;
+    if (tf_buffer.canTransform(root_link_name_,
+                               vector_of_solid_primitive_names_[i],
+                               ros::Time::now())) {
+
+      geometry_msgs::TransformStamped primitive_transform =
+          tf_buffer.lookupTransform(vector_of_solid_primitive_names_[i],
+                                    root_link_name_, ros::Time::now());
+      tf2::doTransform(pose, pose, primitive_transform);
+      collision_object_.primitive_poses.push_back(pose);
+    } else {
+      ROS_INFO("cannot find a tranform from %s to %s\n",
+               root_link_name_.c_str(),
+               vector_of_solid_primitive_names_[i].c_str());
+    }
   }
 }
 
@@ -192,14 +229,15 @@ void ObjectDescription::get_shapes_from_urdf() {
       GetTreeElementSegment(kdl_tree_.getRootSegment()->second).getName();
 
   urdf_model_.getLinks(links_in_object);
-
   std::vector<urdf::LinkSharedPtr>::iterator it =
       find_if(links_in_object.begin(), links_in_object.end(),
-              [&root_name](urdf::LinkConstSharedPtr &_link) {
+              [&root_name](const urdf::LinkSharedPtr &_link) {
                 return _link->name == root_name;
               });
 
   urdf::LinkSharedPtr root_link = *it;
+
+  root_link_name_ = root_link->name;
 
   links_in_object.erase(it);
 

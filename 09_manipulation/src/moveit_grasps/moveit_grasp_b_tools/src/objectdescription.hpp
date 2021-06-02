@@ -9,6 +9,7 @@
 #include <tf2_ros/static_transform_broadcaster.h>
 #include <thread>
 #include <urdf/model.h>
+#include <vector>
 // moveit::planning_interface::PlanningSceneInterface
 
 class ObjectDescription {
@@ -34,8 +35,8 @@ private:
   urdf::Model urdf_model_;
   KDL::Tree kdl_tree_;
   std::string object_description_file_;
-  std::vector<const shape_msgs::SolidPrimitive> vector_of_solid_primitives_;
-  std::vector<const std::string> vector_of_solid_primitive_names_;
+  std::vector<shape_msgs::SolidPrimitive> vector_of_solid_primitives_;
+  std::vector<std::string> vector_of_solid_primitive_names_;
   std::string root_link_name_;
 
   ObjectDescription(const ObjectDescription &that);
@@ -44,6 +45,7 @@ private:
   std::map<std::string, robot_state_publisher::SegmentPair> segments_fixed_;
   void addChildren(const KDL::SegmentMap::const_iterator segment);
 
+  void get_shapes_from_urdf();
   void get_transforms();
 
 public:
@@ -54,10 +56,6 @@ public:
   const std::string &get_name() const { return name_; };
 
   void load_urdf();
-
-  void get_shapes_from_urdf();
-
-  void build_kdl_tree();
 };
 
 #endif /* OBJECTDESCRIPTION_H */
