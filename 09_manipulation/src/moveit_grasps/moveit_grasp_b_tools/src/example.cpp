@@ -32,14 +32,11 @@ int main(int argc, char *argv[]) {
   spinner.start();
   ros::NodeHandle node_handle;
 
-  moveit::planning_interface::PlanningSceneInterface psi;
-  moveit_msgs::CollisionObject object;
-  object = get_colision_object("world", get_primitive("box"), 0.7, 0, 1.5);
-  object.id = "object";
-  psi.applyCollisionObject(object);
-  ros::Duration(3).sleep();
-
   ObjectDescription object_description("object");
+  ros::Duration(1).sleep();
+  SimpleManipulator manipulator("arm", "end_effector");
+
+  manipulator.pick(object_description);
 
   ros::waitForShutdown();
 }

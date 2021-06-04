@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
-<robot name="materials">
+<robot name="box">
   <link name="base_link">
     <visual>
       <geometry>
-        <cylinder length="0.1" radius="0.05"/>
+        <cylinder length="0.04" radius="0.04"/>
       </geometry>
       <material name="blue"/>
     </visual>

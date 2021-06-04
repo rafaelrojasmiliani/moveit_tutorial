@@ -1,0 +1,27 @@
+---
+objects:
+  - name: object_a
+    description: $(find moveit_grasp_b_tools)/urdf/box.urdf
+    initial_pose: [3, 0, 0, 0, 0, 0]
+  - name: object_b
+    description: $(find moveit_grasp_b_tools)/urdf/cylinder.urdf
+    initial_pose: [3, -0.2, 0, 0, 0, 0]
+
+object_a:
+  grasp_type: suction
+  translation_x_score_weight: 100
+  translation_y_score_weight: 100
+  translation_z_score_weight: 100
+  orientation_x_score_weight: 100
+  orientation_y_score_weight: 100
+  orientation_z_score_weight: 100
+  overhang_score: 100
+  ideal_grasp_pose: [0, 0, 0, 0, 0, 0]
+  end_effector_name: end_effector
+  subframes:
+    - name: point_a
+      pose: [0, 0, 1, 0, 0, 0]
+    - name: point_b
+      pose: [0, 1, 0, 0, 0, 0]
+    - name: point_c
+      pose: [1, 0, 0, 0, 0, 0]

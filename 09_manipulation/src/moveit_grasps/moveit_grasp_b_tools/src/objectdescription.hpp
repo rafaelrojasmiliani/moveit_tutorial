@@ -30,7 +30,6 @@ private:
   moveit::planning_interface::PlanningSceneInterface psi_;
   moveit_visual_tools::MoveItVisualToolsPtr visual_tools_;
   moveit_grasps::SuctionGraspGeneratorPtr grasp_generator_;
-  std::vector<moveit_grasps::GraspCandidatePtr> grasp_candidates_;
 
   urdf::Model urdf_model_;
   KDL::Tree kdl_tree_;
@@ -46,8 +45,7 @@ private:
   std::map<std::string, robot_state_publisher::SegmentPair> segments_fixed_;
   void addChildren(const KDL::SegmentMap::const_iterator segment);
 
-  bool get_shapes_from_urdf();
-  void get_transforms();
+  void read_sub_frames();
 
 public:
   ObjectDescription(const std::string &_name);
@@ -56,7 +54,8 @@ public:
 
   const std::string &get_name() const { return name_; };
 
-  void load_urdf();
+  bool compute_grasp_candidates(
+      std::vector<moveit_grasps::GraspCandidatePtr> &_grasp_candidates);
 };
 
 #endif /* OBJECTDESCRIPTION_H */

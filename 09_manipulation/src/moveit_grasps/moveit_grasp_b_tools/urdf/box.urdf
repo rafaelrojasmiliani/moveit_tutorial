@@ -1,11 +1,12 @@
 <?xml version="1.0"?>
-<robot name="materials">
+<robot name="box_a">
   <link name="base_link">
     <visual>
       <geometry>
-        <cylinder length="0.1" radius="0.05"/>
+        <box size="0.05 0.05 0.08"/>
       </geometry>
-      <material name="blue"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="white"/>
     </visual>
   </link>
 </robot>

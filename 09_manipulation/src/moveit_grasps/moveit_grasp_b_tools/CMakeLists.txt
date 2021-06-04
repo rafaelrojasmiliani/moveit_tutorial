@@ -21,8 +21,10 @@ catkin_package()
 
 include_directories(${catkin_INCLUDE_DIRS} ${Eigen3_INCLUDE_DIRS})
 
-add_executable(${PROJECT_NAME}_node src/example.cpp src/objectdescription.cpp
-                                    src/simplemanipulator.cpp src/solids.cpp)
+add_executable(
+  ${PROJECT_NAME}_node
+  src/example.cpp src/objectdescription.cpp src/simplemanipulator.cpp
+  src/solids.cpp src/urdf_to_collision_object.cpp)
 
 target_link_libraries(${PROJECT_NAME}_node ${catkin_LIBRARIES}
                       ${Eigen3_LIBRARIES})

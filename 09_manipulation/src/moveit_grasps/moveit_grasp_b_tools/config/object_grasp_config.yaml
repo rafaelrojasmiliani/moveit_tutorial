@@ -12,10 +12,14 @@ object:
   orientation_y_score_weight: 100
   orientation_z_score_weight: 100
   overhang_score: 100
-  ideal_grasp_pose: [0, 0, 0, 0, 0, 0]
+  ideal_grasp_pose: [0, 0, 0, 3.1415, 0, 0]
   end_effector_name: end_effector
   object_description: $(find moveit_grasp_b_tools)/urdf/test.urdf
-  initial_pose: [0, 0, 0, 0, 0, 0]
+  initial_pose: [1, 0, 0.3, 0, 0, 0]
+  grasp_point: point_a
+  subframes:
+    - name: point_a
+      pose: [0, 0, 0.025, 0, 0, 0]
 
 end_effector:
   end_effector_name: end_effector  # ee group name
@@ -24,12 +28,12 @@ end_effector:
   # x/y translation and angle orientation grasp resolution parameters used
   # for sampling grasp candidates
   grasp_resolution: 1.0  # meter
-  angle_resolution: 360  # degrees (CANNOT BE 0)
+  angle_resolution: 90  # degrees (CANNOT BE 0)
 
   # min/max values of the grasp depth range in meter.  This should fit to
   # the distance from finger tip to inner palm or the suction cup stroke
   grasp_max_depth: 0.05
-  grasp_min_depth: -0.1
+  grasp_min_depth: 0.0
   # grasp_depth_resolution is the discretization distance in meter used for
   # sampling the grasp depth value.  Idealy this should be a small fraction
   # of the depth range (i.e. 0.005).  If the value exceeds the depth
@@ -44,7 +48,7 @@ end_effector:
   # retreat path (in addition to grasp_max_depth)
   retreat_distance_desired: 0.05
   # lift path (used as MINIMUM safety distance from surface)
-  lift_distance_desired: 0.01
+  lift_distance_desired: 0.02
 
   # minimum padding on each side of the object on approach
   grasp_padding_on_approach: 0.005  # meter
@@ -66,7 +70,7 @@ end_effector:
   # tcp_name: tool_center_point
   # Alternatively, if we cannot add a frame for the tool center point, we
   # can define tcp by transform
-  tcp_to_eef_mount_transform: [0, 0, -0.2, 0, 0, 0]
+  tcp_to_eef_mount_transform: [0, 0, -0.1, 0, 0, 0]
   # NOTE: Imaginary point in the middle
 
   # Target durations in seconds for reaching pregrasp and grasp positions in
