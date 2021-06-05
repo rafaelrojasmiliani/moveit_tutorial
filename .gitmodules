@@ -7,3 +7,6 @@
 [submodule "common_packages/src/rqt_joint_trajectory_plot"]
 	path = common_packages/src/rqt_joint_trajectory_plot
 	url = https://github.com/tork-a/rqt_joint_trajectory_plot.git
+[submodule "common_packages/src/robotiq_85_gripper"]
+	path = common_packages/src/robotiq_85_gripper
+	url = https://github.com/rafaelrojasmiliani/robotiq_85_gripper.git

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="ur_station">
+  <!-- 0. Declare argments of this xacro file -->
+  <xacro:arg name="simulation" default="true"/>
+  <xacro:arg name="transmission_hw_interface" default="hardware_interface/PositionJointInterface"/>
+  <xacro:arg name="kinematics_config" default="$(find ur_description)/config/ur3_default.yaml"/>
+  <!-- 1. include relevant xacro files -->
+  <xacro:include filename="$(find ur_description)/urdf/common.gazebo.xacro"/>
+  <xacro:include filename="$(find ur_description)/urdf/ur10.urdf.xacro"/>
+  <xacro:include filename="$(find robotiq_85_description)/urdf/robotiq_85_gripper.urdf.xacro"/>
+  <xacro:include filename="$(find smart_app_ur_station_description)/urdf/station.xacro"/>
+  <!-- 3. Place ur3 robot and attach it to gazebo station_base-->
+  <!-- 3.1 declare load kinematics and transmission info-->
+  <xacro:ur10_robot prefix="" joint_limited="false" transmission_hw_interface="$(arg transmission_hw_interface)"/>
+  <link name="world"/>
+  <link name="table">
+    <visual>
+      <geometry>
+        <box size="0.6 0.6 0.05"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.6 0.6 0.05"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="world_to_table" type="fixed">
+    <parent link="world"/>
+    <child link="table"/>
+    <origin xyz="0 0 0.5" rpy="0 0 0"/>
+  </joint>
+  <joint name="table_to_robot" type="fixed">
+    <parent link="table"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+  <link name="end_effector">
+    <visual>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="world_joint" type="fixed">
+    <parent link="station_base"/>
+    <child link="base_link"/>
+    <origin xyz="0.0 0.0 0.7" rpy="0.0 0.0 0.0"/>
+  </joint>
+  <!-- 4. Place the wripper attached to the UR10 frame called tool0 -->
+  <xacro:robotiq_85_gripper prefix="" parent="tool0">
+    <origin xyz="0 0 0" rpy="${pi/2} ${-pi/2} 0 "/>
+  </xacro:robotiq_85_gripper>
+  <!-- 5. Place the Table-->
+  <xacro:table xyz="-0.029 0.335 0.630" connected_to="station_base"/>
+</robot>
