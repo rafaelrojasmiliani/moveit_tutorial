@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: workspace_description
+    relative_path: urdf/robot_with_gripper.xacro
+    xacro_args: ""
+  SRDF:
+    relative_path: config/ur_station.srdf
+  CONFIG:
+    author_name: rafael rojas
+    author_email: rafaelrojasmiliani@gmail.com
+    generated_timestamp: 1622886472
