@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+  <group ns="myrobot">
+    <rosparam command="load" file="$(find pick_place_a_pipeline_example)/config/object_grasp_config.yaml" subst_value="true"/>
+    <node name="example" pkg="pick_place_a_pipeline_example" type="pick_place_a_pipeline_example_node" output="screen"/>
+  </group>
+</launch>

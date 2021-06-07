@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+  <!--1. Launch gazebo -->
+  <node name="gazebo" pkg="gazebo_ros" type="gazebo" respawn="false" output="screen" args=""/>
+  <!--2. Load the URDF model in gazebo -->
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model ur10 -z 0.5 -gazebo_namespace '/myrobot/gazebo'"/>
+  <!--3. Load the controllers of the model -->
+  <!--3.1 Load the parameters-->
+  <rosparam file="$(find pick_place_a_pipeline_example)/config/gazebo_control.yaml" command="load"/>
+  <!--3.1 Load the controls configured in the paramenters-->
+  <node name="control_spawner" pkg="controller_manager" type="spawner" args="--namespace='/myrobot' arm_controller joint_state_controller end_effector_controller" respawn="false" output="screen"/>
+  <node name="rviz" pkg="rviz" type="rviz" output="screen" args="-d $(find pick_place_a_pipeline_example)/config/rviz_conf.rviz"/>
+</launch>

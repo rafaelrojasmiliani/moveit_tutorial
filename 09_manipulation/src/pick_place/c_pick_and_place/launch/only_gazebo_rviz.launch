@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+  <param name="/use_sim_time" value="true"/>
+  <group ns="myrobot">
+    <include file="$(find pick_place_a_pipeline_example)/launch/move_group.launch"/>
+    <include file="$(find pick_place_a_pipeline_example)/launch/gazebo.launch"/>
+  </group>
+</launch>
