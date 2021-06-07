@@ -1,17 +1,26 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(c_pick_and_place)
+project(pick_place_a_pipeline_example)
 
 find_package(
-  catkin REQUIRED COMPONENTS moveit_core moveit_ros_planning_interface
-                             moveit_visual_tools roscpp rospy)
-
+  catkin REQUIRED
+  COMPONENTS eigen_conversions
+             geometry_msgs
+             moveit_core
+             moveit_grasps
+             moveit_ros_planning_interface
+             moveit_visual_tools
+             roscpp
+             rospy
+             tf2
+             tf2_geometry_msgs
+             tf2_ros)
 find_package(Eigen3 REQUIRED)
 
 catkin_package()
 
 include_directories(${catkin_INCLUDE_DIRS} ${Eigen3_INCLUDE_DIRS})
-add_executable(${PROJECT_NAME}_node src/move_group_interface_tutorial.cpp
-                                    src/solids.cpp)
+add_executable(${PROJECT_NAME}_node src/example.cpp src/objectdescription.cpp
+                                    src/urdf_to_collision_object.cpp)
 
 target_link_libraries(${PROJECT_NAME}_node ${catkin_LIBRARIES}
                       ${Eigen3_LIBRARIES})

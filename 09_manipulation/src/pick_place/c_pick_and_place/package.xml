@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>c_pick_and_place</name>
+  <name>pick_place_a_pipeline_example</name>
   <version>0.0.0</version>
   <description>The package</description>
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
@@ -13,23 +13,41 @@
   <license>TODO</license>
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>Eigen3</build_depend>
+  <build_depend>eigen_conversions</build_depend>
+  <build_depend>geometry_msgs</build_depend>
   <build_depend>moveit_core</build_depend>
+  <build_depend>moveit_grasps</build_depend>
   <build_depend>moveit_ros_planning_interface</build_depend>
   <build_depend>moveit_visual_tools</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>rospy</build_depend>
+  <build_depend>tf2</build_depend>
+  <build_depend>tf2_geometry_msgs</build_depend>
+  <build_depend>tf2_ros</build_depend>
   <build_export_depend>Eigen3</build_export_depend>
+  <build_export_depend>eigen_conversions</build_export_depend>
+  <build_export_depend>geometry_msgs</build_export_depend>
   <build_export_depend>moveit_core</build_export_depend>
+  <build_export_depend>moveit_graps</build_export_depend>
   <build_export_depend>moveit_ros_planning_interface</build_export_depend>
   <build_export_depend>moveit_visual_tools</build_export_depend>
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>rospy</build_export_depend>
+  <build_export_depend>tf2</build_export_depend>
+  <build_export_depend>tf2_geometry_msgs</build_export_depend>
+  <build_export_depend>tf2_ros</build_export_depend>
   <exec_depend>Eigen3</exec_depend>
+  <exec_depend>eigen_conversions</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>moveit_core</exec_depend>
+  <exec_depend>moveit_graps</exec_depend>
   <exec_depend>moveit_ros_planning_interface</exec_depend>
   <exec_depend>moveit_visual_tools</exec_depend>
   <exec_depend>roscpp</exec_depend>
   <exec_depend>rospy</exec_depend>
+  <exec_depend>tf2</exec_depend>
+  <exec_depend>tf2_geometry_msgs</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
   <!-- The export tag contains other, unspecified, tags -->
   <export>
     <!-- Other tools can request additional information be placed here -->

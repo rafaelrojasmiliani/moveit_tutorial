@@ -1,6 +1,6 @@
 <package>
 
-  <name>myrobot_with_gripper_moveit_conf</name>
+  <name>my_robot_with_gripper_moveit_config</name>
   <version>0.3.0</version>
   <description>
      An automatically generated package with all the configuration and launch files for using the ur_station with the MoveIt Motion Planning Framework
