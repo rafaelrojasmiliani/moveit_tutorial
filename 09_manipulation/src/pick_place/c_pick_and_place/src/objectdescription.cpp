@@ -74,9 +74,15 @@ ObjectDescription::ObjectDescription(const std::string &_name)
   error += !rosparam_shortcuts::get("object_description", nh_object_,
                                     "end_effector_name", ee_name_);
 
+  grasp_arm_tool_flange_pose_ = ideal_grasp_pose_ * tcp_to_eef_mount_transform_;
+
   ideal_grasp_.grasp_pose.header.frame_id = "myrobot/move_group/object";
-  ideal_grasp_.grasp_pose.pose =
-      tf2::toMsg(ideal_grasp_pose_ * tcp_to_eef_mount_transform_);
+  ideal_grasp_.grasp_pose.pose = tf2::toMsg(grasp_arm_tool_flange_pose_);
+
+  visual_tools_->loadRobotStatePub("robot_grasp_pose", false);
+
+  ROS_INFO_STREAM("ROS MOVITE IT PLANNING FRAME "
+                  << robot_model_->getModelFrame() << "\n");
 }
 
 ObjectDescription::~ObjectDescription() {}
@@ -214,4 +220,19 @@ bool ObjectDescription::read_gripper_pose(trajectory_msgs::JointTrajectory &_jt,
     }
   }
   return true;
+}
+
+void ObjectDescription::show_grasp_pose(const std::string &_group_name) {
+
+  robot_state::RobotState rs(robot_model_);
+  geometry_msgs::Pose pose_wrt_robot_base;
+  Eigen::Isometry3d actual_pose_wrt_robot = get_pose();
+
+  Eigen::Isometry3d grasp_pose_wrt_to_robot =
+      actual_pose_wrt_robot * grasp_arm_tool_flange_pose_;
+
+  rs.setFromIK(robot_model_->getJointModelGroup(_group_name),
+               tf2::toMsg(grasp_pose_wrt_to_robot));
+
+  visual_tools_->publishRobotState(rs, rviz_visual_tools::RED);
 }

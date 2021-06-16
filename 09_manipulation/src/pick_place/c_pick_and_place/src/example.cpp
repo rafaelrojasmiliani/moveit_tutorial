@@ -43,6 +43,8 @@ int main(int argc, char *argv[]) {
   ObjectDescription object_description("object");
   ros::Duration(1).sleep();
 
+  object_description.show_grasp_pose("arm");
+
   st.transform.translation.x =
       object_description.ideal_grasp_.grasp_pose.pose.position.x;
   st.transform.translation.y =

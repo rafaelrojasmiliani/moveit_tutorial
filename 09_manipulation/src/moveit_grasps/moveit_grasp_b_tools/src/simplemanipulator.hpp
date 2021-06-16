@@ -23,6 +23,7 @@ private:
   const moveit::core::JointModelGroup *const arm_jmg_;
   const moveit::core::JointModelGroup *const ee_jmg_;
   const std::string arm_flange_link_name_;
+
   //   parent_link_ =
   //   robot_model_->getLinkModel(ee_jmg_->getEndEffectorParentGroup().second);
   //

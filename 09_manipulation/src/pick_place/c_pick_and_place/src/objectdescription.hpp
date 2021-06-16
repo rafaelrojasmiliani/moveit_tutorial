@@ -40,6 +40,8 @@ private:
   urdf::Model urdf_model_;
   std::string object_description_file_;
 
+  Eigen::Isometry3d grasp_arm_tool_flange_pose_;
+
   ObjectDescription(const ObjectDescription &that);
   ObjectDescription &operator=(const ObjectDescription &);
 
@@ -64,6 +66,7 @@ public:
   moveit_msgs::Grasp ideal_grasp_;
   Eigen::Isometry3d ideal_grasp_pose_;
   Eigen::Isometry3d tcp_to_eef_mount_transform_;
+  void show_grasp_pose(const std::string &_gn);
 };
 
 #endif /* OBJECTDESCRIPTION_H */
