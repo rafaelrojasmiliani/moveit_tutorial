@@ -1,6 +1,6 @@
 # This file tells docker what image must be created
 # in order to be ahble to test this library
-FROM nvidia/cudagl:11.3.0-base-ubuntu20.04
+FROM moveit/moveit:master-source
 
 
 ENV TZ=Europe/Rome
@@ -15,29 +15,11 @@ RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E
 RUN apt-get update
 # Install packages
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confnew" \
-                    ros-noetic-desktop-full \
-                    ros-noetic-moveit-setup-assistant \
                     iputils-ping \
                     net-tools \
                     netcat \
                     screen \
                     build-essential \
-                    ros-noetic-moveit-simple-controller-manager \
-                    ros-noetic-grid-map-rviz-plugin \
-                    ros-noetic-jsk-rviz-plugins \
-                    ros-noetic-octomap-rviz-plugins \
-                    ros-noetic-rviz-visual-tools \
-                    ros-noetic-ompl \
-                    ros-noetic-moveit-planners \
-                    ros-noetic-moveit-commander \
-                    python3-catkin-tools \
-                    python3-rosinstall-generator \
-                    python3-rosinstall \
-                    python3-rosdep \
-                    ros-noetic-moveit-visual-tools \
-                    python3-tk \
-                    ros-noetic-plotjuggler \
-                    ros-noetic-joint-trajectory-controller \
                     python3-sympy \
                     coinor-libipopt-dev \
                     sudo \
@@ -57,21 +39,21 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o
                     python3-tk \
                     python3-dev \
                     python-dev \
-                    ros-noetic-rosparam-shortcuts \
-                    ros-noetic-marker-msgs
+                    ros-melodic-gazebo-ros \
+                    ros-melodic-graph-msgs \
+                    ros-melodic-tf-conversions \
+                    ros-melodic-ros-controllers \
+                    ros-melodic-gazebo-ros-control \
+                    ros-melodic-joint-trajectory-action \
+                    ros-melodic-rqt \
+                    ros-melodic-rqt-reconfigure \
+                    ros-melodic-rqt-robot-plugins
+
 
 RUN pip3 install setuptools matplotlib scipy quadpy six cython osrf-pycommon
 
 # user handling
-ARG myuser
-ARG myuid
-ARG mygroup
-ARG mygid
-RUN addgroup --gid ${mygid} ${mygroup} --force-badname
-RUN adduser --gecos "" --disabled-password  --uid ${myuid} --gid ${mygid} ${myuser} --force-badname
 #add user to sudoers
-RUN echo "${myuser} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-RUN echo "source /opt/ros/noetic/setup.bash" >> /etc/bash.bashrc
 WORKDIR /
 
 

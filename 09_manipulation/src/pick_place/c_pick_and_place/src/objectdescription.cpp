@@ -18,7 +18,8 @@
 
 ObjectDescription::ObjectDescription(const std::string &_name)
     : // begin initialization list
-      collision_object_(), ee_name_(""), name_(_name), nh_(), nh_object_(_name),
+      collision_object_(),
+      ee_name_(""), name_(_name), nh_(), nh_object_(_name),
       robot_model_loader_("robot_description"),
       robot_model_(robot_model_loader_.getModel()), ideal_grasp_pose_(), psi_(),
       visual_tools_(new moveit_visual_tools::MoveItVisualTools(
@@ -61,8 +62,8 @@ ObjectDescription::ObjectDescription(const std::string &_name)
 
   read_gripper_translation(ideal_grasp_.pre_grasp_approach, "approach");
   read_gripper_translation(ideal_grasp_.post_grasp_retreat, "retreat");
-  read_gripper_pose(gripper_closure_, "gripper_closure");
-  read_gripper_pose(gripper_opening_, "gripper_opening");
+  read_gripper_pose(ideal_grasp_.grasp_posture, "gripper_closure");
+  read_gripper_pose(ideal_grasp_.pre_grasp_posture, "gripper_opening");
 
   error += !rosparam_shortcuts::get("object_description", nh_object_,
                                     "ideal_grasp_pose", ideal_grasp_pose_);
@@ -235,4 +236,11 @@ void ObjectDescription::show_grasp_pose(const std::string &_group_name) {
                tf2::toMsg(grasp_pose_wrt_to_robot));
 
   visual_tools_->publishRobotState(rs, rviz_visual_tools::RED);
+  std::vector<double> joint_values;
+  rs.copyJointGroupPositions(robot_model_->getJointModelGroup(_group_name),
+                             joint_values);
+
+  const std::vector<std::string> &variable_names = rs.getVariableNames();
+  for (std::size_t i = 0; i < variable_names.size(); ++i)
+    ROS_INFO("Joint %s: %f\n", variable_names[i].c_str(), joint_values[i]);
 }
