@@ -1,3 +1,4 @@
+---
 # joint_limits.yaml allows the dynamics properties specified in the URDF to be overwritten or augmented as needed
 
 # For beginners, we downscale velocity and acceleration limits.
@@ -13,6 +14,9 @@ joint_limits:
     max_velocity: 3.15
     has_acceleration_limits: false
     max_acceleration: 0
+    has_position_limits: true
+    max_position: !degrees 180.0
+    min_position: !degrees -180.0
   gripper_finger1_finger_tip_joint:
     has_velocity_limits: true
     max_velocity: 100
@@ -48,23 +52,38 @@ joint_limits:
     max_velocity: 2.16
     has_acceleration_limits: false
     max_acceleration: 0
+    has_position_limits: true
+    max_position: !degrees 180.0
+    min_position: !degrees -180.0
   shoulder_pan_joint:
     has_velocity_limits: true
     max_velocity: 2.16
     has_acceleration_limits: false
     max_acceleration: 0
+    has_position_limits: true
+    max_position: !degrees 180.0
+    min_position: !degrees -180.0
   wrist_1_joint:
     has_velocity_limits: true
     max_velocity: 3.2
     has_acceleration_limits: false
     max_acceleration: 0
+    has_position_limits: true
+    max_position: !degrees 180.0
+    min_position: !degrees -180.0
   wrist_2_joint:
     has_velocity_limits: true
     max_velocity: 3.2
     has_acceleration_limits: false
     max_acceleration: 0
+    has_position_limits: true
+    max_position: !degrees 180.0
+    min_position: !degrees -180.0
   wrist_3_joint:
     has_velocity_limits: true
     max_velocity: 3.2
     has_acceleration_limits: false
     max_acceleration: 0
+    has_position_limits: true
+    max_position: !degrees 180.0
+    min_position: !degrees -180.0

@@ -4,10 +4,10 @@ base_link: world
 # Note: these parameters are copied from Robotiq gripper without tweaking
 
 object:
-  ideal_grasp_pose: [0, 0, 0, -1.57, 0, 0] # Pose of the TCP to pick the object
+  ideal_grasp_pose: [0, 0, 0, -1.57, 0, 0]  # Pose of the TCP to pick the object
   end_effector_name: end_effector
   object_description: $(find moveit_grasp_b_tools)/urdf/test.urdf
-  initial_pose: [0.5, 0.6, 1.3, 0, 0, 0]
+  initial_pose: [0.6, 0.7, 1.1, 0, 0, 0]
   grasp_point: point_a
   subframes:
     - name: point_a
@@ -34,8 +34,8 @@ object:
   tcp_to_eef_mount_transform: [0, 0, -0.15, 0, 0, 0]
 
 end_effector:
-  end_effector_name: end_effector # ee group name
-  end_effector_type: suction # 'finger' or 'suction'
+  end_effector_name: end_effector  # ee group name
+  end_effector_type: suction  # 'finger' or 'suction'
 
   grasp_depth_resolution: 0.04
 
@@ -50,14 +50,14 @@ end_effector:
   lift_distance_desired: 0.02
 
   # minimum padding on each side of the object on approach
-  grasp_padding_on_approach: 0.005 # meter
+  grasp_padding_on_approach: 0.005  # meter
 
   # Joint names and state values for the end effector.
   # The names should match the values of pregrasp_posture and grasp_posture.
   # These values can be left empty if end_effector_type is 'suction'
-  pregrasp_posture: [] #  open position (not used in suction)
-  grasp_posture: [] #  close position (not used in suction)
-  joints: [] #(not used in suction)
+  pregrasp_posture: []  #  open position (not used in suction)
+  grasp_posture: []  #  close position (not used in suction)
+  joints: []  #(not used in suction)
 
   ##############################
   ##  Finger gripper parameters

@@ -66,9 +66,9 @@ int main(int argc, char *argv[]) {
   stb.sendTransform(st);
 
   ROS_INFO("planner ID = %s \n", mgi.getDefaultPlannerId("arm").c_str());
-  mgi.setPlannerParams(
-      "RRT", "arm", {std::make_pair("goal_bias", "0.8"),
-                     std::make_pair("longest_valid_segment_fraction", "0.1")});
+
+  mgi.setStartStateToCurrentState();
+  mgi_gripper.setStartStateToCurrentState();
   mgi_gripper.setJointValueTarget({0.0});
   mgi_gripper.move();
   mgi.pick(object_description.get_name(), {object_description.ideal_grasp_});

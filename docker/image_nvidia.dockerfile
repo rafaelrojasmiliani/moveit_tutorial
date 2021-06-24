@@ -45,12 +45,13 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o
                     ros-melodic-ros-controllers \
                     ros-melodic-gazebo-ros-control \
                     ros-melodic-joint-trajectory-action \
+                    ros-melodic-rqt-joint-trajectory-plot \
                     ros-melodic-rqt \
                     ros-melodic-rqt-reconfigure \
-                    ros-melodic-rqt-robot-plugins
+                    ros-melodic-rqt-robot-plugins \
+                    exuberant-ctags \
+                    python-matplotlib
 
-
-RUN pip3 install setuptools matplotlib scipy quadpy six cython osrf-pycommon
 
 # user handling
 #add user to sudoers
