@@ -1,0 +1,33 @@
+---
+planning_pipelines:
+  ompl:
+    planning_plugin: ompl_interface/OMPLPlanner
+    request_adapters: default_planner_request_adapters/AddTimeParameterization default_planner_request_adapters/FixWorkspaceBounds
+      default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision
+      default_planner_request_adapters/FixStartStatePathConstraints
+    planner_configs:
+      RRT:
+        type: geometric::RRT
+        range: 0.05
+        goal_bias: 0.8
+      RRTstar:
+        type: geometric::RRTstar
+        range: 0.1
+        goal_bias: 0.1
+        delay_collision_checking: 1
+      RRTConnect:
+        type: geometric::RRTConnect
+        range: 0.5
+    arm:
+      default_planner_config: RRT
+      planner_configs:
+        - RRT  # https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_planners/ompl/ompl_interface/src/ompl_interface.cpp#L136
+        - RRTstar
+        - RRTConnect
+      projection_evaluator: joints(shoulder_pan_joint,shoulder_lift_joint)
+      longest_valid_segment_fraction: 0.001
+    end_effector:
+      planner_configs:
+        - RRT
+      projection_evaluator: joints(gripper_finger1_inner_knuckle_joint,gripper_finger1_finger_tip_joint)
+      longest_valid_segment_fraction: 0.005

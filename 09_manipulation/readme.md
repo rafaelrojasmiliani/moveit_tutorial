@@ -73,4 +73,6 @@ The `GripperTranslation` message defines a translation for the gripper, used in 
 2. Find the feasible grasp candidates (filtering)
 3. Plan motion
 
--
+
+
+# The compute cartesian path function

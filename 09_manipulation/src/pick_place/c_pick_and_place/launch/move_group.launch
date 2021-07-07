@@ -26,5 +26,8 @@
     <param name="planning_scene_monitor/publish_state_updates" value="true"/>
     <param name="planning_scene_monitor/publish_transforms_updates" value="true"/>
     <param name="capabilities" value="move_group/TfPublisher"/>
+    <param name="moveit_controller_manager" value="moveit_simple_controller_manager/MoveItSimpleControllerManager" />
+    <param name="default_planning_pipeline" value="ompl" />
+    <rosparam command="load" file="$(find pick_place_a_pipeline_example)/config/ompl_planning.yaml"/>
   </node>
 </launch>

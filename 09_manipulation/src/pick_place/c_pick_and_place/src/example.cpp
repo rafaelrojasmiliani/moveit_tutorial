@@ -39,6 +39,7 @@ int main(int argc, char *argv[]) {
   geometry_msgs::TransformStamped st;
 
   moveit::planning_interface::MoveGroupInterface mgi("arm");
+  moveit::planning_interface::MoveGroupInterface mgi_gripper("end_effector");
 
   ObjectDescription object_description("object");
   ros::Duration(1).sleep();
@@ -64,7 +65,15 @@ int main(int argc, char *argv[]) {
   st.child_frame_id = "ideal_tcp_pose";
   stb.sendTransform(st);
 
+  ROS_INFO("planner ID = %s \n", mgi.getDefaultPlannerId("arm").c_str());
+
+  mgi.setStartStateToCurrentState();
+  mgi_gripper.setStartStateToCurrentState();
+  mgi_gripper.setJointValueTarget({0.0});
+  mgi_gripper.move();
   mgi.pick(object_description.get_name(), {object_description.ideal_grasp_});
+
+  mgi.detachObject(object_description.get_name());
 
   ros::waitForShutdown();
 }

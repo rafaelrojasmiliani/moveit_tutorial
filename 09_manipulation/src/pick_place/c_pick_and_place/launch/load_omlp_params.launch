@@ -1,0 +1,6 @@
+<launch>
+
+    <group ns="myrobot/move_group">
+    <rosparam command="load" file="$(find pick_place_a_pipeline_example)/config/ompl_planning.yaml"/>
+    </group>
+</launch>

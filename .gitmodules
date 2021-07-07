@@ -10,3 +10,24 @@
 [submodule "common_packages/src/robotiq_85_gripper"]
 	path = common_packages/src/robotiq_85_gripper
 	url = https://github.com/rafaelrojasmiliani/robotiq_85_gripper.git
+[submodule "common_packages/src/moveit/moveit"]
+	path = common_packages/src/moveit/moveit
+	url = https://github.com/ros-planning/moveit.git
+[submodule "common_packages/src/moveit/geometric_shapes"]
+	path = common_packages/src/moveit/geometric_shapes
+	url = https://github.com/ros-planning/geometric_shapes.git
+[submodule "common_packages/src/moveit/moveit_msgs"]
+	path = common_packages/src/moveit/moveit_msgs
+	url = https://github.com/ros-planning/moveit_msgs.git
+[submodule "common_packages/src/moveit/moveit_visual_tools"]
+	path = common_packages/src/moveit/moveit_visual_tools
+	url = https://github.com/ros-planning/moveit_visual_tools.git
+[submodule "common_packages/src/moveit/moveit_grasps"]
+	path = common_packages/src/moveit/moveit_grasps
+	url = https://github.com/ros-planning/moveit_grasps.git
+[submodule "common_packages/src/moveit/rosparam_shortcuts"]
+	path = common_packages/src/moveit/rosparam_shortcuts
+	url = https://github.com/PickNikRobotics/rosparam_shortcuts.git
+[submodule "common_packages/src/moveit/rviz_visual_tools"]
+	path = common_packages/src/moveit/rviz_visual_tools
+	url = https://github.com/PickNikRobotics/rviz_visual_tools.git
