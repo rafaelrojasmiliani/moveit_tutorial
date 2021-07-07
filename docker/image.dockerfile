@@ -76,6 +76,7 @@ WORKDIR /
 
 
 COPY ./vim_installation.bash /
+COPY ./configfiles/vimrc / # used in vim_installation.bash
 RUN cd / && bash vim_installation.bash
 COPY ./configfiles/screenrc /usr/local/etc/screenrc
 COPY ./configfiles/vimrc /etc/vim/
