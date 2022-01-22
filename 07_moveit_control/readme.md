@@ -372,6 +372,7 @@ To return a `ExecutableMotionPlan` the following procedure is done:
 moveit_msgs::MoveItErrorCodes executeAndMonitor(ExecutableMotionPlan& plan, bool reset_preempted = true);
 ```
 This method loops through `ExecutableMotionPlan::plan_components_` [here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/planning/plan_execution/src/plan_execution.cpp#L347) Then
+
 	1. For each plan component it manipulates some hoy the trajectory
     2. Pushed the trajectory into the `TrajectoryExecutionManager` instance `PlanExecution::trajectory_execution_manager_` [here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/planning/plan_execution/src/plan_execution.cpp#L384)
     3. If required, starts `planning_scene_monitor::TrajectoryMonitorPtr` instance `PlanExecution::trajectory_monitor_`
