@@ -382,6 +382,8 @@ This method loops through `ExecutableMotionPlan::plan_components_` [here](https:
       std::bind(&PlanExecution::doneWithTrajectoryExecution, this, std::placeholders::_1),
       std::bind(&PlanExecution::successfulTrajectorySegmentExecution, this, &plan, std::placeholders::_1));
 ```
+5. Once each piece of trajectory is finished, the function `PlanExecution::doneWithTrajectoryExecution` is called.
+5. When all trajectories are done, it calls `PlanExecution::successfulTrajectorySegmentExecution`
 
 ### `PlanExecution::Options` Class
 
