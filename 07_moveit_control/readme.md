@@ -373,15 +373,15 @@ moveit_msgs::MoveItErrorCodes executeAndMonitor(ExecutableMotionPlan& plan, bool
 ```
 This method loops through `ExecutableMotionPlan::plan_components_` [here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/planning/plan_execution/src/plan_execution.cpp#L347) Then
 
-	1. For each plan component it manipulates some hoy the trajectory
-    2. Pushed the trajectory into the `TrajectoryExecutionManager` instance `PlanExecution::trajectory_execution_manager_` [here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/planning/plan_execution/src/plan_execution.cpp#L384)
-    3. If required, starts `planning_scene_monitor::TrajectoryMonitorPtr` instance `PlanExecution::trajectory_monitor_`
-    4. Executes the trajectory [here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/planning/plan_execution/src/plan_execution.cpp#L408)
-    ```C++
+1. For each plan component it manipulates some hoy the trajectory
+2. Pushed the trajectory into the `TrajectoryExecutionManager` instance `PlanExecution::trajectory_execution_manager_` [here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/planning/plan_execution/src/plan_execution.cpp#L384)
+3. If required, starts `planning_scene_monitor::TrajectoryMonitorPtr` instance `PlanExecution::trajectory_monitor_`
+4. Executes the trajectory [here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/planning/plan_execution/src/plan_execution.cpp#L408)
+```C++
   trajectory_execution_manager_->execute(
       std::bind(&PlanExecution::doneWithTrajectoryExecution, this, std::placeholders::_1),
       std::bind(&PlanExecution::successfulTrajectorySegmentExecution, this, &plan, std::placeholders::_1));
-    ```
+```
 
 ### `PlanExecution::Options` Class
 
