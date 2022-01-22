@@ -1,4 +1,4 @@
-# Concepts 
+# Concepts
 
 | Concept | name space |class | task |
 | ------- | -----      | ---- | ---- |
@@ -12,6 +12,9 @@
 | Moveit Simple Controller Manager | `moveit_simple_controller_manager` | `MoveItSimpleControllerManager` | Default controller handler implementation of MoveIt |
 | Action Based Controller Handler | `moveit_simple_controller_manager` | `ActionBasedControllerHandle` | Default MoveIt implementation of Controller handler [see here](https://github.com/ros-planning/moveit/blob/023b11def6329b165ed7509e5de9aec4c1e29c6c/moveit_plugins/moveit_simple_controller_manager/include/moveit_simple_controller_manager/action_based_controller_handle.h#L71) |
 | Follow joint trajectory handler | `moveit_simple_controller_manager` | `FollowJointTrajectoryControllerHandle` | [see here](https://github.com/ros-planning/moveit/blob/023b11def6329b165ed7509e5de9aec4c1e29c6c/moveit_plugins/moveit_simple_controller_manager/include/moveit_simple_controller_manager/follow_joint_trajectory_controller_handle.h#L49) |
+|  Plan Executer | `plan_execution` | `PlanExecution` | [see here](https://github.com/ros-planning/moveit/blob/noetic-devel/moveit_ros/planning/plan_execution/include/moveit/plan_execution/plan_execution.h) [defined here](https://github.com/ros-planning/moveit/blob/noetic-devel/moveit_ros/planning/plan_execution/src/plan_execution.cpp) Constains a  `TrajectoryExecutionManager`|
+|  Plan Representation: Executable trajectory | `plan_execution` | `ExecutableTrajectory` | [declared and definited here](https://github.com/ros-planning/moveit/blob/noetic-devel/moveit_ros/planning/plan_execution/include/moveit/plan_execution/plan_representation.h)  Is a container of `RobotTrajectory`, a collision matrix, a text description, and "effect on success" function and a list with controll names. |
+|  Plan Representation: Executable Motion Plan | `plan_execution` | `ExecutableMotionPlan` | [declared and definited here](https://github.com/ros-planning/moveit/blob/noetic-devel/moveit_ros/planning/plan_execution/include/moveit/plan_execution/plan_representation.h) Contains an array of `ExecutableTrajectory`, a planning scene, a planning scene monitor and a `RobotTrajectory`  |
 
 ## Movegroup context
 
@@ -96,7 +99,7 @@ void TrajectoryExecutionManager::initialize()
   execution_duration_monitoring_ = true;
   execution_velocity_scaling_ = 1.0;
 
-  // load the controller manager plugin with try 
+  // load the controller manager plugin with try
     controller_manager_loader_.reset(new pluginlib::ClassLoader<moveit_controller_manager::MoveItControllerManager>("moveit_core", "moveit_controller_manager::MoveItControllerManager"));
 
   if (controller_manager_loader_)
@@ -163,7 +166,7 @@ void TrajectoryExecutionManager::executeThread(const ExecutionCompleteCallback &
 }
 ```
 
-## Execute part 
+## Execute part
 ```C++
 bool TrajectoryExecutionManager::executePart(std::size_t part_index){
   // 1. Take the trajectory to be executed
@@ -297,7 +300,7 @@ This is an abstract class that defines the functionality needed by `TrajectoryEx
 The default Controller manager is `moveit_simple_controller_manager/MoveItSimpleControllerManager` [declared here](https://github.com/ros-planning/moveit/blob/023b11def6329b165ed7509e5de9aec4c1e29c6c/moveit_plugins/moveit_simple_controller_manager/src/moveit_simple_controller_manager.cpp#L53) and [defined here](https://github.com/ros-planning/moveit/blob/023b11def6329b165ed7509e5de9aec4c1e29c6c/moveit_plugins/moveit_simple_controller_manager/src/moveit_simple_controller_manager.cpp).
 It supports Joint Trajectory Control [has stated here](https://github.com/ros-planning/moveit/blob/023b11def6329b165ed7509e5de9aec4c1e29c6c/moveit_plugins/moveit_simple_controller_manager/src/moveit_simple_controller_manager.cpp#L126)
 
- MoveItControllerHandle 
+ MoveItControllerHandle
  cancelExecution()
  getLastExecutionStatus()
  sendTrajectory(const moveit_msgs::RobotTrajectory & trajectory)
@@ -305,3 +308,86 @@ It supports Joint Trajectory Control [has stated here](https://github.com/ros-pl
      +getName() const
       [members]
      #name_
+
+
+
+# Plan Execution
+
+Moveit Implement the `PlanExecution` class [declared here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/planning/plan_execution/include/moveit/plan_execution/plan_execution.h#L54) and [defined here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/planning/plan_execution/src/plan_execution.cpp#L73) to allow to execute secuences of motion plans represented as `ExecutableMotionPlan` (which has an [array of executable trajectores](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/planning/plan_execution/include/moveit/plan_execution/plan_representation.h#L78) each of then containing specific [controllers](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/planning/plan_execution/include/moveit/plan_execution/plan_representation.h#L69) [robot trajectories](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/planning/plan_execution/include/moveit/plan_execution/plan_representation.h#L64) and [collision matrices](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/planning/plan_execution/include/moveit/plan_execution/plan_representation.h#L67) among other stuff) by handling a `PlanninSceneMonitor` and a `TrajectoryExecutionManager`.
+
+### `PlanExecution::PlanAndExecute`, `PlanExecution::PlanExecuteHelper` and `PlanExecution::executeAndMonitor`
+
+The main function of `PlanExecution` is `PlanAndExecute` defined [here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/planning/plan_execution/src/plan_execution.cpp#L135) and [here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/planning/plan_execution/src/plan_execution.cpp#L142).
+Both implementations of `PlanExecute` are preambles of `PlanExecution::PlanExecuteHelper` defined [here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/planning/plan_execution/src/plan_execution.cpp#L161).
+
+1. First implementation
+```C++
+void planAndExecute(ExecutableMotionPlan& plan, const Options& opt){
+  plan.planning_scene_monitor_ = planning_scene_monitor_;
+  plan.planning_scene_ = planning_scene_monitor_->getPlanningScene();
+  planAndExecuteHelper(plan, opt);
+}
+```
+2. Second implementation: assigns the `plan.planning_scene_` a new planning scene as a `diff`
+```C++
+  void planAndExecute(ExecutableMotionPlan& plan, const moveit_msgs::PlanningScene& scene_diff, const Options& opt){
+  if (moveit::core::isEmpty(scene_diff)){
+    planAndExecute(plan, opt);
+  }else{
+    plan.planning_scene_monitor_ = planning_scene_monitor_;
+    {
+      planning_scene_monitor::LockedPlanningSceneRO lscene(planning_scene_monitor_);  // lock the scene so that it does
+                                                                                      // not modify the world
+                                                                                      // representation while diff() is
+                                                                                      // called
+      plan.planning_scene_ = lscene->diff(scene_diff);
+    }
+    planAndExecuteHelper(plan, opt);
+  }
+}
+}
+```
+
+3. **PlanAndExecuteHelper**:
+
+```C++
+void plan_execution::PlanExecution::planAndExecuteHelper(ExecutableMotionPlan& plan, const Options& opt)
+```
+In a nutshell this method exploits `PlanExecution::Options::plan_callback_` to fill up `ExecutableMotionPlan& plan` and then calls `PlanExecution::executeAndMonitor` to execute the motion. This is done calling `PlanExecution::Options::plan_callback_` with `plan` as argument.
+
+To return a `ExecutableMotionPlan` the following procedure is done:
+1. call `PlanExecution::Options::before_plan_callback_` [here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/planning/plan_execution/src/plan_execution.cpp#L181)
+2. If all is OK call `PlanExecution::Options::plan_callback_` or `PlanExecution::Options::repair_plan_callback_` [here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/planning/plan_execution/src/plan_execution.cpp#L189)
+3. Calls `PlanExecution::Options::before_execution_callback_`
+4. Call `PlanExecution::executeAndMonitor` [here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/planning/plan_execution/src/plan_execution.cpp#L228)
+5.  Call `PlanExecution::Options::done_callback_`. Then it returns `true` or `false` depending on its success.
+
+
+- Examples of `PlanExecution::Options::plan_callback_`
+    - In `MoveGroupPickPlaceAction` move group capability: [here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.cpp#L266) the values is set to [this method](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.cpp#L170). This uses a `pick_place::PickPlace` instance to instantiate a `pick_place::PickPlan` using the `ExecutableMotionPlan::planning_scene_` member of its `ExecutableMotionPlan` argument. After finishing the manipulation plan it fills the members `ExecutableMotionPlan::error_code_`, `ExecutableMotionPlan::plan_components_`
+	- In `MoveGroupMoveAction` [here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/move_group/src/default_capabilities/move_action_capability.cpp#L138) the value is set to [this method](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/move_group/src/default_capabilities/move_action_capability.cpp#L208). This method computes a motion plan from a given request using the current planning pipeline [here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/move_group/src/default_capabilities/move_action_capability.cpp#L227), then initializes and fills `ExecutableMotionPlan::plan_components_` as `plan.plan_components_[0].trajectory_ = res.trajectory_`
+
+4. **executeAndMonitor**
+```C++
+moveit_msgs::MoveItErrorCodes executeAndMonitor(ExecutableMotionPlan& plan, bool reset_preempted = true);
+```
+This method loops through `ExecutableMotionPlan::plan_components_` [here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/planning/plan_execution/src/plan_execution.cpp#L347) Then
+	1. For each plan component it manipulates some hoy the trajectory
+    2. Pushed the trajectory into the `TrajectoryExecutionManager` instance `PlanExecution::trajectory_execution_manager_` [here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/planning/plan_execution/src/plan_execution.cpp#L384)
+    3. If required, starts `planning_scene_monitor::TrajectoryMonitorPtr` instance `PlanExecution::trajectory_monitor_`
+    4. Executes the trajectory [here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/planning/plan_execution/src/plan_execution.cpp#L408)
+    ```C++
+  trajectory_execution_manager_->execute(
+      std::bind(&PlanExecution::doneWithTrajectoryExecution, this, std::placeholders::_1),
+      std::bind(&PlanExecution::successfulTrajectorySegmentExecution, this, &plan, std::placeholders::_1));
+    ```
+
+### `PlanExecution::Options` Class
+
+- `bool replan_`/// Flag indicating whether replanning is allowed
+- `unsigned int replan_attempts_` If replanning is allowed, this variable specifies how many replanning attempts there can be, at most, before/// failure
+- `double replan_delay_` The amount of time to wait in between replanning attempts (in seconds)
+- `ExecutableMotionPlanComputationFn plan_callback_` (with `using ExecutableMotionPlanComputationFn = boost::function<bool(ExecutableMotionPlan&)>` )Callback for computing motion plans. This callback must always be specified.
+- `boost::function<bool(ExecutableMotionPlan& plan_to_update, const std::pair<int, int>& trajectory_index)> repair_plan_callback_` Callback for repairing motion plans. This is optional. A new plan is re-computed if repairing routines are not specified.  To aid in the repair process, the position that the controller had reached in the execution of the previous plan is also passed as argument.  The format is the same as what the `trajectory_execution_manager::TrajectoryExecutionManager` reports: a pair of two integers where the first one is the index of the last trajectory being executed (from the sequence of trajectories specified in the ExecutableMotionPlan) and the second one is the index of the closest waypoint along that trajectory.
+- `boost::function<void()> before_plan_callback_, before_execution_callback_, done_callback_`
+### `PlanExecution` Class
