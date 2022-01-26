@@ -164,6 +164,8 @@ This stage produces a goal state for the arm.
 |                                         | `plan->possible_goal_states_` | `plan->error_code_.val`|
 |                                         | `plan->shared_data_->planning_group_`|  |
 |                                         | `plan->shared_data_->ik_link_` |  |
+|                                         | `plan->approach_posture_` |  |
+|                                         | `plan->retreat_posture_` |  |
 
 
 ### `PlanStage`
