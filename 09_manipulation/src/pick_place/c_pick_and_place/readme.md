@@ -60,7 +60,40 @@ in the following way
     2. Calls `p->plan(planning_scene, goal);` which is defined [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick.cpp#L67)
 
 
+### `PickPlan::plan`
 
+This method is defined [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick.cpp#L67)
+
+1. Set up the allowd plannig time
+2. From [this line](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick.cpp#L74) to [this line](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick.cpp#L119) it handles the existence of end-effectors
+3. Set the link of the arm that will be used to compute the inverse kinematics of the arm [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick.cpp#L120)
+```C++
+const std::string& ik_link = eef->getEndEffectorParentGroup().second;
+```
+
+4. Instantiate and initialize an instance of `ManipulationPlanSharedData` [declared here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/include/moveit/pick_place/manipulation_plan.h#L55)
+5. Configure the collision matrix [from here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick.cpp#L147) [to here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick.cpp#L158)
+6. Initialise a `ManipulationPipeline` ([declared here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/include/moveit/pick_place/manipulation_plan.h#L85) and [defined here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/manipulation_pipeline.cpp#L42))instance
+```C++
+  pipeline_.reset();
+  ManipulationStagePtr stage1(
+      new ReachableAndValidPoseFilter(planning_scene, approach_grasp_acm, pick_place_->getConstraintsSamplerManager()));
+  ManipulationStagePtr stage2(new ApproachAndTranslateStage(planning_scene, approach_grasp_acm));
+  ManipulationStagePtr stage3(new PlanStage(planning_scene, pick_place_->getPlanningPipeline()));
+  pipeline_.addStage(stage1).addStage(stage2).addStage(stage3);
+
+  initialize();
+  pipeline_.start();
+```
+7. Order the possible grasps by quality
+8. For each possible grasp
+    1. [Instantiates](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick.cpp#L182) a `ManipulationPlan` using the `ManipulationPlanSharedData` created in 4.
+    ```C++
+    ManipulationPlanPtr p(new ManipulationPlan(const_plan_data));
+    ```
+
+    2. Set the `ManipulationPlan` members from `Grasp` message
+    3. Push the `ManipulationPlan` into the `ManipulationPipeline` [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick.cpp#L193) by calling [`ManipulationPipeline::push`](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/manipulation_pipeline.cpp#L208)
 
 
 ### From Graps to a Manipulation Plan
