@@ -181,6 +181,31 @@ This stage produces a goal state for the arm.
 |                                         | `plan->shared_data_->planning_group_`|  |
 |                                         | `plan->shared_data_->ik_link_` |  |
 
+
+1. Builds a `MotionPlanRequest`
+```C++
+  planning_interface::MotionPlanRequest req;
+  req.group_name = plan->shared_data_->planning_group_->getName();
+  req.num_planning_attempts = 1;
+  req.allowed_planning_time = (plan->shared_data_->timeout_ - ros::WallTime::now()).toSec();
+  req.path_constraints = plan->shared_data_->path_constraints_;
+  req.planner_id = plan->shared_data_->planner_id_;
+  req.start_state.is_diff = true;
+  req.goal_constraints.resize(1, kinematic_constraints::constructGoalConstraints(*plan->approach_state_,
+                                                                                 plan->shared_data_->planning_group_));
+```
+2. Calls `PlanningPipeline::generatePlan` [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/plan_stage.cpp#L74)
+3. If there is a approach posture of the end-effector, add the posture of the end-effector `plan->approach_posture_` to the last state of the computed trajectory. Insert the trajectory on `plan->trajectories_`
+```C++
+        plan_execution::ExecutableTrajectory et(pre_approach_traj, "pre_grasp");
+        plan->trajectories_.insert(plan->trajectories_.begin(), et);
+```
+
+4. Add the computed trajectories to the plan
+```C++
+      plan_execution::ExecutableTrajectory et(res.trajectory_, name_);
+      plan->trajectories_.insert(plan->trajectories_.begin(), et);
+```
 ### From Graps to a Manipulation Plan
 
 | Type | Graps Message member | Manipulation Plan member     | Use in Reachable and Valid Pose Filter Stage  | Use in Approach and Translate Stage | Use in Plan Stage |
