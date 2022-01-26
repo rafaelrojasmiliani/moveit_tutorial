@@ -3,65 +3,10 @@
 catkin create pkg a_b_moveit_interface --catkin-deps rospy roscpp moveit_core moveit_ros_planning_interface moveit_visual_tools --system-deps Eigen3
 ```
 
-# The MoveIt manipulation tools
+# Pick and place capability
 
+The Pick and Place move-group capability ([declared here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.h#L49) and defined [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.cpp#L42) ) uses the [`pick_place::PickPlace`](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/manipulation/pick_place/include/moveit/pick_place/pick_place.h#L113) implementation of `pick_place::PickPlaceBase` base [declared here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/include/moveit/pick_place/pick_place.h#L53) and [defined here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick_place.cpp) which belogns to the manipulation stack of MoveIt.
 
-
-## Pick and place capability
-
-The Pick and Place move-group capability is declared [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.h#L49) and defined [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.cpp#L42). 
-
-Uses the pick place base [declared here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/include/moveit/pick_place/pick_place.h#L53) and [defined here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick_place.cpp) which belogns to the manipulation stack of MoveIt.
-
-The main components of the grasping mechanism of MoveIt are:
-
-- The pick up action defined [here](http://docs.ros.org/en/kinetic/api/moveit_msgs/html/action/Pickup.html).
-- The Grasp message defined [here](http://docs.ros.org/en/kinetic/api/moveit_msgs/html/msg/Grasp.html)
-- The Gripper Translation message defined [here](http://docs.ros.org/en/kinetic/api/moveit_msgs/html/msg/GripperTranslation.html)
-- The place action defined [here](http://docs.ros.org/en/kinetic/api/moveit_msgs/html/action/Place.html).
-- The Place Location message defined [here](http://docs.ros.org/en/kinetic/api/moveit_msgs/html/msg/PlaceLocation.html).
-
-
-## Grasp message
-
-The [Grasp message](http://docs.ros.org/en/melodic/api/moveit_msgs/html/msg/Grasp.html) contains a description of a grasp that would be used with a particular end-effector to grasp an object.
- It does not contain any "grasp point" (a position ON the object).
- Whatever generates this message should have already combined information about grasp points with information about the geometry of the end-effector to compute the `grasp_pose` in this message.
-This information includes, 
-1. How to approach the object
-2. Hoe to grip it
- A name for this grasp
-
-- `string id` and id.
-- `trajectory_msgs/JointTrajectory pre_grasp_posture` This is used [here](https://github.com/ros-planning/moveit_tutorials/blob/9e2622861cf9e4373b93169a4a7bb853ed3b04d3/doc/pick_place/src/pick_place_tutorial.cpp#L124) to set the joints positions of the hand (only define these joints) that represent the hand opened. It is described as "The internal posture of the hand for the pre-grasp. Only positions are used"
-
-- `trajectory_msgs/JointTrajectory grasp_posture` Is used [here](https://github.com/ros-planning/moveit_tutorials/blob/9e2622861cf9e4373b93169a4a7bb853ed3b04d3/doc/pick_place/src/pick_place_tutorial.cpp#L130) to specify the join configuration that closes the gripper. It is described as "The internal posture of the hand for the grasp. Only positions and efforts are used"
-
-- `geometry_msgs/PoseStamped grasp_pose`  This is the pose of the parent link of the end-effector, **not actually the pose of any link in the end-effector**. 
-
- The estimated probability of success for this grasp, or some other
- measure of how "good" it is.
-float64 grasp_quality
-
- The approach direction to take before picking an object
-GripperTranslation pre_grasp_approach
-
- The retreat direction to take after a grasp has been completed (object is attached)
-GripperTranslation post_grasp_retreat
-
- The retreat motion to perform when releasing the object; this information
- is not necessary for the grasp itself, but when releasing the object,
- the information will be necessary. The grasp used to perform a pickup
- is returned as part of the result, so this information is available for 
- later use.
-GripperTranslation post_place_retreat
-
- the maximum contact force to use while grasping (<=0 to disable)
-float32 max_contact_force
-
- an optional list of obstacles that we have semantic information about
- and that can be touched/pushed/moved in the course of grasping
-string[] allowed_touch_objects
 
 
 [](https://github.com/ros-planning/moveit/blob/46f110491ed9a21c88f89a09f30029ac251d6d94/moveit_ros/manipulation/pick_place/src/pick.cpp#L182)
@@ -116,13 +61,13 @@ string[] allowed_touch_objects
 | `bool` | `minimize_object_distance` | `minimize_object_distance_`|
 | `Constraints` | `path_constraints` | `path_constraints_` |
 | `string` | `planner_id` | `planner_id_` |
-| `string[]` | `allowed_touch_objects` | Used in the collision matrices at the stages | 
+| `string[]` | `allowed_touch_objects` | Used in the collision matrices at the stages |
 | `float64` | `allowed_planning_time` | |
 | `PlanningOptions` | `planning_options` | |
 
 ### Gripper Translation
 
-The Gripper Translation message is defined [here](http://docs.ros.org/en/melodic/api/moveit_msgs/html/msg/GripperTranslation.html). 
+The Gripper Translation message is defined [here](http://docs.ros.org/en/melodic/api/moveit_msgs/html/msg/GripperTranslation.html).
 It defines a translation for the gripper, used in pickup or place tasks for example for lifting an object off a table or approaching the table for placing.
 
 - `direction` of type `geometry_msgs/Vector3Stamped` the direction of the translation
@@ -241,15 +186,15 @@ Uses the auxiliar functions
 
 Declared [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/include/moveit/pick_place/plan_stage.h#L45) and defined [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/plan_stage.cpp#L44).
 
-- [evaluate](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/plan_stage.cpp#L57). 
+- [evaluate](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/plan_stage.cpp#L57).
     1. Generates a plan to `ManipulationPlan::approach_state_`
     2. If `ManipulationPlan::approach_posture_.joint_names` is not empty.
 
 ### PickPlace class
 `PickPlace` inherits from `boost::noncopyable` and `std::enable_shared_from_this<PickPlace>`.
-The inheritance from `enable_shared_from_this` allows to handle this object with several shared pointers and avoid  multiple deallocation attempts. 
+The inheritance from `enable_shared_from_this` allows to handle this object with several shared pointers and avoid  multiple deallocation attempts.
 The `enable_shared_from_this` class has the `shared_from_this` methods, which returns a safe shared pointer to `this`.
-- `PickPlace` instantiates a copy of the `PlanningPipeline` argument, instantiates a `SamplerManagerLoader`  
+- `PickPlace` instantiates a copy of the `PlanningPipeline` argument, instantiates a `SamplerManagerLoader`
 - `displayComputedMotionPlans` instantiates or blocks a `moveit_msgs::DisplayTrajectory` publisher
 - `displayProcessedGrasps` instantiates or bloks a `visualization_msgs::MarkerArray` publisher
 - `planPick(const planning_scene::PlanningSceneConstPtr & planning_scene,const moveit_msgs::PickupGoal & goal) const` defined [here](https://github.com/ros-planning/moveit/blob/46f110491ed9a21c88f89a09f30029ac251d6d94/moveit_ros/manipulation/pick_place/src/pick.cpp#L228). It instantiates a `PickPlan` with `*this` as constructor argument and calls `PickPlan::plan`.
@@ -272,7 +217,7 @@ Its main method is `PickPlan::plan(const planning_scene::PlanningSceneConstPtr& 
  //
  //     a. goal.end_effector.empty() && !goal.group_name.empty())
  //        if we do not have and end-effector, but we have a joint model group,
- //        then take a pointer to such a group from the planning scene 
+ //        then take a pointer to such a group from the planning scene
  //        argument. Then call
  //         robot_model::JointModelGroup::getAttachedEndEffectorNames, and
  //         if it is not empy, asign such an end-eefctor to goal.end_effector.
@@ -308,7 +253,7 @@ Its main method is `PickPlan::plan(const planning_scene::PlanningSceneConstPtr& 
   // 4.1  state1: ReachableAndValidPoseFilter
   // 4.2  state2: ApproachAndTranslateStage
   // 4.3  state3: PlanStage
-  
+
   // 5 Append Stages to the Manipulation pipeline
   pipeline_.addStage(stage1).addStage(stage2).addStage(stage3);
 
@@ -343,6 +288,3 @@ Its main method is `PickPlan::plan(const planning_scene::PlanningSceneConstPtr& 
 
   return error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS;
 ```
-
-
-
