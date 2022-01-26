@@ -54,6 +54,8 @@ in the following way
     ```C++
     PickPlanPtr p(new PickPlan(shared_from_this()));
     ```
+    The function [`shred_fron_this` is described here](https://en.cppreference.com/w/cpp/memory/enable_shared_from_this), [see the inheritance of `PickPlace`](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/include/moveit/pick_place/pick_place.h#L113).
+    The initialization of `PickPlan` is [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick.cpp#L46) and directly class the constructr of `PickPlacePlanBase` [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick_place.cpp#L51)
 
 
 
