@@ -129,12 +129,17 @@ const std::string& ik_link = eef->getEndEffectorParentGroup().second;
 
 [`ReachableAndValidPoseFilter`](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/include/moveit/pick_place/reachable_valid_pose_filter.h#L45) [implements evaluate here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/reachable_valid_pose_filter.cpp#L107).
 
+Uses a [`ConstraintSamplerManager`](https://github.com/ros-planning/moveit/blob/noetic-devel/moveit_core/constraint_samplers/include/moveit/constraint_samplers/constraint_sampler_manager.h) and [selecs the default sampler](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_core/constraint_samplers/src/constraint_sampler_manager.cpp#L56) which is `JointConstraintSampler` [decared here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_core/constraint_samplers/include/moveit/constraint_samplers/default_constraint_samplers.h#L56) and [defined here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_core/constraint_samplers/src/default_constraint_samplers.cpp#L43).
+
 1. Gets the current state of the robot
 
 ```C++
   moveit::core::RobotStatePtr token_state(new moveit::core::RobotState(planning_scene_->getCurrentState()));
 ```
 2. Checs if the end effector is free
+3. [Here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/reachable_valid_pose_filter.cpp#L117) it checks if the `goal_pose_` of the arm link is given in the planning frame. If not, it performs the change of coordinates.
+4. Build the constrains and the sampler and stores in the `ManipulationPlan` input.
+5.
 ```C++
 // initialize with scene state
   moveit::core::RobotStatePtr token_state(new moveit::core::RobotState(planning_scene_->getCurrentState()));
