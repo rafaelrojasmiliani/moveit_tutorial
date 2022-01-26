@@ -15,11 +15,12 @@ This methods calls either [`executePickupCallbackPlanOnly`](https://github.com/r
 ### `executePickupCallbackPlanAndExecute`
 This mehtod constructiona `PlanExecution` objects
 
-| `plan_execution::PlanExecution::Options` | `moveit_msgs::PickupGoal` | `moveit_msgs::Grasp` | Description |
-| --------------------------------------   | ------------------------  | -------------------  | ----------  |
-| `replan_`                                | `planning_options.replan_delay` | | |
-|  `replan_attempts_` | `planning_options.replan_attempts` | | |
-|  `replan_delay_` | `lanning_options.replan_delay`        | | |
+| `plan_execution::PlanExecution::Options` | `moveit_msgs::PickupGoal` | `move_group::MoveGroupPickPlaceAction` method |
+| --------------------------------------   | ------------------------  | -------------------  |
+| `replan_`                                | `planning_options.replan_delay` | |
+|  `replan_attempts_` | `planning_options.replan_attempts` | |
+|  `replan_delay_` | `lanning_options.replan_delay`        | |
+| `plan_callback_` | | `std::bind(&planUsingPickPlacePickup, this, boost::cref(*goal), &action_result, std::placeholders::_1);` |
 ```C++
 void move_group::MoveGroupPickPlaceAction::executePickupCallbackPlanAndExecute(
     const moveit_msgs::PickupGoalConstPtr& goal, moveit_msgs::PickupResult& action_res)
