@@ -161,13 +161,23 @@ This stage produces a goal state for the arm.
 | `planning_scene::PlanningSceneConstPtr` | `const ManipulationPlanPtr& plan` | `plan->approach_` |
 | `AllowedCollisionMatrixConstPtr`        | `plan->approach_.direction` | `plan->retread_` |
 |                                         | `plan->retread_.direction` | `plan->trajectories_`   **main output** |
-|                                         | `plan->possible_goal_states_` | |
-|                                         | `plan->shared_data_->planning_group_`| `plan->error_code_.val` |
+|                                         | `plan->possible_goal_states_` | `plan->error_code_.val`|
+|                                         | `plan->shared_data_->planning_group_`|  |
 |                                         | `plan->shared_data_->ik_link_` |  |
-|                                         | `plan->approach_`|  |
-|                                         | `plan->retreat_`|  |
 
 
+### `PlanStage`
+
+[Declared here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/include/moveit/pick_place/plan_stage.h), [definition of evaluate here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/plan_stage.cpp#L57).
+
+| **Constructor imputs** |  **Imputs of evaluate** |  **Outputs of evaluate** |
+| -----------------  | ------------------- | -------------------  |
+| `planning_scene::PlanningSceneConstPtr` | `const ManipulationPlanPtr& plan` | ` plan->trajectories_` |
+| `PlanningPipeline`                      | `plan->shared_data_->planning_group_` | `plan->retread_` |
+|                                         | `plan->shared_data_->path_constraints_` | `plan->trajectories_`   **main output** |
+|                                         | `plan->shared_data_->planner_id_` | `plan->error_code_.val`|
+|                                         | `plan->shared_data_->planning_group_`|  |
+|                                         | `plan->shared_data_->ik_link_` |  |
 
 ### From Graps to a Manipulation Plan
 
