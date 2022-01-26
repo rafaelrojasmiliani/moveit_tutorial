@@ -119,22 +119,13 @@ const std::string& ik_link = eef->getEndEffectorParentGroup().second;
 
 ### `ReachableAndValidPoseFilter`
 
-- **Constructor imputs**
-    - `planning_scene::PlanningSceneConstPtr`
-    - `collision_detection::AllowedCollisionMatrixConstPtr`
-    - `constraint_samplers::ConstraintSamplerManagerPtr`
-- **Imputs of evaluate**
-    - `const ManipulationPlanPtr& plan`
-    - ` plan->goal_pose_`
-    - `plan->shared_data_->ik_link_`
-    - `plan->shared_data_->planning_group_`
-
-- **Outputs of evaluate**
-    - `plan->goal_pose_`
-    - `plan->goal_constraints_`
-    - `plan->goal_sampler_`
-    - `plan->possible_goal_states_` **main output** (vector of `moveit::core::RobotState`)
-    - `plan->error_code_.val`
+| **Constructor imputs** |  **Imputs of evaluate** |  **Outputs of evaluate** |
+| -----------------  | ------------------- | -------------------  |
+| `planning_scene::PlanningSceneConstPtr` | `const ManipulationPlanPtr& plan` | `plan->goal_pose_` |
+| `collision_detection::AllowedCollisionMatrixConstPtr` | `plan->goal_pose_` | `plan->goal_constraints_` |
+| `constraint_samplers::ConstraintSamplerManagerPtr` | `plan->shared_data_->ik_link_` | `plan->goal_sampler_` |
+| | `plan->shared_data_->planning_group_` | `plan->possible_goal_states_` **main output** (vector of `moveit::core::RobotState`) |
+| | `plan->error_code_.val` |
 
 [`ReachableAndValidPoseFilter`](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/include/moveit/pick_place/reachable_valid_pose_filter.h#L45) [implements evaluate here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/reachable_valid_pose_filter.cpp#L107).
 
