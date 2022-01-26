@@ -38,6 +38,7 @@ This information includes,
 3. How to set the gripper before gripping
 4. How to grip it
 5. How to retread after the object was grasp.
+
 | Message member | Meaning |
 | -------------- | ------- |
 | `string id`  | an id, a name for the grasp.|
