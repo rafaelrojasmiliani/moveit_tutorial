@@ -3,9 +3,12 @@
 catkin create pkg a_b_moveit_interface --catkin-deps rospy roscpp moveit_core moveit_ros_planning_interface moveit_visual_tools --system-deps Eigen3
 ```
 
-# Pick and place capability
+# Pick and place Move Group Capability
 
-The Pick and Place move-group capability ([declared here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.h#L49) and defined [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.cpp#L42) ) uses the [`pick_place::PickPlace`](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/manipulation/pick_place/include/moveit/pick_place/pick_place.h#L113) implementation of `pick_place::PickPlaceBase` base [declared here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/include/moveit/pick_place/pick_place.h#L53) and [defined here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick_place.cpp) which belogns to the manipulation stack of MoveIt.
+The Pick and Place move-group capability ([declared here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.h#L49) and defined [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.cpp#L42) ) computes grasp and place plans using the [`pick_place::PickPlace`](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/manipulation/pick_place/include/moveit/pick_place/pick_place.h#L113) implementation of [`pick_place::PickPlaceBase`](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/include/moveit/pick_place/pick_place.h#L53) and [defined here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick_place.cpp).
+
+In order to build plans, uses the `plan_execution::PlanExecution` instance of the protected `MoveGroupContext` member of `MoveGroupCapability`.
+This is done by translating `moveit_msgs::PickupGoal` members into `plan_execution::PlanExecution::Options` members and setting the members `plan_execution::PlanExecution::Options::plan_callback_`, which will perform the planning.
 
 ## Picking
 
