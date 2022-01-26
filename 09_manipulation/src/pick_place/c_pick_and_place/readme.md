@@ -5,10 +5,12 @@ catkin create pkg a_b_moveit_interface --catkin-deps rospy roscpp moveit_core mo
 
 # Pick and place Move Group Capability
 
-The Pick and Place move-group capability ([declared here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.h#L49) and defined [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.cpp#L42) ) computes grasp and place plans using the [`pick_place::PickPlace`](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/manipulation/pick_place/include/moveit/pick_place/pick_place.h#L113) implementation of [`pick_place::PickPlaceBase`](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/include/moveit/pick_place/pick_place.h#L53) and [defined here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick_place.cpp).
+The Pick and Place move-group capability `MoveGroupPickPlaceAction` ([declared here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.h#L49) and defined [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.cpp#L42) ) computes grasp and place plans using the [`pick_place::PickPlace`](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/manipulation/pick_place/include/moveit/pick_place/pick_place.h#L113) implementation of [`pick_place::PickPlaceBase`](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/include/moveit/pick_place/pick_place.h#L53) and [defined here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick_place.cpp).
 
 In order to build plans, uses the `plan_execution::PlanExecution` instance of the protected `MoveGroupContext` member of `MoveGroupCapability`.
-This is done by translating `moveit_msgs::PickupGoal` members into `plan_execution::PlanExecution::Options` members and setting the members `plan_execution::PlanExecution::Options::plan_callback_`, which will perform the planning.
+	This is done by translating `moveit_msgs::PickupGoal` members into `plan_execution::PlanExecution::Options` members and setting `plan_execution::PlanExecution::Options::plan_callback_` of [a member of `MoveGroupPickPlaceAction`](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.cpp#L170), which will perform the planning and builds an instance of `ExecutableMotionPlan`.
+We underline that this instance of `ExecutableMotionPlan` is used inside `planAndExecute`
+
 
 ## Picking
 
@@ -51,21 +53,25 @@ in the following way
   pick_plan = pick_place_->planPick(plan.planning_scene_, pick_up_goal);
 ```
 
-6. The [`planPick`](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/include/moveit/pick_place/pick_place.h#L140) method [defined here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick.cpp#L230)
-
-    1. Instantiates a `pick_place::PickPlan`
-    ```C++
-    PickPlanPtr p(new PickPlan(shared_from_this()));
-    ```
-    The function [`shred_fron_this` is described here](https://en.cppreference.com/w/cpp/memory/enable_shared_from_this), [see the inheritance of `PickPlace`](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/include/moveit/pick_place/pick_place.h#L113).
-    The initialization of `PickPlan` is [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick.cpp#L46) and directly class the constructr of `PickPlacePlanBase` [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick_place.cpp#L51)
-
-    2. Calls `p->plan(planning_scene, goal);` which is defined [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick.cpp#L67)
+6. If the plan was successful, it translate `ManipulationPlan` into a `ExecutableMotionPlan` from [here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.cpp#L190) to [here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.cpp#L204).
 
 
-### `PickPlan::plan`
+### `PickPlace::planPick` method and `PickPlan::plan`
 
-This method is defined [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick.cpp#L67)
+The [`planPick`](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/include/moveit/pick_place/pick_place.h#L140) method [defined here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick.cpp#L230)
+
+1. Instantiates a `pick_place::PickPlan`
+```C++
+PickPlanPtr p(new PickPlan(shared_from_this()));
+```
+The function [`shred_fron_this` is described here](https://en.cppreference.com/w/cpp/memory/enable_shared_from_this), [see the inheritance of `PickPlace`](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/include/moveit/pick_place/pick_place.h#L113).
+The initialization of `PickPlan` is [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick.cpp#L46) and directly class the constructr of `PickPlacePlanBase` [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick_place.cpp#L51)
+
+2. Calls `p->plan(planning_scene, goal);` which is defined [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick.cpp#L67)
+
+
+
+This `PickPlan::plan` method is defined [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick.cpp#L67)
 
 1. Set up the allowd plannig time
 2. From [this line](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick.cpp#L74) to [this line](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick.cpp#L119) it handles the existence of end-effectors
