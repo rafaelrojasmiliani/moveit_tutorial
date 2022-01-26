@@ -27,42 +27,26 @@ In order to plan how to grasp an object, this method foes what follows
 | `before_execution_callback_` ||  `startPickupExecutionCallback` |
 | `plan_callback_` | | `planUsingPickPlacePickup(action_goal, action_result, std::placeholders::_1);` |
 
-3. computes the plan by calling the protected member [`move_group::MoveGroupContext::plan_execution_`](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/move_group/include/moveit/move_group/move_group_context.h#L83) of `move_group::MoveGroupCapability`  of type `plan_execution::PlanExecutionPtr`.
-
-
+3. computes and executes the plan by calling the protected member [`move_group::MoveGroupContext::plan_execution_`](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/move_group/include/moveit/move_group/move_group_context.h#L83) of `move_group::MoveGroupCapability`  of type `plan_execution::PlanExecutionPtr`.
 ```C++
-void move_group::MoveGroupPickPlaceAction::executePickupCallbackPlanAndExecute(
-    const moveit_msgs::PickupGoalConstPtr& goal, moveit_msgs::PickupResult& action_res)
-{
-  plan_execution::PlanExecution::Options opt;
-
-  opt.replan_ = goal->planning_options.replan;
-  opt.replan_attempts_ = goal->planning_options.replan_attempts;
-  opt.replan_delay_ = goal->planning_options.replan_delay;
-  opt.before_execution_callback_ = std::bind(&MoveGroupPickPlaceAction::startPickupExecutionCallback, this);
-
-  opt.plan_callback_ = std::bind(&MoveGroupPickPlaceAction::planUsingPickPlacePickup, this, boost::cref(*goal),
-                                 &action_res, std::placeholders::_1);
-  if (goal->planning_options.look_around && context_->plan_with_sensing_)
-  {
-    opt.plan_callback_ =
-        std::bind(&plan_execution::PlanWithSensing::computePlan, context_->plan_with_sensing_.get(),
-                  std::placeholders::_1, opt.plan_callback_, goal->planning_options.look_around_attempts,
-                  goal->planning_options.max_safe_execution_cost);
-    context_->plan_with_sensing_->setBeforeLookCallback(
-        std::bind(&MoveGroupPickPlaceAction::startPickupLookCallback, this));
-  }
-
-  plan_execution::ExecutableMotionPlan plan;
   context_->plan_execution_->planAndExecute(plan, goal->planning_options.planning_scene_diff, opt);
-
-  convertToMsg(plan.plan_components_, action_res.trajectory_start, action_res.trajectory_stages);
-  action_res.trajectory_descriptions.resize(plan.plan_components_.size());
-  for (std::size_t i = 0; i < plan.plan_components_.size(); ++i)
-    action_res.trajectory_descriptions[i] = plan.plan_components_[i].description_;
-  action_res.error_code = plan.error_code_;
-}
 ```
+Note that this **returns an ExecutablePlan**.
+4. `startPickupExecutionCallback` only set the state of the action
+5. [`planUsingPickPlacePickup`](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.cpp#L168) Tries to compute the plan using its `pick_place::PickPlace` instance `pick_place_` initialized as
+```C++
+  pick_place_.reset(new pick_place::PickPlace(context_->planning_pipeline_));
+  pick_place_->displayComputedMotionPlans(true);
+
+  if (context_->debug_)
+    pick_place_->displayProcessedGrasps(true);
+```
+in the following way
+```C++
+  pick_place::PickPlanPtr pick_plan;
+  pick_plan = pick_place_->planPick(plan.planning_scene_, goal);
+```
+
 
 
 
