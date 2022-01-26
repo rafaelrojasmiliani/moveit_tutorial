@@ -119,6 +119,8 @@ const std::string& ik_link = eef->getEndEffectorParentGroup().second;
 
 ### `ReachableAndValidPoseFilter`
 
+This stage produces a goal state for the arm.
+
 | **Constructor imputs** |  **Imputs of evaluate** |  **Outputs of evaluate** |
 | -----------------  | ------------------- | -------------------  |
 | `planning_scene::PlanningSceneConstPtr` | `const ManipulationPlanPtr& plan` | `plan->goal_pose_` |
@@ -129,7 +131,8 @@ const std::string& ik_link = eef->getEndEffectorParentGroup().second;
 
 [`ReachableAndValidPoseFilter`](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/include/moveit/pick_place/reachable_valid_pose_filter.h#L45) [implements evaluate here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/reachable_valid_pose_filter.cpp#L107).
 
-Uses a [`ConstraintSamplerManager`](https://github.com/ros-planning/moveit/blob/noetic-devel/moveit_core/constraint_samplers/include/moveit/constraint_samplers/constraint_sampler_manager.h) and [selecs the default sampler](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_core/constraint_samplers/src/constraint_sampler_manager.cpp#L56) which is `JointConstraintSampler` [decared here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_core/constraint_samplers/include/moveit/constraint_samplers/default_constraint_samplers.h#L56) and [defined here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_core/constraint_samplers/src/default_constraint_samplers.cpp#L43).
+- **Remark** this method uses a [`ConstraintSamplerManager`](https://github.com/ros-planning/moveit/blob/noetic-devel/moveit_core/constraint_samplers/include/moveit/constraint_samplers/constraint_sampler_manager.h) and [selecs the default sampler](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_core/constraint_samplers/src/constraint_sampler_manager.cpp#L56) which is `JointConstraintSampler` [decared here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_core/constraint_samplers/include/moveit/constraint_samplers/default_constraint_samplers.h#L56) and [defined here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_core/constraint_samplers/src/default_constraint_samplers.cpp#L43) with `sample` method [defined here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_core/constraint_samplers/src/default_constraint_samplers.cpp#L150)
+
 
 1. Gets the current state of the robot
 
@@ -139,51 +142,33 @@ Uses a [`ConstraintSamplerManager`](https://github.com/ros-planning/moveit/blob/
 2. Checs if the end effector is free
 3. [Here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/reachable_valid_pose_filter.cpp#L117) it checks if the `goal_pose_` of the arm link is given in the planning frame. If not, it performs the change of coordinates.
 4. Build the constrains and the sampler and stores in the `ManipulationPlan` input.
-5.
+5. Samples a goal state with the sampler and stores it in `token_state` [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/reachable_valid_pose_filter.cpp#L138)
 ```C++
-// initialize with scene state
-  moveit::core::RobotStatePtr token_state(new moveit::core::RobotState(planning_scene_->getCurrentState()));
-  if (isEndEffectorFree(plan, *token_state))
-  {
-    // update the goal pose message if anything has changed; this is because the name of the frame in the input goal
-    // pose
-    // can be that of objects in the collision world but most components are unaware of those transforms,
-    // so we convert to a frame that is certainly known
-    if (!moveit::core::Transforms::sameFrame(planning_scene_->getPlanningFrame(), plan->goal_pose_.header.frame_id))
-    {
-      plan->goal_pose_.pose = tf2::toMsg(plan->transformed_goal_pose_);
-      plan->goal_pose_.header.frame_id = planning_scene_->getPlanningFrame();
-    }
-
-    // convert the pose we want to reach to a set of constraints
-    plan->goal_constraints_ =
-        kinematic_constraints::constructGoalConstraints(plan->shared_data_->ik_link_->getName(), plan->goal_pose_);
-
-    const std::string& planning_group = plan->shared_data_->planning_group_->getName();
-
-    // construct a sampler for the specified constraints; this can end up calling just IK, but it is more general
-    // and allows for robot-specific samplers, producing samples that also change the base position if needed, etc
-    plan->goal_sampler_ =
-        constraints_sampler_manager_->selectSampler(planning_scene_, planning_group, plan->goal_constraints_);
-    if (plan->goal_sampler_)
-    {
-      plan->goal_sampler_->setGroupStateValidityCallback(boost::bind(
-          &isStateCollisionFree, planning_scene_.get(), collision_matrix_.get(), verbose_, plan.get(), _1, _2, _3));
-      plan->goal_sampler_->setVerbose(verbose_);
       if (plan->goal_sampler_->sample(*token_state, plan->shared_data_->max_goal_sampling_attempts_))
       {
         plan->possible_goal_states_.push_back(token_state);
         return true;
       }
-      else if (verbose_)
-        ROS_INFO_NAMED("manipulation", "Sampler failed to produce a state");
-    }
-    else
-      ROS_ERROR_THROTTLE_NAMED(1, "manipulation", "No sampler was constructed");
-  }
-  plan->error_code_.val = moveit_msgs::MoveItErrorCodes::GOAL_IN_COLLISION;
-  return false;
 ```
+
+
+### `ApproachAndTranslateStage`
+
+[Declared here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/include/moveit/pick_place/approach_and_translate_stage.h#L45) [implemented here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/approach_and_translate_stage.cpp#L46) [implementes evaluate here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/approach_and_translate_stage.cpp#L196).
+
+| **Constructor imputs** |  **Imputs of evaluate** |  **Outputs of evaluate** |
+| -----------------  | ------------------- | -------------------  |
+| `planning_scene::PlanningSceneConstPtr` | `const ManipulationPlanPtr& plan` | `plan->approach_` |
+| `AllowedCollisionMatrixConstPtr`        | `plan->approach_.direction` | `plan->retread_` |
+|                                         | `plan->retread_.direction` | `plan->trajectories_`   **main output** |
+|                                         | `plan->possible_goal_states_` | |
+|                                         | `plan->shared_data_->planning_group_`| `plan->error_code_.val` |
+|                                         | `plan->shared_data_->ik_link_` |  |
+|                                         | `plan->approach_`|  |
+|                                         | `plan->retreat_`|  |
+
+
+
 ### From Graps to a Manipulation Plan
 
 | Type | Graps Message member | Manipulation Plan member     | Use in Reachable and Valid Pose Filter Stage  | Use in Approach and Translate Stage | Use in Plan Stage |
