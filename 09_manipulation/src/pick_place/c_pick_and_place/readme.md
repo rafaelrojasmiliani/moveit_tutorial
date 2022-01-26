@@ -8,16 +8,24 @@ catkin create pkg a_b_moveit_interface --catkin-deps rospy roscpp moveit_core mo
 The Pick and Place move-group capability `MoveGroupPickPlaceAction` ([declared here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.h#L49) and defined [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.cpp#L42) ) computes grasp and place plans using the [`pick_place::PickPlace`](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/manipulation/pick_place/include/moveit/pick_place/pick_place.h#L113) implementation of [`pick_place::PickPlaceBase`](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/include/moveit/pick_place/pick_place.h#L53) and [defined here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick_place.cpp).
 
 In order to build plans, uses the `plan_execution::PlanExecution` instance of the protected `MoveGroupContext` member of `MoveGroupCapability`.
-	This is done by translating `moveit_msgs::PickupGoal` members into `plan_execution::PlanExecution::Options` members and setting `plan_execution::PlanExecution::Options::plan_callback_` of [a member of `MoveGroupPickPlaceAction`](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.cpp#L170), which will perform the planning and builds an instance of `ExecutableMotionPlan`.
-We underline that this instance of `ExecutableMotionPlan` is used inside `planAndExecute`
+	This is done by translating `moveit_msgs::PickupGoal` members into `plan_execution::PlanExecution::Options` members and setting `plan_execution::PlanExecution::Options::plan_callback_` of [a member of `MoveGroupPickPlaceAction`](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.cpp#L170) that injects the `PickupGoal` parameters into the manipulation stack, performs the planning and builds an instance of `ExecutableMotionPlan`.
+We underline that this instance of `ExecutableMotionPlan` is used inside `planAndExecute`.
+
+The instance of `ExecutableMotionPlan` is constructed from the `ManipulationPlan` instance that is computed by the manipulation planning stack.
+The Move It manipulation planning stack is based in the following concepts
+
+- **Manipulation Pipeline** [declared here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/include/moveit/pick_place/manipulation_plan.h#L85) and [defined here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/manipulation_pipeline.cpp#L42) implements a parallel solver of **Manipulation Stages**
+
+- **Manipulation Stage** are implementaiton of the pure virtual class [`ManipulationStage`](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/include/moveit/pick_place/manipulation_stage.h#L47) that implements the [`virtual bool evaluate(const ManipulationPlanPtr& plan) const`](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/include/moveit/pick_place/manipulation_stage.h#L78) method.
 
 
-## Picking
+
+## Picking in detail
 
 The move group pick and place capability implemets the [Pickup Action](http://docs.ros.org/en/noetic/api/moveit_msgs/html/action/Pickup.html) with [this callback](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.cpp#L319).
 This methods calls either [`executePickupCallbackPlanOnly`](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.cpp#L90) or [`executePickupCallbackPlanAndExecute`](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.cpp#L256) depending on the request.
 
-### `executePickupCallbackPlanAndExecute`
+### Move group capability part `executePickupCallbackPlanAndExecute` (returns a `ExecutableMotionPlan`)
 
 In order to plan how to grasp an object, this method foes what follows
 
@@ -51,12 +59,14 @@ in the following way
 ```C++
   pick_place::PickPlanPtr pick_plan;
   pick_plan = pick_place_->planPick(plan.planning_scene_, pick_up_goal);
+  if (pick_plan)
+    const std::vector<pick_place::ManipulationPlanPtr>& success = pick_plan->getSuccessfulManipulationPlans();
 ```
 
 6. If the plan was successful, it translate `ManipulationPlan` into a `ExecutableMotionPlan` from [here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.cpp#L190) to [here](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.cpp#L204).
 
 
-### `PickPlace::planPick` method and `PickPlan::plan`
+### Manipulation stack part: `PickPlace::planPick` method and `PickPlan::plan` (returns a `ManipulationPlan`)
 
 The [`planPick`](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/include/moveit/pick_place/pick_place.h#L140) method [defined here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick.cpp#L230)
 
