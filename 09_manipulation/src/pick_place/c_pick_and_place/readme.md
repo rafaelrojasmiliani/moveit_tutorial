@@ -25,13 +25,14 @@ In order to plan how to grasp an object, this method foes what follows
 |  `replan_attempts_` | `planning_options.replan_attempts` | |
 |  `replan_delay_` | `lanning_options.replan_delay`        | |
 | `before_execution_callback_` ||  `startPickupExecutionCallback` |
-| `plan_callback_` | | `planUsingPickPlacePickup(action_goal, action_result, std::placeholders::_1);` |
+| `plan_callback_` | | `planUsingPickPlacePickup(pick_up_action_goal, action_result, std::placeholders::_1);` |
 
 3. computes and executes the plan by calling the protected member [`move_group::MoveGroupContext::plan_execution_`](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/move_group/include/moveit/move_group/move_group_context.h#L83) of `move_group::MoveGroupCapability`  of type `plan_execution::PlanExecutionPtr`.
 ```C++
-  context_->plan_execution_->planAndExecute(plan, goal->planning_options.planning_scene_diff, opt);
+  context_->plan_execution_->planAndExecute(plan, pick_up_goal->planning_options.planning_scene_diff, opt);
 ```
 Note that this **returns an ExecutablePlan**.
+
 4. `startPickupExecutionCallback` only set the state of the action
 5. [`planUsingPickPlacePickup`](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.cpp#L168) Tries to compute the plan using its `pick_place::PickPlace` instance `pick_place_` initialized as
 ```C++
@@ -44,8 +45,15 @@ Note that this **returns an ExecutablePlan**.
 in the following way
 ```C++
   pick_place::PickPlanPtr pick_plan;
-  pick_plan = pick_place_->planPick(plan.planning_scene_, goal);
+  pick_plan = pick_place_->planPick(plan.planning_scene_, pick_up_goal);
 ```
+
+6. The [`planPick`](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/include/moveit/pick_place/pick_place.h#L140) method [defined here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick.cpp#L230)
+
+    1. Instantiates a `pick_place::PickPlan`
+    ```C++
+    PickPlanPtr p(new PickPlan(shared_from_this()));
+    ```
 
 
 
