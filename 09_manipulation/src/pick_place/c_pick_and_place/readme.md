@@ -20,7 +20,7 @@ This mehtod constructiona `PlanExecution` objects
 | `replan_`                                | `planning_options.replan_delay` | |
 |  `replan_attempts_` | `planning_options.replan_attempts` | |
 |  `replan_delay_` | `lanning_options.replan_delay`        | |
-| `plan_callback_` | | `std::bind(&planUsingPickPlacePickup, this, boost::cref(*goal), &action_result, std::placeholders::_1);` |
+| `plan_callback_` | | `planUsingPickPlacePickup(action_goal, action_result, std::placeholders::_1);` |
 ```C++
 void move_group::MoveGroupPickPlaceAction::executePickupCallbackPlanAndExecute(
     const moveit_msgs::PickupGoalConstPtr& goal, moveit_msgs::PickupResult& action_res)
