@@ -7,9 +7,53 @@ catkin create pkg a_b_moveit_interface --catkin-deps rospy roscpp moveit_core mo
 
 The Pick and Place move-group capability ([declared here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.h#L49) and defined [here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.cpp#L42) ) uses the [`pick_place::PickPlace`](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/manipulation/pick_place/include/moveit/pick_place/pick_place.h#L113) implementation of `pick_place::PickPlaceBase` base [declared here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/include/moveit/pick_place/pick_place.h#L53) and [defined here](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/manipulation/pick_place/src/pick_place.cpp) which belogns to the manipulation stack of MoveIt.
 
+## Picking
 
+The move group pick and place capability implemets the [Pickup Action](http://docs.ros.org/en/noetic/api/moveit_msgs/html/action/Pickup.html) with [this callback](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.cpp#L319).
+This methods calls either [`executePickupCallbackPlanOnly`](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.cpp#L90) or [`executePickupCallbackPlanAndExecute`](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.cpp#L256) depending on the request.
 
-[](https://github.com/ros-planning/moveit/blob/46f110491ed9a21c88f89a09f30029ac251d6d94/moveit_ros/manipulation/pick_place/src/pick.cpp#L182)
+### `executePickupCallbackPlanAndExecute`
+This mehtod constructiona `PlanExecution` objects
+
+| `plan_execution::PlanExecution::Options` | `moveit_msgs::PickupGoal` | `moveit_msgs::Grasp` | Description |
+| --------------------------------------   | ------------------------  | -------------------  | ----------  |
+| `replan_`                                | `planning_options.replan_delay` | | |
+|  `replan_attempts_` | `planning_options.replan_attempts` | | |
+|  `replan_delay_` | `lanning_options.replan_delay`        | | |
+```C++
+void move_group::MoveGroupPickPlaceAction::executePickupCallbackPlanAndExecute(
+    const moveit_msgs::PickupGoalConstPtr& goal, moveit_msgs::PickupResult& action_res)
+{
+  plan_execution::PlanExecution::Options opt;
+
+  opt.replan_ = goal->planning_options.replan;
+  opt.replan_attempts_ = goal->planning_options.replan_attempts;
+  opt.replan_delay_ = goal->planning_options.replan_delay;
+  opt.before_execution_callback_ = std::bind(&MoveGroupPickPlaceAction::startPickupExecutionCallback, this);
+
+  opt.plan_callback_ = std::bind(&MoveGroupPickPlaceAction::planUsingPickPlacePickup, this, boost::cref(*goal),
+                                 &action_res, std::placeholders::_1);
+  if (goal->planning_options.look_around && context_->plan_with_sensing_)
+  {
+    opt.plan_callback_ =
+        std::bind(&plan_execution::PlanWithSensing::computePlan, context_->plan_with_sensing_.get(),
+                  std::placeholders::_1, opt.plan_callback_, goal->planning_options.look_around_attempts,
+                  goal->planning_options.max_safe_execution_cost);
+    context_->plan_with_sensing_->setBeforeLookCallback(
+        std::bind(&MoveGroupPickPlaceAction::startPickupLookCallback, this));
+  }
+
+  plan_execution::ExecutableMotionPlan plan;
+  context_->plan_execution_->planAndExecute(plan, goal->planning_options.planning_scene_diff, opt);
+
+  convertToMsg(plan.plan_components_, action_res.trajectory_start, action_res.trajectory_stages);
+  action_res.trajectory_descriptions.resize(plan.plan_components_.size());
+  for (std::size_t i = 0; i < plan.plan_components_.size(); ++i)
+    action_res.trajectory_descriptions[i] = plan.plan_components_[i].description_;
+  action_res.error_code = plan.error_code_;
+}
+```
+
 
 
 ### From Graps to a Manipulation Plan
