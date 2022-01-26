@@ -13,7 +13,11 @@ The move group pick and place capability implemets the [Pickup Action](http://do
 This methods calls either [`executePickupCallbackPlanOnly`](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.cpp#L90) or [`executePickupCallbackPlanAndExecute`](https://github.com/ros-planning/moveit/blob/920eae6742cc5af2349349a2eac57d5a19bee7f5/moveit_ros/manipulation/move_group_pick_place_capability/src/pick_place_action_capability.cpp#L256) depending on the request.
 
 ### `executePickupCallbackPlanAndExecute`
-This mehtod constructiona `PlanExecution` objects
+
+In order to plan how to grasp an object, this method foes what follows
+
+1. creates an instance of `plan_execution::PlanExecution::Options`,
+2. initializes its values
 
 | `plan_execution::PlanExecution::Options` | `moveit_msgs::PickupGoal` | `move_group::MoveGroupPickPlaceAction` method |
 | --------------------------------------   | ------------------------  | -------------------  |
@@ -22,6 +26,10 @@ This mehtod constructiona `PlanExecution` objects
 |  `replan_delay_` | `lanning_options.replan_delay`        | |
 | `before_execution_callback_` ||  `startPickupExecutionCallback` |
 | `plan_callback_` | | `planUsingPickPlacePickup(action_goal, action_result, std::placeholders::_1);` |
+
+3. computes the plan by calling the protected member [`move_group::MoveGroupContext::plan_execution_`](https://github.com/ros-planning/moveit/blob/3361b2d1b6b2feabc2d3e93c75653f5a00e87fa4/moveit_ros/move_group/include/moveit/move_group/move_group_context.h#L83) of `move_group::MoveGroupCapability`  of type `plan_execution::PlanExecutionPtr`.
+
+
 ```C++
 void move_group::MoveGroupPickPlaceAction::executePickupCallbackPlanAndExecute(
     const moveit_msgs::PickupGoalConstPtr& goal, moveit_msgs::PickupResult& action_res)
