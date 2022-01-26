@@ -42,8 +42,8 @@ This information includes,
 | Message member | Meaning |
 | -------------- | ------- |
 | `string id`  | an id, a name for the grasp.|
-| `trajectory_msgs/JointTrajectory pre_grasp_posture` | This is used [here](https://github.com/ros|planning/moveit_tutorials/blob/9e2622861cf9e4373b93169a4a7bb853ed3b04d3/doc/pick_place/src/pick_place_tutorial.cpp#L124) to set the joints positions of the hand (only define these joints) that represent the hand opened. It is described as "The internal posture of the hand for the pre|grasp. Only positions are used"|
-| `trajectory_msgs/JointTrajectory grasp_posture` |Is used [here](https://github.com/ros|planning/moveit_tutorials/blob/9e2622861cf9e4373b93169a4a7bb853ed3b04d3/doc/pick_place/src/pick_place_tutorial.cpp#L130) to specify the join configuration that closes the gripper. It is described as "The internal posture of the hand for the grasp. Only positions and efforts are used"|
+| `trajectory_msgs/JointTrajectory pre_grasp_posture` | This is used [here](https://github.com/ros-planning/moveit_tutorials/blob/9e2622861cf9e4373b93169a4a7bb853ed3b04d3/doc/pick_place/src/pick_place_tutorial.cpp#L124) to set the joints positions of the hand (only define these joints) that represent the hand opened. It is described as "The internal posture of the hand for the pre|grasp. Only positions are used"|
+| `trajectory_msgs/JointTrajectory grasp_posture` |Is used [here](https://github.com/ros-planning/moveit_tutorials/blob/9e2622861cf9e4373b93169a4a7bb853ed3b04d3/doc/pick_place/src/pick_place_tutorial.cpp#L130) to specify the join configuration that closes the gripper. It is described as "The internal posture of the hand for the grasp. Only positions and efforts are used"|
 | `geometry_msgs/PoseStamped grasp_pose` | This is the pose of the parent link of the end|effector, **not actually the pose of any link in the end|effector**.|
 | `float64 grasp_quality` | The estimated probability of success for this grasp, or some other measure of how "good" it is.|
 | `GripperTranslation pre_grasp_approach` | approach direction to take before picking an object|
