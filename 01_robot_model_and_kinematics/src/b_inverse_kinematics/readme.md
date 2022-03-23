@@ -1,4 +1,18 @@
+# Moveit Kinematics
 
+## Moveit Inverse kinematics
+
+The main functions is [`RobotState::setFromIK`](https://github.com/ros-planning/moveit/blob/9271e6a2edbeed291b7c713f55000bbc59d37b9e/moveit_core/robot_state/src/robot_state.cpp#L1574) which calls [`KinematicsBase::searchPositionIK`](https://github.com/ros-planning/moveit/blob/f2cc2348de83557a5704cc0f8670413f37a7855d/moveit_core/kinematics_base/include/moveit/kinematics_base/kinematics_base.h#L211) [here](https://github.com/ros-planning/moveit/blob/9271e6a2edbeed291b7c713f55000bbc59d37b9e/moveit_core/robot_state/src/robot_state.cpp#L1795).
+```mermaid
+graph TD;
+    RS[Robot State Representation];
+    RS -- implemenets --> SFIK[`setFromIK`];
+	G[`JointModelGroup`] -- is argument of --> SFIK;
+	P[`geometry_msgs::Pose`] -- is argument of --> SFIK;
+	IKQ[`std::vector<geometry_msgs::Pose> ik_queries`] -- is argument of --> SPIK;
+	SPIK[`KinematicsBase::searchPositionIK`]
+	
+```
 - [kinematic base plugin](https://github.com/ros-planning/moveit/blob/f2cc2348de83557a5704cc0f8670413f37a7855d/moveit_core/kinematics_base/include/moveit/kinematics_base/kinematics_base.h#L146)
 
 | Kinematic base method | type | use |
