@@ -169,11 +169,17 @@ bool KDLKinematicsPlugin::getPositionFK(const std::vector<std::string>& link_nam
 
 ### Inverse Kinematics
 
-The inverse kinematics is defined [here](https://github.com/ros-planning/moveit/blob/f2cc2348de83557a5704cc0f8670413f37a7855d/moveit_kinematics/kdl_kinematics_plugin/src/kdl_kinematics_plugin.cpp#L316) and it uses the auxiliar function [`CartToJnt`](https://github.com/ros-planning/moveit/blob/f2cc2348de83557a5704cc0f8670413f37a7855d/moveit_kinematics/kdl_kinematics_plugin/src/kdl_kinematics_plugin.cpp#L422).
+The inverse kinematics is defined [here](https://github.com/ros-planning/moveit/blob/f2cc2348de83557a5704cc0f8670413f37a7855d/moveit_kinematics/kdl_kinematics_plugin/src/kdl_kinematics_plugin.cpp#L316).
+It uses the auxiliar function [`CartToJnt`](https://github.com/ros-planning/moveit/blob/f2cc2348de83557a5704cc0f8670413f37a7855d/moveit_kinematics/kdl_kinematics_plugin/src/kdl_kinematics_plugin.cpp#L422),  the auxiliar class `ChainIkSolverVelMimicSVD` (declared [here](https://github.com/ros-planning/moveit/blob/9271e6a2edbeed291b7c713f55000bbc59d37b9e/moveit_kinematics/kdl_kinematics_plugin/include/moveit/kdl_kinematics_plugin/chainiksolver_vel_mimic_svd.hpp#L46) and its method [`ChainIkSolverVelMimicSVD::CartToJnt`](https://github.com/ros-planning/moveit/blob/9271e6a2edbeed291b7c713f55000bbc59d37b9e/moveit_kinematics/kdl_kinematics_plugin/src/chainiksolver_vel_mimic_svd.cpp#L87).
+
+The class `ChainIkSolverVelMimicSVD` inherits from [`KDL::ChainIkSolverVel`](https://github.com/orocos/orocos_kinematics_dynamics/blob/6ed703443b093ea65c9e7bff31b84c438e0b197f/orocos_kdl/src/chainiksolver.hpp#L66), implements the SVD [here in `ChainIkSolverVelMimicSVD::CartToJnt`](https://github.com/ros-planning/moveit/blob/9271e6a2edbeed291b7c713f55000bbc59d37b9e/moveit_kinematics/kdl_kinematics_plugin/src/chainiksolver_vel_mimic_svd.cpp#L117) and initializes an instance of `Eigen::JacobiSVD<Eigen::MatrixXd>` [here](https://github.com/ros-planning/moveit/blob/9271e6a2edbeed291b7c713f55000bbc59d37b9e/moveit_kinematics/kdl_kinematics_plugin/src/chainiksolver_vel_mimic_svd.cpp#L53).
+
 It uses [`clipToJointLimits`](https://github.com/ros-planning/moveit/blob/f2cc2348de83557a5704cc0f8670413f37a7855d/moveit_kinematics/kdl_kinematics_plugin/src/kdl_kinematics_plugin.cpp#L503).
 
-It implements `ChainIkSolverVelMimicSVD` (declared [here](https://github.com/ros-planning/moveit/blob/9271e6a2edbeed291b7c713f55000bbc59d37b9e/moveit_kinematics/kdl_kinematics_plugin/include/moveit/kdl_kinematics_plugin/chainiksolver_vel_mimic_svd.hpp#L46) and ) .
-It inherits from [`KDL::ChainIkSolverVel`](https://github.com/orocos/orocos_kinematics_dynamics/blob/6ed703443b093ea65c9e7bff31b84c438e0b197f/orocos_kdl/src/chainiksolver.hpp#L66).
+
+
+- `KDL::Jacobian` [declared here](https://github.com/orocos/orocos_kinematics_dynamics/blob/6ed703443b093ea65c9e7bff31b84c438e0b197f/orocos_kdl/src/jacobian.hpp#L36) and [defined here](https://github.com/orocos/orocos_kinematics_dynamics/blob/6ed703443b093ea65c9e7bff31b84c438e0b197f/orocos_kdl/src/jacobian.cpp#L28).
+
 
 [here](https://github.com/ros-planning/moveit/blob/f2cc2348de83557a5704cc0f8670413f37a7855d/moveit_kinematics/kdl_kinematics_plugin/src/kdl_kinematics_plugin.cpp#L366)
 
