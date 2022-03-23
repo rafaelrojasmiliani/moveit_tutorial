@@ -8,6 +8,7 @@
 | `getPositionFK` | VIRTUAL | computes forward kinematics |
 | `getJointNames` | virtual | Return all the joint names in the order they are used internally |
 | `getLinkNames`  | virtual | Return all the joint names in the order they are used internally |
+| `setValues`     |         | [here](https://github.com/ros-planning/moveit/blob/f2cc2348de83557a5704cc0f8670413f37a7855d/moveit_core/kinematics_base/src/kinematics_base.cpp#L70)  <br/>|
 
 
 
