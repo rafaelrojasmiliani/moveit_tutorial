@@ -2,7 +2,7 @@
 
 ## Moveit Inverse kinematics
 
-The main functions is [`RobotState::setFromIK`](https://github.com/ros-planning/moveit/blob/9271e6a2edbeed291b7c713f55000bbc59d37b9e/moveit_core/robot_state/src/robot_state.cpp#L1574) which calls [`KinematicsBase::searchPositionIK`](https://github.com/ros-planning/moveit/blob/f2cc2348de83557a5704cc0f8670413f37a7855d/moveit_core/kinematics_base/include/moveit/kinematics_base/kinematics_base.h#L211) [here](https://github.com/ros-planning/moveit/blob/9271e6a2edbeed291b7c713f55000bbc59d37b9e/moveit_core/robot_state/src/robot_state.cpp#L1795).
+The main functions is [`RobotState::setFromIK`](https://github.com/ros-planning/moveit/blob/9271e6a2edbeed291b7c713f55000bbc59d37b9e/moveit_core/robot_state/src/robot_state.cpp#L1574) which calls [`KinematicsBase::searchPositionIK`](https://github.com/ros-planning/moveit/blob/f2cc2348de83557a5704cc0f8670413f37a7855d/moveit_core/kinematics_base/include/moveit/kinematics_base/kinematics_base.h#L297) [here](https://github.com/ros-planning/moveit/blob/9271e6a2edbeed291b7c713f55000bbc59d37b9e/moveit_core/robot_state/src/robot_state.cpp#L1795).
 ```mermaid
 graph TD;
     RS[Robot State Representation];
@@ -10,7 +10,11 @@ graph TD;
 	G[`JointModelGroup`] -- is argument of --> SFIK;
 	P[`geometry_msgs::Pose`] -- is argument of --> SFIK;
 	IKQ[`std::vector<geometry_msgs::Pose> ik_queries`] -- is argument of --> SPIK;
-	SPIK[`KinematicsBase::searchPositionIK`]
+	SFIK -- calls --> SPIK;
+	SEED[`std::vector<double> seed`] -- is argument of --> SPIK;
+	TO[`double timeout`] -- is argument of --> SPIK;
+	CL[`const std::vector<double>& consistency_limits`] -- is argument of --> SPIK;
+	SPIK[`KinematicsBase::searchPositionIK`];
 	
 ```
 - [kinematic base plugin](https://github.com/ros-planning/moveit/blob/f2cc2348de83557a5704cc0f8670413f37a7855d/moveit_core/kinematics_base/include/moveit/kinematics_base/kinematics_base.h#L146)
