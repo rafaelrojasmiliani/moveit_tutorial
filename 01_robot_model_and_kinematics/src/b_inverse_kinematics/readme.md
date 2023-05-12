@@ -1,5 +1,8 @@
 # Moveit Kinematics
 
+This tutorial is designed to guide you through MoveIt Kinematic Plugin.
+The tutorial assumes basic knowledge of ROS and robot modeling concepts.
+
 ## Moveit Inverse kinematics
 
 The main functions is [`RobotState::setFromIK`](https://github.com/ros-planning/moveit/blob/9271e6a2edbeed291b7c713f55000bbc59d37b9e/moveit_core/robot_state/src/robot_state.cpp#L1574) which calls [`KinematicsBase::searchPositionIK`](https://github.com/ros-planning/moveit/blob/f2cc2348de83557a5704cc0f8670413f37a7855d/moveit_core/kinematics_base/include/moveit/kinematics_base/kinematics_base.h#L297) [here](https://github.com/ros-planning/moveit/blob/9271e6a2edbeed291b7c713f55000bbc59d37b9e/moveit_core/robot_state/src/robot_state.cpp#L1795).
@@ -15,7 +18,7 @@ graph TD;
 	TO[`double timeout`] -- is argument of --> SPIK;
 	CL[`const std::vector<double>& consistency_limits`] -- is argument of --> SPIK;
 	SPIK[`KinematicsBase::searchPositionIK`];
-	
+
 ```
 - [kinematic base plugin](https://github.com/ros-planning/moveit/blob/f2cc2348de83557a5704cc0f8670413f37a7855d/moveit_core/kinematics_base/include/moveit/kinematics_base/kinematics_base.h#L146)
 
@@ -32,7 +35,7 @@ graph TD;
 
 - [discretization error](https://github.com/ros-planning/moveit/blob/f2cc2348de83557a5704cc0f8670413f37a7855d/moveit_core/kinematics_base/include/moveit/kinematics_base/kinematics_base.h#L69)
 
-- [kinematic error](https://github.com/ros-planning/moveit/blob/f2cc2348de83557a5704cc0f8670413f37a7855d/moveit_core/kinematics_base/include/moveit/kinematics_base/kinematics_base.h#L87)  
+- [kinematic error](https://github.com/ros-planning/moveit/blob/f2cc2348de83557a5704cc0f8670413f37a7855d/moveit_core/kinematics_base/include/moveit/kinematics_base/kinematics_base.h#L87)
 
 - [querry options](https://github.com/ros-planning/moveit/blob/f2cc2348de83557a5704cc0f8670413f37a7855d/moveit_core/kinematics_base/include/moveit/kinematics_base/kinematics_base.h#L109)
 
@@ -62,6 +65,11 @@ The KDL Forward Kinematics in defined [here](https://github.com/ros-planning/mov
 
 The inverse kinematics is defined [here](https://github.com/ros-planning/moveit/blob/f2cc2348de83557a5704cc0f8670413f37a7855d/moveit_kinematics/kdl_kinematics_plugin/src/kdl_kinematics_plugin.cpp#L316).
 It uses the auxiliar function [`CartToJnt`](https://github.com/ros-planning/moveit/blob/f2cc2348de83557a5704cc0f8670413f37a7855d/moveit_kinematics/kdl_kinematics_plugin/src/kdl_kinematics_plugin.cpp#L422),  the auxiliar class `ChainIkSolverVelMimicSVD` (declared [here](https://github.com/ros-planning/moveit/blob/9271e6a2edbeed291b7c713f55000bbc59d37b9e/moveit_kinematics/kdl_kinematics_plugin/include/moveit/kdl_kinematics_plugin/chainiksolver_vel_mimic_svd.hpp#L46) and its method [`ChainIkSolverVelMimicSVD::CartToJnt`](https://github.com/ros-planning/moveit/blob/9271e6a2edbeed291b7c713f55000bbc59d37b9e/moveit_kinematics/kdl_kinematics_plugin/src/chainiksolver_vel_mimic_svd.cpp#L87).
+
+The result of `CartToJnt` is an integer,
+    - returns `0` on success
+    - returns `-2` on failure. This happens if it get stuck in a sigularity [here](https://github.com/ros-planning/moveit/blob/noetic-devel/moveit_kinematics/kdl_kinematics_plugin/src/kdl_kinematics_plugin.cpp#L482).
+    - returns `-3` on maximum number of iteration reached.
 
 The class `ChainIkSolverVelMimicSVD` inherits from [`KDL::ChainIkSolverVel`](https://github.com/orocos/orocos_kinematics_dynamics/blob/6ed703443b093ea65c9e7bff31b84c438e0b197f/orocos_kdl/src/chainiksolver.hpp#L66), implements the SVD [here in `ChainIkSolverVelMimicSVD::CartToJnt`](https://github.com/ros-planning/moveit/blob/9271e6a2edbeed291b7c713f55000bbc59d37b9e/moveit_kinematics/kdl_kinematics_plugin/src/chainiksolver_vel_mimic_svd.cpp#L117) and initializes an instance of `Eigen::JacobiSVD<Eigen::MatrixXd>` [here](https://github.com/ros-planning/moveit/blob/9271e6a2edbeed291b7c713f55000bbc59d37b9e/moveit_kinematics/kdl_kinematics_plugin/src/chainiksolver_vel_mimic_svd.cpp#L53).
 
