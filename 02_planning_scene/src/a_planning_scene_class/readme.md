@@ -1,14 +1,14 @@
 # Planning Scene Example 01: How to use `planning_scene::PlanningScene` for collision detection
 
-This example intends to create an instance of a `planning_scene::PlanningScene` with the minimum required set-up and use it for collision detection. 
+This example intends to create an instance of a `planning_scene::PlanningScene` with the minimum required set-up and use it for collision detection.
 
 The planning scene class `planning_scene::PlanningScene` is the central class for motion planning in MoveIt.
 It is [defined here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_core/planning_scene/include/moveit/planning_scene/planning_scene.h#L86) and [implemented here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_core/planning_scene/src/planning_scene.cpp).
-A planning scene represents all the information needed to compute motion plans: 
+A planning scene represents all the information needed to compute motion plans:
 
 - The robot's workspace model `RobotModel`
 - its geometric, kinematic or dynamic representation `RobotState`
-- The collision detector `collision_detection::CollisionDetector` and constraint checking
+- The collision detector [`collision_detection::CollisionDetector`](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/planning_scene/include/moveit/planning_scene/planning_scene.h#L1084) (which grasp [`collision_detection::CollisionEnv`](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/collision_detection/include/moveit/collision_detection/collision_env.h#L51)) and constraint checking
 
 In practice `planning_scene::PlanningScene` is a convince wrapper for the `RobotModel` and a collision checker.
 We can use any collision checker with a MoveIt plugin interface.
@@ -49,13 +49,13 @@ These parameters must be loaded in the correct name space
 - **Joint limits for each joint** (available in `MOVEITCONFIGPACKAGE/config/joint_limits.yaml`)
     - `robot_description_planning/joint_limits/JOINT_NAME/has_velocity_limits`
     - `robot_description_planning/joint_limits/JOINT_NAME/max_velocity`
-    - `robot_description_planning/joint_limits/JOINT_NAME/has_acceleration_limits` 
+    - `robot_description_planning/joint_limits/JOINT_NAME/has_acceleration_limits`
     - `robot_description_planning/joint_limits/JOINT_NAME/max_acceleration`
 
 - **kinematic solver details for each planning group** (available in `MOVEITCONFIGPACKAGE/config/joint_limits.yaml`)
     - `PLANNINGGROUP/kinematics_solver` (e.g. `kdl_kinematics_plugin/KDLKinematicsPlugin`)
-    - `PLANNINGGROUP/kinematics_solver_search_resolution` 
-    - `PLANNINGGROUP/kinematics_solver_timeout` 
+    - `PLANNINGGROUP/kinematics_solver_search_resolution`
+    - `PLANNINGGROUP/kinematics_solver_timeout`
 - **robot description** `robot_description` (URDF description)
 - **robot semantic description** `robot_description_semantic` (available at `MOVEITCONFIGPACKAGE/config/myrobot.srdf`>
 
@@ -151,7 +151,7 @@ It follows that the `planning_scene::PlanningScene` class can be constructed wit
 
 - The constructor has two signatures
 
-    - construct using an existing RobotModel 
+    - construct using an existing RobotModel
     ```
         PlanningScene(
           const robot_model::RobotModelConstPtr& robot_model,
@@ -163,7 +163,7 @@ It follows that the `planning_scene::PlanningScene` class can be constructed wit
       PlanningScene(
           const urdf::ModelInterfaceSharedPtr& urdf_model, const srdf::ModelConstSharedPtr& srdf_model,
           const collision_detection::WorldPtr& world = collision_detection::WorldPtr(new collision_detection::World()));
-    ``` 
+    ```
 
 The `planning_scene::PlanningScene` constructor is mostly impleented in `PlanningScene::initialize`.
 From that method other methods are caled. The code in each funcion involved in the construcot is more or less this
@@ -220,7 +220,7 @@ From that method other methods are caled. The code in each funcion involved in t
     - `moveit::core::Transforms` [defined here](https://github.com/ros-planning/moveit/blob/ff552bf861609f99ca97a7e173fcbeb0c03e9f45/moveit_core/transforms/include/moveit/transforms/transforms.h#L60) and [implemented here](https://github.com/ros-planning/moveit/blob/melodic-devel/moveit_core/transforms/src/transforms.cpp) Provides an implementation of a snapshot of a transform tree that can be easily queried for
     transforming different quantities. Transforms are maintained as a list of transforms to a particular frame.
     All stored transforms are considered fixed.
-    - `SceneTransforms` [locally defined and implemented here](https://github.com/ros-planning/moveit/blob/ff552bf861609f99ca97a7e173fcbeb0c03e9f45/moveit_core/planning_scene/src/planning_scene.cpp#L58). Inherits from `moveit::core::Transforms`. It has a simple constructor 
+    - `SceneTransforms` [locally defined and implemented here](https://github.com/ros-planning/moveit/blob/ff552bf861609f99ca97a7e173fcbeb0c03e9f45/moveit_core/planning_scene/src/planning_scene.cpp#L58). Inherits from `moveit::core::Transforms`. It has a simple constructor
     ```
     SceneTransforms(const PlanningScene* scene) : Transforms(scene->getRobotModel()->getModelFrame()), scene_(scene)
     {
@@ -259,14 +259,14 @@ The function `colision_detection::CollisionDetectorAllocator::allocateRobot`[is 
 **To check a self collision we need**
 - `collision_detection::CollisionRequest` a simple struct [defined and implemented here](https://github.com/ros-planning/moveit/blob/ff552bf861609f99ca97a7e173fcbeb0c03e9f45/moveit_core/collision_detection/include/moveit/collision_detection/collision_common.h#L173)
     - `std::string group_name;` (default `""`) The group name to check collisions for. This is optional; if empty, assume the complete robot
-    - `bool distance;` (default `false`) If true, compute proximity distance 
-    - `bool cost;` (default `false`) If true, a collision cost is computed 
-    - `bool contacts;` (default `1`) If true, compute contacts. Otherwise only a binary collision yes/no is reported. 
-    - `std::size_t max_contacts;` (default `1`) Overall maximum number of contacts to compute 
+    - `bool distance;` (default `false`) If true, compute proximity distance
+    - `bool cost;` (default `false`) If true, a collision cost is computed
+    - `bool contacts;` (default `1`) If true, compute contacts. Otherwise only a binary collision yes/no is reported.
+    - `std::size_t max_contacts;` (default `1`) Overall maximum number of contacts to compute
     - `std::size_t max_contacts_per_pair;` (default `1`) Maximum number of contacts to compute per pair of bodies (multiple bodies may be in contact at different configurations)
-    - `std::size_t max_cost_sources;` (default `1`) When costs are computed, this value defines how many of the top cost sources should be returned 
-    - `double min_cost_density;` (default `0.2`) When costs are computed, this is the minimum cost density for a CostSource to be included in the results 
-    - `bool verbose;` (default `false`) Flag indicating whether information about detected collisions should be reported 
+    - `std::size_t max_cost_sources;` (default `1`) When costs are computed, this value defines how many of the top cost sources should be returned
+    - `double min_cost_density;` (default `0.2`) When costs are computed, this is the minimum cost density for a CostSource to be included in the results
+    - `bool verbose;` (default `false`) Flag indicating whether information about detected collisions should be reported
 
 - `collision_detection::CollisionResult` a simple string [defined and implemented here](https://github.com/ros-planning/moveit/blob/ff552bf861609f99ca97a7e173fcbeb0c03e9f45/moveit_core/collision_detection/include/moveit/collision_detection/collision_common.h#L137)
     - `clear` clear the value of the collision request.
@@ -277,11 +277,11 @@ The function `colision_detection::CollisionDetectorAllocator::allocateRobot`[is 
     contacts.clear();
     cost_sources.clear();
     ```
-    - `bool collision;` True if collision was found, false otherwise 
-    - `double distance;` Closest distance between two bodies 
-    - `std::size_t contact_count;` Number of contacts returned 
-    - `ContactMap contacts;`  A map returning the pairs of body ids in contact, plus their contact details 
-    - `std::set<CostSource> cost_sources;` These are the individual cost sources when costs are computed 
+    - `bool collision;` True if collision was found, false otherwise
+    - `double distance;` Closest distance between two bodies
+    - `std::size_t contact_count;` Number of contacts returned
+    - `ContactMap contacts;`  A map returning the pairs of body ids in contact, plus their contact details
+    - `std::set<CostSource> cost_sources;` These are the individual cost sources when costs are computed
 - `moveit::core::RobotState` the model of the world. This parameters remains internal to the `PlanningScene`
 
 

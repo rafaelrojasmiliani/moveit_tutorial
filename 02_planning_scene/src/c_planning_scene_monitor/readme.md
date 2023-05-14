@@ -50,8 +50,8 @@ However, nor `moveit_msgs::CollisionObject` nor `moveit_msgs::AttachedCollisionO
 2. **To add objects to the scenario** we add elements to `moveit_msgs::PlanningScene.world.collision_object`.
 
 The `PlanningSceneMonitor` provides two interface to receive `moveit_msgs::PlanningScene` messages.
-1. the service `"apply_planning_scene"` of type `moveit_msgs::ApplyPlanningScene` [defined here](http://docs.ros.org/en/jade/api/moveit_msgs/html/srv/ApplyPlanningScene.html) 
-2. the topic `"planning_scene"` of type `moveit_msgs::PlanningScene` 
+1. the service `"apply_planning_scene"` of type `moveit_msgs::ApplyPlanningScene` [defined here](http://docs.ros.org/en/jade/api/moveit_msgs/html/srv/ApplyPlanningScene.html)
+2. the topic `"planning_scene"` of type `moveit_msgs::PlanningScene`
 
 
 ## `PlanningSceneMonitor`
@@ -59,16 +59,18 @@ The `PlanningSceneMonitor` provides two interface to receive `moveit_msgs::Plann
 `PlanningSceneMonitor` is [defined here](https://github.com/ros-planning/moveit/blob/47884198c2585215de8f365a7ff20479f8bb4b51/moveit_ros/planning/planning_scene_monitor/include/moveit/planning_scene_monitor/planning_scene_monitor.h#L61) and [implemented here](https://github.com/ros-planning/moveit/blob/47884198c2585215de8f365a7ff20479f8bb4b51/moveit_ros/planning/planning_scene_monitor/src/planning_scene_monitor.cpp).
 In its construction, this runs a `ros::AsyncSpinner`.
 
-- **Function** `PlanningSceneMonitor::startSceneMonitor` by default it creates a subscriber to `planning_scene` with callback `PlanningSceneMonitor::newPlanningSceneCallback`
+- **Function** `PlanningSceneMonitor::startSceneMonitor` by default it creates a subscriber to `planning_scene` with callback [`PlanningSceneMonitor::newPlanningSceneCallback`](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_ros/planning/planning_scene_monitor/src/planning_scene_monitor.cpp#LL535C6-L535C26)
 
-- **Function** `PlanningSceneMonitor::newPlanningSceneCallback`, just calls `PlanningSceneMonitor::newPlanningSceneMessage`
+- **Function** [`PlanningSceneMonitor::newPlanningSceneCallback`](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_ros/planning/planning_scene_monitor/src/planning_scene_monitor.cpp#LL535C6-L535C26), just calls [`PlanningSceneMonitor::newPlanningSceneMessage`](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_ros/planning/planning_scene_monitor/src/planning_scene_monitor.cpp#L563)
 
-- **Function** `PlanningSceneMonitor::newPlanningSceneMessage`. Uses the tools from the package `moveit_ros_occupancy_map_monitor` and the class `occupancy_map_monitor::OccupancyMapMonitor` to update the scene.
+- **Function** [`PlanningSceneMonitor::newPlanningSceneMessage`](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_ros/planning/planning_scene_monitor/src/planning_scene_monitor.cpp#L563). It calls [`PlanningScene::usePlanningSceneMsg`](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/planning_scene/src/planning_scene.cpp#LL1356C6-L1356C39). Uses the tools from the package `moveit_ros_occupancy_map_monitor` and the class `occupancy_map_monitor::OccupancyMapMonitor` to update the scene.
+    - **If `is_diff==True`** we got to [`PlanningScene::setPlanningSceneDiffMsg`](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/planning_scene/src/planning_scene.cpp#L1265)
+    - **If `is_diff==False`** we got to [`PlanningScene::setPlanningSceneMsg`](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/planning_scene/src/planning_scene.cpp#LL1319C6-L1319C40)
 
 - **Function** `PlanningSceneMonitor::startWorldGeometryMonitor` by default it creates a subscriber to `collision_object` with callback `PlanningSceneMonitor::collisionObjectCallback` and a subscriber to `planning_scene_world` with callback `PlanningSceneMonitor::newPlanningSceneWorldCallback`
 
-- **Function** `PlanningSceneMonitor::collisionObjectCallback` 
-- **Function** `PlanningSceneMonitor::newPlanningSceneWorldCallback` 
+- **Function** `PlanningSceneMonitor::collisionObjectCallback`
+- **Function** `PlanningSceneMonitor::newPlanningSceneWorldCallback`
 
 
 
@@ -122,7 +124,7 @@ This service is initiated by `PlanningSceneMonitor::providePlanningSceneService`
     - `"publish_transforms_updates"` Set to True to publish geometry updates of the planning scene
 
 
-# Collision object 
+# Collision object
 
 `moveit_msgs::CollisionObject` [defined here](http://docs.ros.org/en/melodic/api/moveit_msgs/html/msg/CollisionObject.html)
 
@@ -132,7 +134,7 @@ This service is initiated by `PlanningSceneMonitor::providePlanningSceneService`
 - `primitives` of type `shape_msgs/SolidPrimitive[]`  Solid geometric primitives
 - `primitive_poses` of type `geometry_msgs/Pose[]` Their poses are with respect to the specified header
 - `meshes` of type `shape_msgs/Mesh[]` Meshes
-- `mesh_poses` of type `geometry_msgs/Pose[]` 
+- `mesh_poses` of type `geometry_msgs/Pose[]`
 - `planes` of type `shape_msgs/Plane[]` Bounding planes (equation is specified, but the plane can be oriented using an additional pose)
 - `plane_poses` of type `geometry_msgs/Pose[]` Bounding planes (equation is specified, but the plane can be oriented using an additional pose)
 - `operation` of type `byte` Operation to be performed
@@ -177,5 +179,3 @@ This service is initiated by `PlanningSceneMonitor::providePlanningSceneService`
 
 # How to add an object to the environment
    Add the object into the environment by adding it to the set of collision objects in the "world" part of the planning scene. Note that we are using only the "object" field of the `attached_object` message here.
-
-

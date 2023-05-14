@@ -1,10 +1,12 @@
 
 
-create the package
+## create the package
 `catkin create pkg d_octomap_monitor --catkin-deps roscpp moveit_core moveit_ros_planning_interface --system-deps Eigen3`
 
 
-- The planning scene monitor declares the octopam [here](https://github.com/ros-planning/moveit/blob/9cc7e8fb0d5b9ceb09d5ba68b524e7a4ab7ca02f/moveit_ros/planning/planning_scene_monitor/include/moveit/planning_scene_monitor/planning_scene_monitor.h#L514)
+- The planning scene monitor declares the octopam [here](https://github.com/ros-planning/moveit/blob/9cc7e8fb0d5b9ceb09d5ba68b524e7a4ab7ca02f/moveit_ros/planning/planning_scene_monitor/include/moveit/planning_scene_monitor/planning_scene_monitor.h#L514) and binds it to the planning scene [here](https://github.com/ros-planning/moveit/blob/9cc7e8fb0d5b9ceb09d5ba68b524e7a4ab7ca02f/moveit_ros/planning/planning_scene_monitor/src/planning_scene_monitor.cpp#LL1251C15-L1251C32) and are added to the collision object world [here](https://github.com/ros-planning/moveit/blob/9cc7e8fb0d5b9ceb09d5ba68b524e7a4ab7ca02f/moveit_core/planning_scene/src/planning_scene.cpp#L1466).
+
+- **The id of the octomap in the collision matrix is** `<octomap>`.
 
 
 ## `OccupancyMapMonitor`
