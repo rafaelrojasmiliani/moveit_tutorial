@@ -63,7 +63,7 @@ classDiagram
 
     OccupancyMapMonitor --> "1" `collision_detection::OccMapTree`: contains
 
-    OccupancyMapUpdater
+    OccupancyMapUpdater --> "*" OccupancyMapUpdater
 	`collision_detection::OccMapTree`--|> `octomap::OcTree` : inherits
 ```
 
