@@ -18,18 +18,23 @@ classDiagram
         - world_: World
     }
     class World{
-        - objects_: std::map~std::string, std::unique_ptr~Object~~
+        - objects_
     }
-    class World::Object{
-        - shapes_: std::vector~std::unique_ptr~const shapes::Shape~~
+    class `World::Object`{
+        - shapes_
     }
-    class shapes::Shape
-    class shapes::OcTree
+    class `shapes::Shape`
+    class `shapes::OcTree`{
+        + octree
+    }
+    class `octomap::OcTree`
+
 
 PlanningScene --> "1" World : contains
-World --> "*" Shape : contains
-World --> "1" OcTree : contains
-Octree --|> Shape
+World --> "*" `World::Object`: contains
+`World::Object` --> "*" `shapes::Shape`: contains
+`shapes::OcTree` --|> `shapes::Shape` : inherits from
+`shapes::OcTree` --> "1" `octomap::OcTree` : contains
 
 ```
 
