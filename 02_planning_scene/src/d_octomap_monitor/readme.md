@@ -12,6 +12,27 @@
 
 [Declared here](https://github.com/ros-planning/geometric_shapes/blob/d338f9e87b92b548dbcccffce8c7997eed3ce2e1/include/geometric_shapes/shapes.h#L385) is stored in [`World::Object`](https://github.com/ros-planning/moveit/blob/5b430a3d66aec0543d77a0963b0e3b537c4a42be/moveit_core/collision_detection/include/moveit/collision_detection/world.h#L79) [here](https://github.com/ros-planning/moveit/blob/5b430a3d66aec0543d77a0963b0e3b537c4a42be/moveit_core/collision_detection/include/moveit/collision_detection/world.h#L97). Objects in `World` are [`World::objects_`](https://github.com/ros-planning/moveit/blob/5b430a3d66aec0543d77a0963b0e3b537c4a42be/moveit_core/collision_detection/include/moveit/collision_detection/world.h#L337).
 
+```mermaid
+classDiagram
+    class PlanningScene {
+        - world_: World
+    }
+    class World{
+        - objects_: std::map~std::string, std::unique_ptr~Object~~
+    }
+    class World::Object{
+        - shapes_: std::vector~std::unique_ptr~const shapes::Shape~~
+    }
+    class shapes::Shape
+    class shapes::OcTree
+
+PlanningScene --> "1" World : contains
+World --> "*" Shape : contains
+World --> "1" OcTree : contains
+Octree --|> Shape
+
+```
+
 
 ## `OccupancyMapMonitor`
 
