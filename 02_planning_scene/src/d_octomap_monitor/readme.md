@@ -8,9 +8,10 @@
 
 - **The id of the octomap in the collision matrix is** `<octomap>`.
 
-## `Octomap Shape`
+## Octomaps in the planning scene and their implmentation as shapes
 
-[Declared here](https://github.com/ros-planning/geometric_shapes/blob/d338f9e87b92b548dbcccffce8c7997eed3ce2e1/include/geometric_shapes/shapes.h#L385) is stored in [`World::Object`](https://github.com/ros-planning/moveit/blob/5b430a3d66aec0543d77a0963b0e3b537c4a42be/moveit_core/collision_detection/include/moveit/collision_detection/world.h#L79) [here](https://github.com/ros-planning/moveit/blob/5b430a3d66aec0543d77a0963b0e3b537c4a42be/moveit_core/collision_detection/include/moveit/collision_detection/world.h#L97). Objects in `World` are [`World::objects_`](https://github.com/ros-planning/moveit/blob/5b430a3d66aec0543d77a0963b0e3b537c4a42be/moveit_core/collision_detection/include/moveit/collision_detection/world.h#L337).
+An octomap is represented as a shape inside an object in the planning scene's world.
+Obviusly, it is implemented as an object with a single shape of type [`shapes::OcTree`](https://github.com/ros-planning/geometric_shapes/blob/d338f9e87b92b548dbcccffce8c7997eed3ce2e1/include/geometric_shapes/shapes.h#L385). The octomap is stored as a [`World::Object`](https://github.com/ros-planning/moveit/blob/5b430a3d66aec0543d77a0963b0e3b537c4a42be/moveit_core/collision_detection/include/moveit/collision_detection/world.h#L79) [here](https://github.com/ros-planning/moveit/blob/5b430a3d66aec0543d77a0963b0e3b537c4a42be/moveit_core/collision_detection/include/moveit/collision_detection/world.h#L97) that only contains an octomap shape.
 
 ```mermaid
 classDiagram
@@ -48,6 +49,23 @@ The OccupancyMapMonitor ( [Declared here](https://github.com/ros-planning/moveit
 - **Octo-tree updtaing and sensor integration** `OccupancyMapMonitor` relies on the class [`OccupancyMapUpdater`](https://github.com/ros-planning/moveit/blob/8f67bb3ba0319391cb16ec7b524c03445f3b0c59/moveit_ros/occupancy_map_monitor/include/moveit/occupancy_map_monitor/occupancy_map_updater.h#L58) ([defined here](https://github.com/ros-planning/moveit/blob/60bce92f6742cfd4853cf5bbcda4b24a80bc4cf5/moveit_ros/occupancy_map_monitor/src/occupancy_map_updater.cpp#L44)) to update the value of `OccupancyMapMonitor::tree_`. The `OccupancyMapUpdater` is a pluging class in which is instantiated [in the `OccupancyMapMonitor::initialize` method](https://github.com/ros-planning/moveit/blob/a2911c80c28958c1fce8fb52333d770248c4ec05/moveit_ros/occupancy_map_monitor/src/occupancy_map_monitor.cpp#L148). During the normal utilization of `move_group` the specific details of each octomap updateds are taken from the parameter `sensor_plugin`.
 
 - **Collision checking**
+
+
+```mermaid
+classDiagram
+    class OccupancyMapMonitor {
+        - tree_: collision_detection::OccMapTree
+        - map_updaters_ : OccupacyMapUpdater
+    }
+    class `collision_detection::OccMapTree`
+    class `octomap::OcTree`
+    class OccupancyMapUpdater
+
+    OccupancyMapMonitor --> "1" `collision_detection::OccMapTree`: contains
+
+    OccupancyMapUpdater
+	`collision_detection::OccMapTree`--|> `octomap::OcTree` : inherits
+```
 
 
 Collision checking is a critical capability of the OccupancyMapMonitor. It provides methods to the motion planner that utilize the occupancy map to determine whether a given trajectory or robot configuration would result in collisions with obstacles. These methods involve efficient indexing and lookup operations on the occupancy map to check for occupancy probabilities in the vicinity of the robot's planned path.
