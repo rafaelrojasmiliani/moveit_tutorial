@@ -1,29 +1,24 @@
-# Enviroment representation in MoveIt
+# Robot's Enviroment (World, working space) representation in MoveIt
 
 | MoveIt concept | class | task |
 | -------------- | ----- | ---- |
-| Planninc Scene Manager |`planning_scene::PlanningScene`| Wraper for `RobotModel`, contains actual `Robotstate` and performs Colision detection|
-| Collision request | `collision_detection::CollisionRequest` and `collision_detection::CollisionResult` | Specify the characteristic of the collision check request |
-| Kinematic constraints |     `kinematic_constraints::KinematicConstraint` | Represents constrains (joint, DK, etc) that are used to define motion plans goals |
+| Planninc Scene Manager |`planning_scene::PlanningScene`| Wraper for `RobotModel`, `RobotState` and Colision detection. This class descrive a snapshop the of robot and the enviroment. |
 | Planning Scene Monitor | `planning_scene_monitor::PlannningSceneMonitor` | Wraper for `RobotModel`, `PlanningScene` and provides the infrastructore of subscriber and publishers|
+| Collision request | `collision_detection::CollisionRequest` and `collision_detection::CollisionResult` | Specify a request to detect possible collisions using a given algororimth. |
+| Kinematic constraints |     `kinematic_constraints::KinematicConstraint` | Represents constrains (joint, DK, etc) that are used to define motion plans goals |
 
 ## Planning Scene Manager (`planning_scene::PlanningScene`)
 
-The planning scene `planning_scene::PlanningScene` is the central class for motion planning in MoveIt.
+
+The `planning_scene::PlanningScene` is a central class for motion planning in MoveIt.
 It is [declared here](https://github.com/ros-planning/moveit/blob/382aa5a8cdd39eace07536d39c497a4b21f0f653/moveit_core/planning_scene/include/moveit/planning_scene/planning_scene.h#L87) and [defined here](https://github.com/ros-planning/moveit/blob/master/moveit_core/planning_scene/src/planning_scene.cpp).
-A planning scene represents all the information needed to compute motion plans: 
+It is responsible for representing all the information needed to compute motion plans, including the robot's current state, its geometric, kinematic, and dynamic representations, and the representation of the world. Using this information, forward kinematics, inverse kinematics, constraint evaluation, and collision checking are all possible.
 
-- The robot's current state
-- its representation (geometric, kinematic, dynamic)
-- the world representation.
-
-Using this information, things like forward kinematics, inverse kinematics, evaluation of constraints, collision checking, are all possible.
 
 The `planning_scene::PlanningScene` class is intended to be tightly connected to the `planning_scene_monitor::PlannningSceneMonitor` class, which maintains a planning scene using information from the ROS Parameter Server and subscription to topics.
 
-The `PlanningScene` class provides the main interface that you will use for collision checking and constraint checking. 
-
-This class maintains the representation of the environment as seen by a planning instance. The environment geometry, the robot geometry and state are maintained. 
+The `PlanningScene` class provides the main interface that you will use for collision checking and constraint checking.
+This class maintains the representation of the environment as seen by a planning instance. The environment geometry, the robot geometry and state are maintained.
 
 The `PlanningScene` class can be easily setup and configured using a RobotModel or a URDF and SRDF.
 This is, however, not the recommended way to instantiate a `PlanningScene`.
@@ -61,8 +56,8 @@ In its construction, this runs a `ros::AsyncSpinner`.
 
 - **Function** `PlanningSceneMonitor::startWorldGeometryMonitor` by default it creates a subscriber to `collision_object` with callback `PlanningSceneMonitor::collisionObjectCallback` and a subscriber to `planning_scene_world` with callback `PlanningSceneMonitor::newPlanningSceneWorldCallback`
 
-- **Function** `PlanningSceneMonitor::collisionObjectCallback` 
-- **Function** `PlanningSceneMonitor::newPlanningSceneWorldCallback` 
+- **Function** `PlanningSceneMonitor::collisionObjectCallback`
+- **Function** `PlanningSceneMonitor::newPlanningSceneWorldCallback`
 
 
 
@@ -155,15 +150,15 @@ The base class for custon MoveIt constraints is `kinematic_constraints::Kinemati
 
 
 The Ros message `moveit_msgs::Constraints`is [defined here](https://github.com/ros-planning/moveit_msgs/blob/melodic-devel/msg/Constraints.msg).
-- `name` of type `string` 
-- `joint_constraints` of type `JointConstraint[]` 
-- `position_constraints` of type `PositionConstraint[]` 
+- `name` of type `string`
+- `joint_constraints` of type `JointConstraint[]`
+- `position_constraints` of type `PositionConstraint[]`
     - `header` of type `Header`
     - `link_name` of type `string`
     - `target_point_offset` of type `geometry_msgs/Vector3`
     - `constraint_region` of type `BoundingVolume`
     - `weigh` of type `float64`
-- `orientation_constraints` of type `OrientationConstraint[]` 
+- `orientation_constraints` of type `OrientationConstraint[]`
     - `header` of type `Header`
     - `orientation` of type `geometry_msgs/Quaternion`
     - `link_name` of type `string`

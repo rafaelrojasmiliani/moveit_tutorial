@@ -8,77 +8,29 @@
 
 - **The id of the octomap in the collision matrix is** `<octomap>`.
 
+## `Octomap Shape`
+
+[Declared here](https://github.com/ros-planning/geometric_shapes/blob/d338f9e87b92b548dbcccffce8c7997eed3ce2e1/include/geometric_shapes/shapes.h#L385) is stored in [`World::Object`](https://github.com/ros-planning/moveit/blob/5b430a3d66aec0543d77a0963b0e3b537c4a42be/moveit_core/collision_detection/include/moveit/collision_detection/world.h#L79) [here](https://github.com/ros-planning/moveit/blob/5b430a3d66aec0543d77a0963b0e3b537c4a42be/moveit_core/collision_detection/include/moveit/collision_detection/world.h#L97). Objects in `World` are [`World::objects_`](https://github.com/ros-planning/moveit/blob/5b430a3d66aec0543d77a0963b0e3b537c4a42be/moveit_core/collision_detection/include/moveit/collision_detection/world.h#L337).
+
 
 ## `OccupancyMapMonitor`
 
-[Declared here](https://github.com/ros-planning/moveit/blob/9cc7e8fb0d5b9ceb09d5ba68b524e7a4ab7ca02f/moveit_ros/occupancy_map_monitor/include/moveit/occupancy_map_monitor/occupancy_map_monitor.h#L56) and [defined here](https://github.com/ros-planning/moveit/blob/9cc7e8fb0d5b9ceb09d5ba68b524e7a4ab7ca02f/moveit_ros/occupancy_map_monitor/src/occupancy_map_monitor.cpp#L48).
+The OccupancyMapMonitor ( [Declared here](https://github.com/ros-planning/moveit/blob/9cc7e8fb0d5b9ceb09d5ba68b524e7a4ab7ca02f/moveit_ros/occupancy_map_monitor/include/moveit/occupancy_map_monitor/occupancy_map_monitor.h#L56) and [defined here](https://github.com/ros-planning/moveit/blob/9cc7e8fb0d5b9ceb09d5ba68b524e7a4ab7ca02f/moveit_ros/occupancy_map_monitor/src/occupancy_map_monitor.cpp#L48) )  class encapsulates the functionality related to storing, updating and performing collision dection with an octo-tree occupacy map.
 
-In its initialization it looks for the sensors [here](https://github.com/ros-planning/moveit/blob/9cc7e8fb0d5b9ceb09d5ba68b524e7a4ab7ca02f/moveit_ros/occupancy_map_monitor/src/occupancy_map_monitor.cpp#L106).
+- **Octo-tree storing** The octo-tree handled by this class is implemented as an [`collision_detection::OccMapTree`](/https://github.com/ros-planning/moveit/blob/8f67bb3ba0319391cb16ec7b524c03445f3b0c59/moveit_core/collision_detection/include/moveit/collision_detection/occupancy_map.h#L49) in the variable `OccupancyMapMonitor::tree_`which is an implementation of [`octomap::Octree`](https://github.com/OctoMap/octomap/blob/8178b4f28c72a8c7b84ece25bda7a59df8d14eb8/octomap/include/octomap/OcTree.h#L49).
 
-`sensors` is a struct with a member "sensor_plugin".
-For each sensor, a occupancy map updater is instantiated and initizalised.
+- **Octo-tree updtaing and sensor integration** `OccupancyMapMonitor` relies on the class [`OccupancyMapUpdater`](https://github.com/ros-planning/moveit/blob/8f67bb3ba0319391cb16ec7b524c03445f3b0c59/moveit_ros/occupancy_map_monitor/include/moveit/occupancy_map_monitor/occupancy_map_updater.h#L58) ([defined here](https://github.com/ros-planning/moveit/blob/60bce92f6742cfd4853cf5bbcda4b24a80bc4cf5/moveit_ros/occupancy_map_monitor/src/occupancy_map_updater.cpp#L44)) to update the value of `OccupancyMapMonitor::tree_`. The `OccupancyMapUpdater` is a pluging class in which is instantiated [in the `OccupancyMapMonitor::initialize` method](https://github.com/ros-planning/moveit/blob/a2911c80c28958c1fce8fb52333d770248c4ec05/moveit_ros/occupancy_map_monitor/src/occupancy_map_monitor.cpp#L148). During the normal utilization of `move_group` the specific details of each octomap updateds are taken from the parameter `sensor_plugin`.
 
-```C++
-  if (nh_.getParam("sensors", sensor_list))
-  {
-    if (sensor_list.getType() == XmlRpc::XmlRpcValue::TypeArray)
-      for (int32_t i = 0; i < sensor_list.size(); ++i)
-      {
+- **Collision checking**
 
-        std::string sensor_plugin = std::string(sensor_list[i]["sensor_plugin"]);
-        if (sensor_plugin.empty() || sensor_plugin[0] == '~')
-        {
-          ROS_INFO_STREAM_NAMED(LOGNAME, "Skipping octomap updater plugin '" << sensor_plugin << "'");
-        }
 
-        if (!updater_plugin_loader_)
-        {
-            updater_plugin_loader_ = std::make_unique<pluginlib::ClassLoader<OccupancyMapUpdater>>(
-                "moveit_ros_perception", "occupancy_map_monitor::OccupancyMapUpdater");
-        }
+Collision checking is a critical capability of the OccupancyMapMonitor. It provides methods to the motion planner that utilize the occupancy map to determine whether a given trajectory or robot configuration would result in collisions with obstacles. These methods involve efficient indexing and lookup operations on the occupancy map to check for occupancy probabilities in the vicinity of the robot's planned path.
 
-        OccupancyMapUpdaterPtr up;
-        up = updater_plugin_loader_->createUniqueInstance(sensor_plugin);
-        up->setMonitor(this);
-        up->setParams(sensor_list[i])
-        up->initialize()
+Additionally, the OccupancyMapMonitor handles dynamic objects in the environment. It may include methods for updating the occupancy map to account for moving obstacles or objects that appear or disappear over time. These methods ensure that the occupancy map accurately reflects the evolving environment and enables collision checking to consider dynamic elements.
 
-        // addUpdater(up);  Begin -------------------------
-		  auto &updater = up;
-        map_updaters_.push_back(updater);
-        updater->publishDebugInformation(debug_info_);
-        if (map_updaters_.size() > 1)
-        {
-          mesh_handles_.resize(map_updaters_.size());
-          // when we had one updater only, we passed the transform cache callback directly to that updater
-          if (map_updaters_.size() == 2)
-          {
-            map_updaters_[0]->setTransformCacheCallback(
-                [this](const std::string& frame, const ros::Time& stamp, ShapeTransformCache& cache) {
-                  return getShapeTransformCache(0, frame, stamp, cache);
-                });
-            map_updaters_[1]->setTransformCacheCallback(
-                [this](const std::string& frame, const ros::Time& stamp, ShapeTransformCache& cache) {
-                  return getShapeTransformCache(1, frame, stamp, cache);
-                });
-          }
-          else
-            map_updaters_.back()->setTransformCacheCallback(
-                [this, i = map_updaters_.size() - 1](const std::string& frame, const ros::Time& stamp,
-                                                     ShapeTransformCache& cache) {
-                  return getShapeTransformCache(i, frame, stamp, cache);
-                });
-        }
-        else
-          updater->setTransformCacheCallback(transform_cache_callback_);
-        // addUpdater(up);  END ------------------------
-      }
-    else
-      ROS_ERROR_NAMED(LOGNAME, "List of sensors must be an array!");
-  }
-  else
-    ROS_INFO_NAMED(LOGNAME, "No 3D sensor plugin(s) defined for octomap updates");
-```
+For debugging and monitoring purposes, the OccupancyMapMonitor may provide visualization capabilities. It might offer functions to generate visual representations of the occupancy map, allowing experts to visualize the map's content and observe occupied and free areas.
+
+By meticulously understanding the C++ code implementation of the OccupancyMapMonitor, MoveIt experts can analyze and modify its behavior, optimize its performance, or extend its capabilities to cater to specific motion planning requirements.
 
 ### ROS API
 
@@ -213,3 +165,12 @@ sensors:
     filtered_cloud_topic: filtered_cloud
     ns: kinect
 ```
+
+## Octomap and the ApplyPlanningScene Service
+
+The `ApplyPlanningScene` services is implemented [here](https://github.com/ros-planning/moveit/blob/a80dd9d6a09819315e2304763f3a2dc82b4c0185/moveit_ros/planning/planning_scene_monitor/src/planning_scene_monitor.cpp#L563). It first [clears the octoma](https://github.com/ros-planning/moveit/blob/a80dd9d6a09819315e2304763f3a2dc82b4c0185/moveit_ros/planning/planning_scene_monitor/src/planning_scene_monitor.cpp#L589) and then [excludes objects from the octomap](https://github.com/ros-planning/moveit/blob/a80dd9d6a09819315e2304763f3a2dc82b4c0185/moveit_ros/planning/planning_scene_monitor/src/planning_scene_monitor.cpp#L614).
+
+### Exclude world object from the octomap
+
+[Here](https://github.com/ros-planning/moveit/blob/a80dd9d6a09819315e2304763f3a2dc82b4c0185/moveit_ros/planning/planning_scene_monitor/src/planning_scene_monitor.cpp#L794) we first call [`includeWorldObjectsInOctree`](https://github.com/ros-planning/moveit/blob/a80dd9d6a09819315e2304763f3a2dc82b4c0185/moveit_ros/planning/planning_scene_monitor/src/planning_scene_monitor.cpp#L778) were we call [`OccupancyMapMonitor::forgetShape`](https://github.com/ros-planning/moveit/blob/a2911c80c28958c1fce8fb52333d770248c4ec05/moveit_ros/occupancy_map_monitor/src/occupancy_map_monitor.cpp#L259) and then we calle [`excludeWorldObjectFromOctree`](https://github.com/ros-planning/moveit/blob/a80dd9d6a09819315e2304763f3a2dc82b4c0185/moveit_ros/planning/planning_scene_monitor/src/planning_scene_monitor.cpp#L842) for each object in the world.
+At the end [we call in this line](https://github.com/ros-planning/moveit/blob/a80dd9d6a09819315e2304763f3a2dc82b4c0185/moveit_ros/planning/planning_scene_monitor/src/planning_scene_monitor.cpp#L857) the [`OccupancyMapMonitor::excludeShape`](https://github.com/ros-planning/moveit/blob/a2911c80c28958c1fce8fb52333d770248c4ec05/moveit_ros/occupancy_map_monitor/src/occupancy_map_monitor.cpp#L239) for each shape in the collision object we desire to exclude.

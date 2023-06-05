@@ -14,7 +14,7 @@ Then we have to invoche [`collision_detection::CollisionDetectorAllocatorTemplat
 [`CollisionDetectorFCLPluginLoader` (the actual plugin)](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/collision_detection_fcl/include/moveit/collision_detection_fcl/collision_detector_fcl_plugin_loader.h#L44) with its [initializer](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/collision_detection_fcl/src/collision_detector_fcl_plugin_loader.cpp#L42). [`CollisionDetectorAllocatorFCL`](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/collision_detection_fcl/include/moveit/collision_detection_fcl/collision_detector_allocator_fcl.h#LL45C7-L45C36) and [`CollisionEnvFCL`](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/collision_detection_fcl/include/moveit/collision_detection_fcl/collision_env_fcl.h#L53).
 
 
-## The Plannins Scene default plugin
+## The Plannins Scene default plugin and collision checking interface
 
 With ros noetic, the planning scene initializes the collision detection [here](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/planning_scene/src/planning_scene.cpp#L156) which is called in its construction.
 This takes [here](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/planning_scene/src/planning_scene.cpp#L284) where `PlanningScene::active_collision_` and `PlanningScene::collision_` variables are updated.
