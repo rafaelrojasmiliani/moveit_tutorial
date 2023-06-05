@@ -62,15 +62,17 @@ classDiagram
     class OccupancyMapUpdater
 
     OccupancyMapMonitor --> "1" `collision_detection::OccMapTree`: contains
-
-    OccupancyMapUpdater --> "*" OccupancyMapUpdater
-	`collision_detection::OccMapTree`--|> `octomap::OcTree` : inherits
+    OccupancyMapMonitor --> "*" OccupancyMapUpdater
+    OccupancyMapUpdater --> OccupancyMapMonitor : modifies tree_
+	`collision_detection::OccMapTree` --|> `octomap::OcTree` : inherits
 ```
 
 
-Collision checking is a critical capability of the OccupancyMapMonitor. It provides methods to the motion planner that utilize the occupancy map to determine whether a given trajectory or robot configuration would result in collisions with obstacles. These methods involve efficient indexing and lookup operations on the occupancy map to check for occupancy probabilities in the vicinity of the robot's planned path.
-
-Additionally, the OccupancyMapMonitor handles dynamic objects in the environment. It may include methods for updating the occupancy map to account for moving obstacles or objects that appear or disappear over time. These methods ensure that the occupancy map accurately reflects the evolving environment and enables collision checking to consider dynamic elements.
+Additionally, the OccupancyMapMonitor handles dynamic objects in the
+environment. It may include methods for updating the occupancy map to account
+for moving obstacles or objects that appear or disappear over time. These
+methods ensure that the occupancy map accurately reflects the evolving
+environment and enables collision checking to consider dynamic elements.
 
 For debugging and monitoring purposes, the OccupancyMapMonitor may provide visualization capabilities. It might offer functions to generate visual representations of the occupancy map, allowing experts to visualize the map's content and observe occupied and free areas.
 

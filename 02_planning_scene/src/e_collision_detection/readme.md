@@ -1,7 +1,7 @@
 # Collision Detection
 
-The moveit Front-end of collision detection is the plannins scene monitor, which is a ros grapper of the planning scene.
-However, plannins scene is a wrapper of other tools which handle collision and implement the [Collision Detection Plugin](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/collision_detection/include/moveit/collision_detection/collision_plugin.h#L80).
+The moveit Front-end of collision detection is the planning scene monitor, which is a ros wrapper of the planning scene.
+However, planning scene is a wrapper of other tools which handle collision and implement the [Collision Detection Plugin](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/collision_detection/include/moveit/collision_detection/collision_plugin.h#L80).
 
 ## The Plugin
 
@@ -9,10 +9,35 @@ The [`collision_detection::CollisionPlugin`](https://github.com/ros-planning/mov
 In synthesis it is a wrapper of a custom [`collision_detection::CollisionEnv`](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/collision_detection/include/moveit/collision_detection/collision_env.h#LL51C7-L51C19) which implements the collision detection.
 
 This is the entry point of the api to interact with other plugins. As described in [this example](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/collision_detection/include/moveit/collision_detection/collision_plugin.h#L46) the intended way to implement a collision detection is combining a `collision_detection::CollisionPlugin` with a [`collision_detection::CollisionDetectorAllocator`](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/collision_detection/include/moveit/collision_detection/collision_detector_allocator.h#L47) and a [`collision_detection::CollisionEnv`](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/collision_detection/include/moveit/collision_detection/collision_env.h#LL51C7-L51C19) via the [`CollisionDetectorAllocatorTemplate`](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/collision_detection/include/moveit/collision_detection/collision_detector_allocator.h#LL72C7-L72C41) as inheritance helper.
-Then we have to invoche [`collision_detection::CollisionDetectorAllocatorTemplate::create`](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/collision_detection/include/moveit/collision_detection/collision_detector_allocator.h#L91) to get a `CollisionDetectorAllocator` which has the method `allocateEnv` to allocate new `collision_detection::CollisionEnv`.
+Then we have to invoke [`collision_detection::CollisionDetectorAllocatorTemplate::create`](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/collision_detection/include/moveit/collision_detection/collision_detector_allocator.h#L91) to get a `CollisionDetectorAllocator` which has the method `allocateEnv` to allocate new `collision_detection::CollisionEnv`.
+
+```mermaid
+classDiagram
+class `CollissionDetectorAllocator`
+class `CollisionEnv`{
+    world_: WorldPtr
+}
+class `CollisionDetectorAllocatorTemplate~T, M~`{
+    + create()
+}
+class `CollisionDetectorAllocatorTemplate~CollisionEnvFCL, CollisionDetectorAllocatorFCL~`
+class `CollisionPlugin`
+class CollisionDetectorFCLPluginLoader{
+    + initialize()
+}
+
+CollisionPlugin <|-- CollisionDetectorFCLPluginLoader
+ CollisionEnv <|-- CollisionEnvFCL
+CollissionDetectorAllocator <|-- `CollisionDetectorAllocatorTemplate~T, M~`
+
+CollisionDetectorAllocatorTemplate~T, M~ <|..`CollisionDetectorAllocatorFCL`
+CollisionDetectorFCLPluginLoader --> CollisionDetectorAllocatorFCL : calls create
+CollisionDetectorAllocatorFCL --> CollisionEnvFCL : creates
+```
 
 [`CollisionDetectorFCLPluginLoader` (the actual plugin)](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/collision_detection_fcl/include/moveit/collision_detection_fcl/collision_detector_fcl_plugin_loader.h#L44) with its [initializer](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/collision_detection_fcl/src/collision_detector_fcl_plugin_loader.cpp#L42). [`CollisionDetectorAllocatorFCL`](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/collision_detection_fcl/include/moveit/collision_detection_fcl/collision_detector_allocator_fcl.h#LL45C7-L45C36) and [`CollisionEnvFCL`](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/collision_detection_fcl/include/moveit/collision_detection_fcl/collision_env_fcl.h#L53).
 
+### The FCL Plugin
 
 ## The Plannins Scene default plugin and collision checking interface
 
@@ -21,6 +46,8 @@ This takes [here](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64
 
 The method of the planning scene to check collisions are [`checkCollision`](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/planning_scene/src/planning_scene.cpp#L462) and [`checkSelfCollision`](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/planning_scene/src/planning_scene.cpp#L478) which wraps calls to [`PlanningScene::active_collision_->getCollisionEnv()->checkRobotCollision(...)`](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/collision_detection/include/moveit/collision_detection/collision_env.h#L120)
 The collision detector is wrasped in [`collision_detection::CollisionDetector`](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/planning_scene/include/moveit/planning_scene/planning_scene.h#L1084) (which grasp [`collision_detection::CollisionEnv`](https://github.com/ros-planning/moveit/blob/4aeccc712293577e64918c0bb185ef8c38eeed84/moveit_core/collision_detection/include/moveit/collision_detection/collision_env.h#L51)).
+
+
 
 ## The Collision enviroment
 
