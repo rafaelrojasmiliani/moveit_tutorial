@@ -65,11 +65,18 @@ classDiagram
     class `collision_detection::OccMapTree`
     class `octomap::OcTree`
     class OccupancyMapUpdater
+    class PlanningSceneMonitor
+    class PlanningScene
 
     OccupancyMapMonitor --> "1" `collision_detection::OccMapTree`: contains
     OccupancyMapMonitor --> "*" OccupancyMapUpdater
     OccupancyMapUpdater --> OccupancyMapMonitor : modifies tree_
+    PlanningSceneMonitor --> OccupancyMapMonitor : contains
 	`collision_detection::OccMapTree` --|> `octomap::OcTree` : inherits
+    PlanningSceneMonitor --> PlanningScene : contains
+    PlanningScene --> World : contains
+    World --> `shapes::OcTree`: contains
+    `shapes::OcTree` --> `octomap::OcTree`: contains
 ```
 
 

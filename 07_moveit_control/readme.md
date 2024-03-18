@@ -60,12 +60,18 @@ CH -- implements --> ST[sendTrajectory];
     style CH fill:#FFD2D2;
     style ST fill:#FFD2D2;
 ```
-The `TrajectoryExecutionManager` [declared here](https://github.com/ros-planning/moveit/blob/45e2be9879880ac9c18b228c64ca7c0d17d5041d/moveit_ros/planning/trajectory_execution_manager/include/moveit/trajectory_execution_manager/trajectory_execution_manager.h#L60) and [defined here](https://github.com/ros-planning/moveit/blob/45e2be9879880ac9c18b228c64ca7c0d17d5041d/moveit_ros/planning/trajectory_execution_manager/src/trajectory_execution_manager.cpp#L81) is the MoveIt class for managing controllers and the execution of trajectories.
+The `TrajectoryExecutionManager` [declared here](https://github.com/ros-planning/moveit/blob/e7f8a82814b860e0553b193ba3dd57fa10121c76/moveit_ros/planning/trajectory_execution_manager/include/moveit/trajectory_execution_manager/trajectory_execution_manager.h#L59) and [defined here](https://github.com/ros-planning/moveit/blob/e7f8a82814b860e0553b193ba3dd57fa10121c76/moveit_ros/planning/trajectory_execution_manager/src/trajectory_execution_manager.cpp#L85) is the MoveIt class for managing controllers and the execution of trajectories.
+This class handles
+- `moveit_manage_controllers` parameters.
+- handles`moveit_controller_manager` [here](https://github.com/ros-planning/moveit/blob/e7f8a82814b860e0553b193ba3dd57fa10121c76/moveit_ros/planning/trajectory_execution_manager/src/trajectory_execution_manager.cpp#L143C31-L143C33) and loads the control manager of type `moveit_controller_manager::MoveItControllerManager` [here](https://github.com/ros-planning/moveit/blob/e7f8a82814b860e0553b193ba3dd57fa10121c76/moveit_ros/planning/trajectory_execution_manager/src/trajectory_execution_manager.cpp#L163).
+- Get ehc controller handlers [here](https://github.com/ros-planning/moveit/blob/e7f8a82814b860e0553b193ba3dd57fa10121c76/moveit_ros/planning/trajectory_execution_manager/src/trajectory_execution_manager.cpp#L1136)
+
 It allows two main operations:
 
-1. `push()` with main implementation [declared here](https://github.com/ros-planning/moveit/blob/45e2be9879880ac9c18b228c64ca7c0d17d5041d/moveit_ros/planning/trajectory_execution_manager/include/moveit/trajectory_execution_manager/trajectory_execution_manager.h#L152) and [defined here](). Stores a pair with a  `moveit_msgs::RobotTrajectory` and a string with a control in an instance of `TrajectoryExecutionContext` which is stored in the private variable `std::vector<TrajectoryExecutionContext*> trajectories_`.
-2. `execute()` with main implementation [declared here](https://github.com/ros-planning/moveit_ros/blob/200ff00b2cad2c49811991b3af64cab5eb19f6fb/planning/trajectory_execution_manager/include/moveit/trajectory_execution_manager/trajectory_execution_manager.h#L138) and [defined here](https://github.com/ros-planning/moveit_ros/blob/200ff00b2cad2c49811991b3af64cab5eb19f6fb/planning/trajectory_execution_manager/include/moveit/trajectory_execution_manager/trajectory_execution_manager.h#L141). Launches a thread [here](https://github.com/ros-planning/moveit_ros/blob/200ff00b2cad2c49811991b3af64cab5eb19f6fb/planning/trajectory_execution_manager/src/trajectory_execution_manager.cpp#L1006) implemented [here](https://github.com/ros-planning/moveit_ros/blob/200ff00b2cad2c49811991b3af64cab5eb19f6fb/planning/trajectory_execution_manager/src/trajectory_execution_manager.cpp#L1048) passes the appropriate trajectories to different controllers, monitors execution, optionally waits for completion of the execution and, very importantly, switches active controllers as needed (optionally) to be able to execute the specified trajectories.
+1. `push()` with main implementation [here](https://github.com/ros-planning/moveit/blob/023b11def6329b165ed7509e5de9aec4c1e29c6c/moveit_ros/planning/trajectory_execution_manager/src/trajectory_execution_manager.cpp#L262). Stores a pair with a  `moveit_msgs::RobotTrajectory` and a string with a control in an instance of `TrajectoryExecutionContext` which is stored in the private variable `std::vector<TrajectoryExecutionContext*> trajectories_`.
+2. `execute()` with main implementation [defined here](https://github.com/ros-planning/moveit/blob/023b11def6329b165ed7509e5de9aec4c1e29c6c/moveit_ros/planning/trajectory_execution_manager/src/trajectory_execution_manager.cpp#L1208). Launches a thread [here](https://github.com/ros-planning/moveit/blob/023b11def6329b165ed7509e5de9aec4c1e29c6c/moveit_ros/planning/trajectory_execution_manager/src/trajectory_execution_manager.cpp#L1226) implemented [here](https://github.com/ros-planning/moveit/blob/023b11def6329b165ed7509e5de9aec4c1e29c6c/moveit_ros/planning/trajectory_execution_manager/src/trajectory_execution_manager.cpp#L1269) passes the appropriate trajectories to different controllers, monitors execution, optionally waits for completion of the execution and, very importantly, switches active controllers as needed (optionally) to be able to execute the specified trajectories.
 This execute each trajectory in `this->trajectories_` with [executePart](https://github.com/ros-planning/moveit_ros/blob/200ff00b2cad2c49811991b3af64cab5eb19f6fb/planning/trajectory_execution_manager/src/trajectory_execution_manager.cpp#L1091)
+
 
 | Ros parameters | type | task | Default value in code |
 | -------------- | ---- | ---- | --------------------- |
@@ -294,8 +300,8 @@ bool TrajectoryExecutionManager::executePart(std::size_t part_index){
 | `void getControllersList(std::vector<std::string> & names)` | |
 | `bool switchControllers(const std::vector<std::string> & activate,const std::vector<std::string> & deactivate)` | |
 
-The controller manager pluging implements specific interaction with controllers.
-This is an abstract class that defines the functionality needed by `TrajectoryExecutionManager` and needs to be implemented for each robot type.
+The controller manager pluging implements specific interaction with controllers and must also providy some time of controler han
+This is an abstract class that defines the functionality needed by `TrajectoryExecutionManager` and needs to be implemented for each specific control.
 
 The default Controller manager is `moveit_simple_controller_manager/MoveItSimpleControllerManager` [declared here](https://github.com/ros-planning/moveit/blob/023b11def6329b165ed7509e5de9aec4c1e29c6c/moveit_plugins/moveit_simple_controller_manager/src/moveit_simple_controller_manager.cpp#L53) and [defined here](https://github.com/ros-planning/moveit/blob/023b11def6329b165ed7509e5de9aec4c1e29c6c/moveit_plugins/moveit_simple_controller_manager/src/moveit_simple_controller_manager.cpp).
 It supports Joint Trajectory Control [has stated here](https://github.com/ros-planning/moveit/blob/023b11def6329b165ed7509e5de9aec4c1e29c6c/moveit_plugins/moveit_simple_controller_manager/src/moveit_simple_controller_manager.cpp#L126)
@@ -309,6 +315,8 @@ It supports Joint Trajectory Control [has stated here](https://github.com/ros-pl
       [members]
      #name_
 
+## MoveIt Controller Handler
+`moveit_controller_manager::MoveItControllerHandle` (declared [here](https://github.com/ros-planning/moveit/blob/e7f8a82814b860e0553b193ba3dd57fa10121c76/moveit_core/controller_manager/include/moveit/controller_manager/controller_manager.h#L104)) are used to execute trajectories [here](https://github.com/ros-planning/moveit/blob/e7f8a82814b860e0553b193ba3dd57fa10121c76/moveit_ros/planning/trajectory_execution_manager/src/trajectory_execution_manager.cpp#L1110). Although `moveit_controller_manager::MoveItControllerHandle` is not a plugin, it can be loaded dynamically via the
 
 
 # Plan Execution
